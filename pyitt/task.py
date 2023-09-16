@@ -75,7 +75,7 @@ class _Task:
 
     def __str__(self) -> str:
         return (f"{{ name: '{str(self._name)}', domain: '{str(self._domain)}',"
-                f" id: {str(self._id)}, parent_id: {str(self._parent_id)}")
+                f" id: {str(self._id)}, parent_id: {str(self._parent_id)} }}")
 
     def __repr__(self) -> str:
         return (f'{self.__class__.__name__}({repr(self._name)}, {repr(self._domain)},'

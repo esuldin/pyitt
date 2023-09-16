@@ -176,7 +176,7 @@ static void id_dealloc(PyObject* self)
 
 static PyObject* id_repr(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    if (self == nullptr || Py_TYPE(self) != &IdType)
     {
         PyErr_SetString(PyExc_TypeError, "The passed id is not a valid instance of Id type.");
         return nullptr;
@@ -190,7 +190,7 @@ static PyObject* id_repr(PyObject* self)
 
 static PyObject* id_str(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    if (self == nullptr || Py_TYPE(self) != &IdType)
     {
         PyErr_SetString(PyExc_TypeError, "The passed id is not a valid instance of Id type.");
         return nullptr;
