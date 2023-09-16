@@ -1,0 +1,6 @@
+*.pyc
+build
+dist
+pyitt.egg-info
+venv
+__pycache__
