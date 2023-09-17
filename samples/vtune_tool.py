@@ -30,7 +30,7 @@ class VTuneTool:
         self._tool_path = path.join(self.path, 'bin64', 'vtune.exe' if platform == 'win32' else 'vtune')
 
     def run_hotspot_collection(self, app_args, additional_collection_args=None):
-        collection_args = [self._tool_path, '-collect', 'hotspots']
+        collection_args = [self._tool_path, '-collect', 'hotspots', '-knob', 'enable-characterization-insights=false']
 
         if isinstance(additional_collection_args, list):
             collection_args.extend(additional_collection_args)
