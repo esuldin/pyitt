@@ -20,9 +20,9 @@ static int exec_pyitt_module(PyObject* module)
     static PyMethodDef pyitt_functions[] =
     {
         /* Collection Control API */
-        {"pause",                 pause,                 METH_VARARGS, "Pause data collection."},
-        {"resume",                resume,                METH_VARARGS, "Resume data collection."},
-        {"detach",                detach,                METH_VARARGS, "Detach data collection."},
+        {"pause",                 pause,                 METH_NOARGS,  "Pause data collection."},
+        {"resume",                resume,                METH_NOARGS,  "Resume data collection."},
+        {"detach",                detach,                METH_NOARGS,  "Detach data collection."},
         /* Task API */
         {"task_begin",            task_begin,            METH_VARARGS, "Marks the beginning of a task."},
         {"task_end",              task_end,              METH_VARARGS, "Marks the end of a task."},

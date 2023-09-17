@@ -6,7 +6,7 @@
 namespace pyitt
 {
 
-PyObject* pause(PyObject* self, PyObject* args)
+PyObject* pause(PyObject* self, PyObject* Py_UNUSED(args))
 {
     Py_BEGIN_ALLOW_THREADS;
     __itt_pause();
@@ -14,7 +14,7 @@ PyObject* pause(PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-PyObject* resume(PyObject* self, PyObject* args)
+PyObject* resume(PyObject* self, PyObject* Py_UNUSED(args))
 {
     Py_BEGIN_ALLOW_THREADS;
     __itt_resume();
@@ -22,7 +22,7 @@ PyObject* resume(PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-PyObject* detach(PyObject* self, PyObject* args)
+PyObject* detach(PyObject* self, PyObject* Py_UNUSED(args))
 {
     Py_BEGIN_ALLOW_THREADS;
     __itt_detach();
