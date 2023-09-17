@@ -1,3 +1,5 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)
+![PyPI](https://badge.fury.io/py/pyitt.svg)
 
 # pyitt
 
