@@ -211,6 +211,7 @@
     <ClCompile Include="..\pyitt.native\python-extensions.cpp" />
     <ClCompile Include="..\pyitt.native\string_handle.cpp" />
     <ClCompile Include="..\pyitt.native\task.cpp" />
+    <ClCompile Include="..\pyitt.native\thread_naming.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pyitt.native\collection_control.hpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="..\pyitt.native\string-utilities.hpp" />
     <ClInclude Include="..\pyitt.native\string_handle.hpp" />
     <ClInclude Include="..\pyitt.native\task.hpp" />
+    <ClInclude Include="..\pyitt.native\thread_naming.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,6 +6,7 @@
 #include "id.hpp"
 #include "string_handle.hpp"
 #include "task.hpp"
+#include "thread_naming.hpp"
 
 
 namespace pyitt
@@ -23,6 +24,8 @@ static int exec_pyitt_module(PyObject* module)
         {"pause",                 pause,                 METH_NOARGS,  "Pause data collection."},
         {"resume",                resume,                METH_NOARGS,  "Resume data collection."},
         {"detach",                detach,                METH_NOARGS,  "Detach data collection."},
+        /* Thread Naming API */
+        {"thread_set_name",       thread_set_name,       METH_O,       "Sets a name for current thread."},
         /* Task API */
         {"task_begin",            task_begin,            METH_VARARGS, "Marks the beginning of a task."},
         {"task_end",              task_end,              METH_VARARGS, "Marks the end of a task."},

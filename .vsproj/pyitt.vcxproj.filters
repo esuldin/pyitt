@@ -36,6 +36,9 @@
     <ClCompile Include="..\pyitt.native\python-extensions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\pyitt.native\thread_naming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pyitt.native\collection_control.hpp">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\pyitt.native\task.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pyitt.native\thread_naming.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

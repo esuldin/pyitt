@@ -5,3 +5,4 @@ from .domain import domain
 from .id import id
 from .string_handle import string_handle
 from .task import NestedTask, OverlappedTask, task, nested_task, overlapped_task
+from .thread_naming import thread_set_name

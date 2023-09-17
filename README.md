@@ -11,6 +11,7 @@ pyitt supports following ITT APIs:
  - String Handle API
  - Id API *(partial support)*
  - Task API *(partial support)*
+ - Thread Naming API
 
 ## Usage
 

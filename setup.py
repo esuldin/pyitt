@@ -37,6 +37,7 @@ pyitt_native_sources = ['pyitt.native/python-extensions.cpp',
                         'pyitt.native/id.cpp',
                         'pyitt.native/string_handle.cpp',
                         'pyitt.native/task.cpp',
+                        'pyitt.native/thread_naming.cpp',
                         'pyitt.native/pyitt.cpp',]
 pyitt_native_include_dirs = [os.path.join(vtune_dir, 'include')]
 pyitt_native_library_dirs = [os.path.join(vtune_dir, 'lib64' if is_64_architecture else 'lib32')]
