@@ -4,6 +4,11 @@ import sys
 from setuptools import setup, Extension
 
 vtune_dir = os.environ.get('VTUNE_PROFILER_DIR', None)
+oneapi_dir = os.environ.get('ONEAPI_ROOT', None)
+
+if vtune_dir is None and oneapi_dir:
+    vtune_dir = os.path.join(oneapi_dir, 'vtune', 'latest')
+
 if vtune_dir is None:
     if sys.platform == 'win32':
         default_path = 'C:\\Program Files (x86)\\Intel\\oneAPI\\vtune\\latest'
