@@ -2,9 +2,7 @@
 
 #include <structmember.h>
 
-#include <format>
-
-#include "string-utilities.hpp"
+#include "extensions/string.hpp"
 
 
 namespace pyitt
@@ -18,9 +16,6 @@ PyObject* domain_cast(Domain* self)
 {
     return reinterpret_cast<PyObject*>(self);
 }
-
-#define PYITT_DOMAIN_TYPE_NAME "pyitt.native.Domain"
-#define PYITT_DOMAIN_TYPE_DOCSTRING "A class that represents a ITT domain."
 
 static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void domain_dealloc(PyObject* self);
@@ -37,7 +32,7 @@ static PyMemberDef domain_attrs[] =
 PyTypeObject DomainType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = PYITT_DOMAIN_TYPE_NAME,
+    .tp_name              = "pyitt.native.Domain",
     .tp_basicsize         = sizeof(Domain),
     .tp_itemsize          = 0,
 
@@ -68,7 +63,7 @@ PyTypeObject DomainType =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = PYITT_DOMAIN_TYPE_DOCSTRING,
+    .tp_doc               = "A class that represents a ITT domain.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
@@ -155,25 +150,17 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
         return nullptr;
     }
 
+    pyext::string name_str = pyext::string::from_unicode(self->name);
+    if (name_str.c_str() == nullptr)
+    {
+        Py_DecRef(domain_cast<PyObject>(self));
+        return nullptr;
+    }
+
 #if defined(_WIN32)
-    wchar_t* name_wstr = PyUnicode_AsWideCharString(self->name, nullptr);
-    if (name_wstr == nullptr)
-    {
-        Py_DecRef(domain_cast<PyObject>(self));
-        return nullptr;
-    }
-
-    self->handle = __itt_domain_createW(name_wstr);
-    PyMem_Free(name_wstr);
+    self->handle = __itt_domain_createW(name_str.c_str());
 #else
-    const char* name_str = PyUnicode_AsUTF8(self->name);
-    if (name_str == nullptr)
-    {
-        Py_DecRef(domain_cast<PyObject>(self));
-        return nullptr;
-    }
-
-    self->handle = __itt_domain_create(name_str);
+    self->handle = __itt_domain_create(name_str.c_str());
 #endif
 
     return domain_cast<PyObject>(self);
@@ -205,17 +192,7 @@ static PyObject* domain_repr(PyObject* self)
         return nullptr;
     }
 
-    Py_ssize_t name_size = 0;
-    wchar_t* name = PyUnicode_AsWideCharString(obj->name, &name_size);
-    if (name == nullptr)
-    {
-        return nullptr;
-    }
-
-    std::wstring repr = std::format(L"{}('{}')", PYITT_WSTR(PYITT_DOMAIN_TYPE_NAME), name);
-    PyMem_Free(name);
-
-    return PyUnicode_FromWideChar(repr.c_str(), repr.size());
+    return PyUnicode_FromFormat("%s('%U')", DomainType.tp_name, obj->name);
 }
 
 static PyObject* domain_str(PyObject* self)

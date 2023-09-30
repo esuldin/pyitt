@@ -2,10 +2,8 @@
 
 #include <structmember.h>
 
-#include <format>
-
 #include "domain.hpp"
-#include "string-utilities.hpp"
+#include "extensions/string.hpp"
 
 
 namespace pyitt
@@ -20,10 +18,7 @@ PyObject* id_cast(Id* self)
     return reinterpret_cast<PyObject*>(self);
 }
 
-#define PYITT_ID_TYPE_NAME "pyitt.native.Id"
-#define PYITT_ID_TYPE_DOCSTRING "A class that represents a ITT id."
-
-static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
+ static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void id_dealloc(PyObject* self);
 
 static PyObject* id_repr(PyObject* self);
@@ -38,7 +33,7 @@ static PyMemberDef id_attrs[] =
 PyTypeObject IdType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = PYITT_ID_TYPE_NAME,
+    .tp_name              = "pyitt.native.Id",
     .tp_basicsize         = sizeof(Id),
     .tp_itemsize          = 0,
 
@@ -69,7 +64,7 @@ PyTypeObject IdType =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = PYITT_ID_TYPE_DOCSTRING,
+    .tp_doc               = "A class that represents a ITT id.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
@@ -183,9 +178,7 @@ static PyObject* id_repr(PyObject* self)
     }
 
     Id* obj = id_obj(self);
-    std::wstring repr = std::format(L"{}({}, {})", PYITT_WSTR(PYITT_ID_TYPE_NAME), obj->id.d1, obj->id.d2);
-
-    return PyUnicode_FromWideChar(repr.c_str(), repr.size());
+    return PyUnicode_FromFormat("%s(%llu, %llu)", IdType.tp_name, obj->id.d1, obj->id.d2);
 }
 
 static PyObject* id_str(PyObject* self)
@@ -197,9 +190,7 @@ static PyObject* id_str(PyObject* self)
     }
 
     Id* obj = id_obj(self);
-    std::string repr = std::format("({}, {})", obj->id.d1, obj->id.d2);
-
-    return PyUnicode_FromStringAndSize(repr.c_str(), repr.size());
+    return PyUnicode_FromFormat("(%llu, %llu)", obj->id.d1, obj->id.d2);
 }
 
 int exec_id(PyObject* module)

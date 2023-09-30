@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\extensions">
+      <UniqueIdentifier>{bcc69d8f-a1c8-4cca-8494-f367f6acd3d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\extensions">
+      <UniqueIdentifier>{48f11160-1917-4983-9e85-b48b94ab1a05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\pyitt.native\collection_control.cpp">
@@ -33,11 +39,14 @@
     <ClCompile Include="..\pyitt.native\task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\pyitt.native\python-extensions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\pyitt.native\thread_naming.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pyitt.native\extensions\python.cpp">
+      <Filter>Source Files\extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pyitt.native\extensions\string.cpp">
+      <Filter>Source Files\extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -50,12 +59,6 @@
     <ClInclude Include="..\pyitt.native\id.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\pyitt.native\python-extensions.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\pyitt.native\string-utilities.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\pyitt.native\string_handle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -64,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="..\pyitt.native\thread_naming.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pyitt.native\extensions\python.hpp">
+      <Filter>Header Files\extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pyitt.native\extensions\string.hpp">
+      <Filter>Header Files\extensions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -206,9 +206,10 @@
   <ItemGroup>
     <ClCompile Include="..\pyitt.native\collection_control.cpp" />
     <ClCompile Include="..\pyitt.native\domain.cpp" />
+    <ClCompile Include="..\pyitt.native\extensions\python.cpp" />
+    <ClCompile Include="..\pyitt.native\extensions\string.cpp" />
     <ClCompile Include="..\pyitt.native\id.cpp" />
     <ClCompile Include="..\pyitt.native\pyitt.cpp" />
-    <ClCompile Include="..\pyitt.native\python-extensions.cpp" />
     <ClCompile Include="..\pyitt.native\string_handle.cpp" />
     <ClCompile Include="..\pyitt.native\task.cpp" />
     <ClCompile Include="..\pyitt.native\thread_naming.cpp" />
@@ -216,9 +217,9 @@
   <ItemGroup>
     <ClInclude Include="..\pyitt.native\collection_control.hpp" />
     <ClInclude Include="..\pyitt.native\domain.hpp" />
+    <ClInclude Include="..\pyitt.native\extensions\python.hpp" />
+    <ClInclude Include="..\pyitt.native\extensions\string.hpp" />
     <ClInclude Include="..\pyitt.native\id.hpp" />
-    <ClInclude Include="..\pyitt.native\python-extensions.hpp" />
-    <ClInclude Include="..\pyitt.native\string-utilities.hpp" />
     <ClInclude Include="..\pyitt.native\string_handle.hpp" />
     <ClInclude Include="..\pyitt.native\task.hpp" />
     <ClInclude Include="..\pyitt.native\thread_naming.hpp" />

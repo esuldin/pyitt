@@ -44,7 +44,8 @@ else:
     itt_extra_objects = []
 
 pyitt_license_files = ['LICENSE']
-pyitt_native_sources = ['pyitt.native/python-extensions.cpp',
+pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
+                        'pyitt.native/extensions/string.cpp',
                         'pyitt.native/collection_control.cpp',
                         'pyitt.native/domain.cpp',
                         'pyitt.native/id.cpp',

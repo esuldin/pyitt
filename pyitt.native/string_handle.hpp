@@ -5,7 +5,7 @@
 
 #include <ittnotify.h>
 
-#include "python-extensions.hpp"
+#include "extensions/python.hpp"
 
 
 namespace pyitt

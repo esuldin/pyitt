@@ -2,9 +2,7 @@
 
 #include <structmember.h>
 
-#include <format>
-
-#include "string-utilities.hpp"
+#include "extensions/string.hpp"
 
 
 namespace pyitt
@@ -18,9 +16,6 @@ PyObject* string_handle_cast(StringHandle* self)
 {
     return reinterpret_cast<PyObject*>(self);
 }
-
-#define PYITT_STRING_HANDLE_TYPE_NAME "pyitt.native.StringHandle"
-#define PYITT_STRING_HANDLE_TYPE_DOCSTRING "A class that represents a ITT string handle."
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void string_handle_dealloc(PyObject* self);
@@ -37,7 +32,7 @@ static PyMemberDef string_handle_attrs[] =
 PyTypeObject StringHandleType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = PYITT_STRING_HANDLE_TYPE_NAME,
+    .tp_name              = "pyitt.native.StringHandle",
     .tp_basicsize         = sizeof(StringHandle),
     .tp_itemsize          = 0,
 
@@ -68,7 +63,7 @@ PyTypeObject StringHandleType =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = PYITT_STRING_HANDLE_TYPE_DOCSTRING,
+    .tp_doc               = "A class that represents a ITT string handle.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
@@ -153,25 +148,17 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
         return nullptr;
     }
 
+    pyext::string str_wrapper = pyext::string::from_unicode(self->str);
+    if (str_wrapper.c_str() == nullptr)
+    {
+        Py_DecRef(string_handle_cast<PyObject>(self));
+        return nullptr;
+    }
+
 #if defined(_WIN32)
-    wchar_t* wstr = PyUnicode_AsWideCharString(self->str, nullptr);
-    if (wstr == nullptr)
-    {
-        Py_DecRef(string_handle_cast<PyObject>(self));
-        return nullptr;
-    }
-
-    self->handle = __itt_string_handle_createW(wstr);
-    PyMem_Free(wstr);
+    self->handle = __itt_string_handle_createW(str_wrapper.c_str());
 #else
-    const char* cstr = PyUnicode_AsUTF8(self->str);
-    if (cstr == nullptr)
-    {
-        Py_DecRef(string_handle_cast<PyObject>(self));
-        return nullptr;
-    }
-
-    self->handle = __itt_string_handle_create(cstr);
+    self->handle = __itt_string_handle_create(str_wrapper.c_str());
 #endif
 
     return string_handle_cast<PyObject>(self);
@@ -197,18 +184,13 @@ static PyObject* string_handle_repr(PyObject* self)
     }
 
     StringHandle* obj = string_handle_obj(self);
-
-    Py_ssize_t str_size = 0;
-    wchar_t* str = PyUnicode_AsWideCharString(obj->str, &str_size);
-    if (str == nullptr)
+    if (obj->str == nullptr)
     {
+        PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
         return nullptr;
     }
 
-    std::wstring repr = std::format(L"{}('{}')", PYITT_WSTR(PYITT_STRING_HANDLE_TYPE_NAME), str);
-    PyMem_Free(str);
-
-    return PyUnicode_FromWideChar(repr.c_str(), repr.size());
+    return PyUnicode_FromFormat("%s('%U')", StringHandleType.tp_name, obj->str);
 }
 
 static PyObject* string_handle_str(PyObject* self)
