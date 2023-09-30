@@ -5,3 +5,4 @@ include pyproject.toml
 include setup.py
 recursive-include pyitt *.py
 recursive-include pyitt.native *.cpp *.hpp
+recursive-include ittapi *

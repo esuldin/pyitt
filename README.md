@@ -72,23 +72,17 @@ standard, for example GCC-13 for Linux and Visual Studio 2022 for Windows.
        sudo apt update
        sudo apt install gcc-13 g++-13 python3-pip
 
-2. Get ITT headers and static library:
+2. Clone the repository:
 
-    *Option 1:* Download and install [Intel VTune for Linux](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler-download.html?operatingsystem=linux).
+       git clone --recurse-submodules https://github.com/esuldin/pyitt.git
 
-    *Option 2:* Build Intel ITT from [source](https://github.com/intel/ittapi).
-
-3. Clone the repository:
-
-       git clone https://github.com/esuldin/pyitt.git
-
-4. Prepare the build environment: specify the compiler and the path to ITT header and static library.
+3. Prepare the build environment: specify the compiler and the path to ITT header and static library.
 
        export CC=`which gcc-13`
        export CXX=`which g++-13`
        export VTUNE_PROFILER_DIR=/opt/intel/oneapi/vtune/latest
 
-5. Build and install pyitt:
+4. Build and install pyitt:
 
        cd pyitt
        pip install .
@@ -100,22 +94,16 @@ standard, for example GCC-13 for Linux and Visual Studio 2022 for Windows.
 2. Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
      Make sure that "Desktop development with C++" workload is selected.
 
-3. Get ITT headers and static library:
+3. Clone the repository
 
-    *Option 1:* Download and install [Intel VTune for Windows](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler-download.html?operatingsystem=window).
+       git clone --recurse-submodules https://github.com/esuldin/pyitt.git
 
-    *Option 2:* Build Intel ITT from [source](https://github.com/intel/ittapi).
-
-4. Clone the repository
-
-       git clone https://github.com/esuldin/pyitt.git
-
-5. Prepare the build environment: specify the paths to Python and to ITT header and static library.
+4. Prepare the build environment: specify the paths to Python and to ITT header and static library.
 
        set PATH=C:\Program Files\Python38;C:\Program Files\Python38\Scripts;%PATH%
        set VTUNE_PROFILER_DIR=C:\Program Files (x86)\Intel\oneAPI\vtune\latest
 
-6. Build and install pyitt
+5. Build and install pyitt
 
        cd pyitt
        pip install .

@@ -1,0 +1,4 @@
+[submodule "ittapi"]
+	path = ittapi
+	url = https://github.com/intel/ittapi/
+	branch = master
