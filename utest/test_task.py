@@ -291,7 +291,7 @@ class TaskExecutionTests(TestCase):
         with self.assertRaises(ValueError) as context:
             my_function()
 
-        self.assertEqual(exception_msg, str(context.exception))
+        self.assertEqual(str(context.exception), exception_msg)
 
         task_begin_mock.assert_called_once_with(domain_mock.return_value, string_handle_mock.return_value,
                                                 id_mock.return_value, None)
@@ -320,7 +320,7 @@ class TaskExecutionTests(TestCase):
         with self.assertRaises(ValueError) as context:
             MyClass().my_method()
 
-        self.assertEqual(exception_msg, str(context.exception))
+        self.assertEqual(str(context.exception), exception_msg)
 
         task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_method.__qualname__}',
                                                 id_mock.return_value, None)
