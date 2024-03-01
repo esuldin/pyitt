@@ -267,6 +267,65 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin')
+    @pyitt_native_patch('task_end')
+    def test_task_for_function_raised_exception(self, domain_mock, id_mock, string_handle_mock,
+                                                task_begin_mock, task_end_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.return_value = 'string_handle'
+        id_mock.return_value = 'id_handle'
+
+        exception_msg = 'ValueError exception from my_function'
+
+        @pyitt.task
+        def my_function():
+            raise ValueError(exception_msg)
+
+        domain_mock.assert_called_once_with(None)
+        string_handle_mock.assert_called_once_with(my_function.__qualname__)
+        id_mock.assert_called_once_with(domain_mock.return_value)
+
+        with self.assertRaises(ValueError) as context:
+            my_function()
+
+        self.assertEqual(exception_msg, str(context.exception))
+
+        task_begin_mock.assert_called_once_with(domain_mock.return_value, string_handle_mock.return_value,
+                                                id_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin')
+    @pyitt_native_patch('task_end')
+    def test_task_for_method_raised_exception(self, domain_mock, id_mock, string_handle_mock,
+                                              task_begin_mock, task_end_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 'id_handle'
+
+        exception_msg = 'ValueError exception from my_method'
+
+        class MyClass:
+            @pyitt.task
+            def my_method(self):
+                raise ValueError(exception_msg)
+
+        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+
+        with self.assertRaises(ValueError) as context:
+            MyClass().my_method()
+
+        self.assertEqual(exception_msg, str(context.exception))
+
+        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_method.__qualname__}',
+                                                id_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_mock.return_value)
+
 
 if __name__ == '__main__':
     unittest_main()  # pragma: no cover

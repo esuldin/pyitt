@@ -76,8 +76,12 @@ class _Region:
             :return: result of a call of the callable object
             """
             self.begin()
-            func_result = func(*args, **kwargs)
-            self.end()
+
+            try:
+                func_result = func(*args, **kwargs)
+            finally:
+                self.end()
+
             return func_result
 
         def _method_wrapper(*args, **kwargs):
@@ -88,8 +92,12 @@ class _Region:
             :return: result of a call of the class method
             """
             self.begin()
-            func_result = func(obj, *args, **kwargs)
-            self.end()
+
+            try:
+                func_result = func(obj, *args, **kwargs)
+            finally:
+                self.end()
+
             return func_result
 
         return _function_wrapper if obj is None else _method_wrapper
