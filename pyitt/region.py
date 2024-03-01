@@ -65,6 +65,12 @@ class _Region:
         return _wraps(self._function)(self._get_wrapper(self._function))
 
     def _get_wrapper(self, func, obj=None):
+        """
+        Returns a pure wrapper for a callable object.
+        :param func: the callable object to wrap
+        :param obj: an object to which the callable object is bound
+        :return: the wrapper to trace the execution of the callable object
+        """
         if not callable(func):
             raise TypeError('Callable object is expected to be passed.')
 
