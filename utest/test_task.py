@@ -195,7 +195,6 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @skip
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
@@ -217,6 +216,54 @@ class TaskExecutionTests(TestCase):
         self.assertEqual(my_object.my_method(), 42)
 
         task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_method.__qualname__}',
+                                                id_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin')
+    @pyitt_native_patch('task_end')
+    def test_task_for_class_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 'id_handle'
+
+        class MyClass:
+            @classmethod
+            @pyitt.task
+            def my_class_method(cls):
+                return 42
+
+        string_handle_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
+
+        self.assertEqual(MyClass.my_class_method(), 42)
+
+        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_class_method.__qualname__}',
+                                                id_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin')
+    @pyitt_native_patch('task_end')
+    def test_task_for_static_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 'id_handle'
+
+        class MyClass:
+            @staticmethod
+            @pyitt.task
+            def my_static_method():
+                return 42
+
+        string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+
+        self.assertEqual(MyClass.my_static_method(), 42)
+
+        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_static_method.__qualname__}',
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 

@@ -21,12 +21,15 @@ class _Region:
         self._function = func
         if self._function is None:
             self._call_target = self._wrap
-        elif callable(func):
-            self._call_target = self._wrapper
-            _wraps(func, updated=())(self)
+        elif callable(self._function):
+            self._call_target = self._get_wrapper(self._function)
+            _wraps(self._function, updated=())(self)
         else:
-            raise TypeError('func must be a callable object.')
+            raise TypeError('func must be a callable object or None.')
         self._wrap_callback_function = wrap_callback
+
+    def __get__(self, obj, objtype):
+        return _wraps(self)(self._get_wrapper(self._function, obj))
 
     def __enter__(self) -> None:
         self.begin()
@@ -57,18 +60,36 @@ class _Region:
             raise TypeError('Callable object is expected as a first argument.')
 
         if callable(self._wrap_callback_function):
-            self._wrap_callback_function(func)
+            self._wrap_callback_function(self._function)
 
-        return _wraps(self._function)(_partial(_Region._wrapper, self))
+        return _wraps(self._function)(self._get_wrapper(self._function))
 
-    def _wrapper(self, *args, **kwargs):
-        """
-        A wrapper to trace the execution of a callable object
-        :param args: positional arguments of the callable object
-        :param kwargs: keyword arguments of the callable object
-        :return: result of a call of the callable object
-        """
-        self.begin()
-        func_result = self._function(*args, **kwargs)
-        self.end()
-        return func_result
+    def _get_wrapper(self, func, obj=None):
+        if not callable(func):
+            raise TypeError('Callable object is expected to be passed.')
+
+        def _function_wrapper(*args, **kwargs):
+            """
+            A wrapper to trace the execution of a callable object
+            :param args: positional arguments of the callable object
+            :param kwargs: keyword arguments of the callable object
+            :return: result of a call of the callable object
+            """
+            self.begin()
+            func_result = func(*args, **kwargs)
+            self.end()
+            return func_result
+
+        def _method_wrapper(*args, **kwargs):
+            """
+            A wrapper to trace the execution of a class method
+            :param args: positional arguments of the class method
+            :param kwargs: keyword arguments of the class method
+            :return: result of a call of the class method
+            """
+            self.begin()
+            func_result = func(obj, *args, **kwargs)
+            self.end()
+            return func_result
+
+        return _function_wrapper if obj is None else _method_wrapper
