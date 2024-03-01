@@ -195,6 +195,12 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
+    def test_task_for_noncallable_object(self):
+        with self.assertRaises(TypeError) as context:
+            pyitt.task()(42)
+
+        self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
+
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
@@ -266,6 +272,21 @@ class TaskExecutionTests(TestCase):
         task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_static_method.__qualname__}',
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+    def test_task_for_static_method_with_wrond_order_of_decorators(self):
+        # @staticmethod and @classmethod decorators return descriptors and the descriptors are not callable objects,
+        # therefore, they cannot be traced. @staticmethod and @classmethod have to be always above pyitt decorators,
+        # otherwise, the exception is thrown
+        class MyClass:
+            @pyitt.task
+            @staticmethod
+            def my_static_method():
+                return 42
+
+        with self.assertRaises(TypeError) as context:
+            MyClass().my_static_method()
+
+        self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
