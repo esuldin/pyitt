@@ -8,6 +8,9 @@ class PyittNativeMock(_ModuleType):
     def __init__(self):
         super(PyittNativeMock, self).__init__(PYITT_NATIVE_MODULE_NAME)
         self.attrs = {
+            'detach': _MagicMock(),
+            'pause': _MagicMock(),
+            'resume': _MagicMock(),
             'task_begin': _MagicMock(),
             'task_end': _MagicMock(),
             'task_begin_overlapped': _MagicMock(),
