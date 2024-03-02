@@ -25,7 +25,7 @@ static PyObject* string_handle_str(PyObject* self);
 
 static PyMemberDef string_handle_attrs[] =
 {
-    {"str",  T_OBJECT, offsetof(StringHandle, str), READONLY, "a string for which the handle has been created"},
+    {"_str",  T_OBJECT, offsetof(StringHandle, str), READONLY, "a string for which the handle has been created"},
     {nullptr},
 };
 

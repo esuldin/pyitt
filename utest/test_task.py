@@ -10,11 +10,23 @@ import pyitt
 class TaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
+    @pyitt_native_patch('Id')
+    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock, id_mock):
+        domain_mock.return_value = 'pyitt'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 1
+
         task = pyitt.task()
         caller = stack()[0]
-        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
+        expected_name = f'{basename(caller.filename)}:{caller.lineno-1}'
+
+        string_handle_mock.assert_called_once_with(expected_name)
         domain_mock.assert_called_once_with(None)
+
+        self.assertEqual(task.name(), expected_name)
+        self.assertEqual(task.domain(), domain_mock.return_value)
+        self.assertEqual(task.id(), id_mock.return_value)
+        self.assertIsNone(task.parent_id())
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_for_function(self, string_handle_mock):
@@ -78,14 +90,27 @@ class TaskCreationTests(TestCase):
         string_handle_mock.assert_called_once_with('my task')
         domain_mock.assert_called_once_with('my domain')
 
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_for_callable_object(self, string_handle_mock):
+    def test_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
+        domain_mock.return_value = 'domain'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 1
+
         class CallableClass:
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        pyitt.task(CallableClass())
-        string_handle_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
+        task = pyitt.task(CallableClass())
+
+        expected_name = f'{CallableClass.__name__}.__call__'
+        string_handle_mock.assert_called_once_with(expected_name)
+
+        self.assertEqual(task.name(), expected_name)
+        self.assertEqual(task.domain(), domain_mock.return_value)
+        self.assertEqual(task.id(), id_mock.return_value)
+        self.assertIsNone(task.parent_id())
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_for_method(self, string_handle_mock):
@@ -95,6 +120,39 @@ class TaskCreationTests(TestCase):
                 pass  # pragma: no cover
 
         string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+
+
+class TaskPropertiesTest(TestCase):
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    def test_task_properties(self, domain_mock, id_mock, string_handle_mock):
+        domain_mock.side_effect = lambda x: x
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = lambda x: x
+
+        class CallableClass:
+            def __call__(self, *args, **kwargs):
+                pass  # pragma: no cover
+
+        domain_name = 'my domain'
+        task_id = 2
+        parent_id = 1
+        task = pyitt.task(CallableClass(), domain=domain_name, id=task_id, parent=parent_id)
+
+        expected_name = f'{CallableClass.__name__}.__call__'
+        string_handle_mock.assert_called_once_with(expected_name)
+
+        self.assertEqual(task.name(), expected_name)
+        self.assertEqual(task.domain(), domain_name)
+        self.assertEqual(task.id(), task_id)
+        self.assertEqual(task.parent_id(), parent_id)
+
+        self.assertEqual(str(task), f"{{ name: '{str(expected_name)}', domain: '{str(domain_name)}',"
+                                    f" id: {str(task_id)}, parent_id: {str(parent_id)} }}")
+
+        self.assertEqual(repr(task), f'{task.__class__.__name__}({repr(expected_name)}, {repr(domain_name)},'
+                                     f' {repr(task_id)}, {repr(parent_id)})')
 
 
 class TaskExecutionTests(TestCase):

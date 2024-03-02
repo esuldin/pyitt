@@ -68,7 +68,7 @@ class _Task(_Region):
 
     def name(self):
         """Return the name of the task."""
-        return self._name.str
+        return self._name
 
     def domain(self):
         """Returns the domain of the task."""
