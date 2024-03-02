@@ -10,6 +10,8 @@ class PyittNativeMock(_ModuleType):
         self.attrs = {
             'task_begin': _MagicMock(),
             'task_end': _MagicMock(),
+            'task_begin_overlapped': _MagicMock(),
+            'task_end_overlapped': _MagicMock(),
             'Domain': _MagicMock(),
             'Id': _MagicMock(),
             'StringHandle': _MagicMock(),

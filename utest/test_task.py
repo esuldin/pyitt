@@ -405,6 +405,55 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin_overlapped')
+    @pyitt_native_patch('task_end_overlapped')
+    def test_overlapped_tasks(self, domain_mock, id_mock, string_handle_mock,
+                                              task_begin_overlapped_mock, task_end_overlapped_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.side_effect = lambda x: x
+
+        id = 0
+
+        def id_generator(*args, **kwargs):
+            nonlocal id
+            id += 1
+            return id
+
+        id_mock.side_effect = id_generator
+
+        overlapped_task_1_name = 'overlapped task 1'
+        overlapped_task_2_name = 'overlapped task 2'
+
+        overlapped_task_1 = pyitt.task(overlapped_task_1_name, overlapped=True)
+        overlapped_task_1.begin()
+
+        overlapped_task_2 = pyitt.task(overlapped_task_2_name, overlapped=True)
+        overlapped_task_2.begin()
+
+        overlapped_task_1.end()
+        overlapped_task_2.end()
+
+        expected_calls = [
+            call(overlapped_task_1_name),
+            call(overlapped_task_2_name)
+        ]
+        string_handle_mock.assert_has_calls(expected_calls)
+
+        expected_calls = [
+            call(domain_mock.return_value, overlapped_task_1_name, 1, None),
+            call(domain_mock.return_value, overlapped_task_2_name, 2, None)
+        ]
+        task_begin_overlapped_mock.assert_has_calls(expected_calls)
+
+        expected_calls = [
+            call(domain_mock.return_value, 1),
+            call(domain_mock.return_value, 2)
+        ]
+        task_end_overlapped_mock.assert_has_calls(expected_calls)
+
 
 if __name__ == '__main__':
     unittest_main()  # pragma: no cover
