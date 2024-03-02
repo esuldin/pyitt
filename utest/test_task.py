@@ -332,14 +332,14 @@ class TaskExecutionTests(TestCase):
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
     def test_task_for_static_method_with_wrond_order_of_decorators(self):
-        # @staticmethod and @classmethod decorators return descriptors and the descriptors are not callable objects,
-        # therefore, they cannot be traced. @staticmethod and @classmethod have to be always above pyitt decorators,
-        # otherwise, the exception is thrown
+        # @staticmethod and @classmethod decorators return a descriptor and the descriptor is not callable object,
+        # therefore, it cannot be traced. @staticmethod and @classmethod have to be always above pyitt decorators,
+        # otherwise, the exception is thrown.
         class MyClass:
             @pyitt.task
             @staticmethod
             def my_static_method():
-                return 42
+                return 42  # pragma: no cover
 
         with self.assertRaises(TypeError) as context:
             MyClass().my_static_method()
