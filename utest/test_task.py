@@ -455,5 +455,25 @@ class TaskExecutionTests(TestCase):
         task_end_overlapped_mock.assert_has_calls(expected_calls)
 
 
+class NestedTaskCreationTests(TestCase):
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('StringHandle')
+    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
+        task = pyitt.nested_task()
+        caller = stack()[0]
+        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
+        domain_mock.assert_called_once_with(None)
+
+
+class OverlappedTaskCreationTests(TestCase):
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('StringHandle')
+    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
+        task = pyitt.overlapped_task()
+        caller = stack()[0]
+        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
+        domain_mock.assert_called_once_with(None)
+
+
 if __name__ == '__main__':
     unittest_main()  # pragma: no cover
