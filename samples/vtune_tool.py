@@ -48,9 +48,8 @@ class VTuneTool:
         else:
             raise TypeError('app_args argument must be a list or str')
 
-        return run(collection_args)
+        return run(collection_args, check=True)
 
 
 def run_vtune_hotspot_collection(app_args, additional_collection_args=None):
     return VTuneTool().run_hotspot_collection(app_args, additional_collection_args)
-

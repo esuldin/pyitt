@@ -1,5 +1,5 @@
 """
-test_task.py - Python module wrapper for ITT Task API
+task.py - Python module wrapper for ITT Task API
 """
 from functools import partial as _partial
 from inspect import stack as _stack
@@ -128,8 +128,8 @@ class _Task(_Region):
         """Returns task domain"""
         if original_domain is None or isinstance(original_domain, str):
             return _domain(original_domain)
-        else:
-            return original_domain
+
+        return original_domain
 
     @staticmethod
     def _get_task_id(original_id, domain):

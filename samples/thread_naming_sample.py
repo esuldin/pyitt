@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pyitt
 
+# pylint: disable=C0411
 from argparse import ArgumentParser
 from vtune_tool import run_vtune_hotspot_collection
 from workload import workload
@@ -17,10 +18,11 @@ def run_sample():
         run_workload()
 
     threads = [Thread(target=thread_func, args=(f'Thread for iteration {i}',)) for i in range(4)]
-    [thread.start() for thread in threads]
-    [thread.join() for thread in threads]
+    [thread.start() for thread in threads]  # pylint: disable=W0106
+    [thread.join() for thread in threads]  # pylint: disable=W0106
 
 
+# pylint: disable=R0801
 if __name__ == '__main__':
     parser = ArgumentParser(
         description='The sample that demonstrates the use of wrappers for the Thread Naming API.'

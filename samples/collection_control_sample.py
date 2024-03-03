@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pyitt
 
+# pylint: disable=C0411
 from argparse import ArgumentParser
 from vtune_tool import run_vtune_hotspot_collection
 from workload import workload
@@ -15,7 +16,7 @@ def run_sample():
     run_workload()
 
     for i in range(4):
-        with pyitt.active_region(activator=lambda: i % 2):
+        with pyitt.active_region(activator=lambda: i % 2):  # pylint: disable=W0640
             with pyitt.task(f'for loop iteration {i}'):
                 workload()
 
@@ -29,6 +30,7 @@ def run_sample():
             workload()
 
 
+# pylint: disable=R0801
 if __name__ == '__main__':
     parser = ArgumentParser(
         description='The sample that demonstrates the use of wrappers for the Collection Control API.'

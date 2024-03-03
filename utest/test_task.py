@@ -1,6 +1,6 @@
 from inspect import stack
 from os.path import basename
-from unittest import main as unittest_main, skip, TestCase
+from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
 from pyitt_native_mock import patch as pyitt_native_patch
@@ -415,12 +415,12 @@ class TaskExecutionTests(TestCase):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
 
-        id = 0
+        id_value = 0
 
-        def id_generator(*args, **kwargs):
-            nonlocal id
-            id += 1
-            return id
+        def id_generator(*args, **kwargs):  # pylint: disable=W0613
+            nonlocal id_value
+            id_value += 1
+            return id_value
 
         id_mock.side_effect = id_generator
 
@@ -459,7 +459,7 @@ class NestedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
-        task = pyitt.nested_task()
+        pyitt.nested_task()
         caller = stack()[0]
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
         domain_mock.assert_called_once_with(None)
@@ -469,7 +469,7 @@ class OverlappedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
-        task = pyitt.overlapped_task()
+        pyitt.overlapped_task()
         caller = stack()[0]
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
         domain_mock.assert_called_once_with(None)

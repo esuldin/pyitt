@@ -65,7 +65,7 @@ class ActiveRegionTests(TestCase):
     @pyitt_native_patch('resume')
     def test_active_region_with_custom_activator(self, pause_mock, resume_mock):
         for i in range(4):
-            with pyitt.active_region(activator=lambda: i % 2):
+            with pyitt.active_region(activator=lambda: i % 2):  # pylint: disable=W0640
                 pass
 
         self.assertEqual(resume_mock.call_count, 2)
@@ -127,7 +127,7 @@ class PausedRegionTests(TestCase):
     @pyitt_native_patch('resume')
     def test_paused_region_with_custom_activator(self, pause_mock, resume_mock):
         for i in range(4):
-            with pyitt.paused_region(activator=lambda: i % 2):
+            with pyitt.paused_region(activator=lambda: i % 2):  # pylint: disable=W0640
                 pass
 
         self.assertEqual(resume_mock.call_count, 2)

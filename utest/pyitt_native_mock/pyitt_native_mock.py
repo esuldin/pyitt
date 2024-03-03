@@ -6,7 +6,7 @@ PYITT_NATIVE_MODULE_NAME = 'pyitt.native'
 
 class PyittNativeMock(_ModuleType):
     def __init__(self):
-        super(PyittNativeMock, self).__init__(PYITT_NATIVE_MODULE_NAME)
+        super().__init__(PYITT_NATIVE_MODULE_NAME)
         self.attrs = {
             'detach': _MagicMock(),
             'pause': _MagicMock(),

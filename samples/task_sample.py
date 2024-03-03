@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pyitt
 
+# pylint: disable=C0411
 from argparse import ArgumentParser
 from vtune_tool import run_vtune_hotspot_collection
 from workload import workload
@@ -58,13 +59,14 @@ def run_sample():
 
     # example with callable object
     class CallableClass:
-        def __call__(self, *args, **kwargs):
+        def __call__(self, *args, **kwargs):  # pylint: disable=W0621
             workload()
 
     callable_object = pyitt.task(CallableClass())
     callable_object()
 
 
+# pylint: disable=R0801
 if __name__ == '__main__':
     parser = ArgumentParser(description='The sample that demonstrates the use of wrappers for the Task API.')
     parser.add_argument('--run-sample',
