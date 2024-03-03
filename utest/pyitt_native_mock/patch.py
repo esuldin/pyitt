@@ -1,6 +1,5 @@
-from functools import partial as _partial, wraps as _wraps, partialmethod as _partialmethod
+from functools import wraps as _wraps
 from sys import modules as _modules
-from unittest.mock import MagicMock as _MagicMock
 
 from .pyitt_native_mock import PYITT_NATIVE_MODULE_NAME
 

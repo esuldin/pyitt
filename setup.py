@@ -28,7 +28,7 @@ itt_dir = os.environ.get('PYITT_ITT_API_SOURCE_DIR', None)
 itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
 
 assert os.path.exists(itt_dir), 'The specified directory with ITT API source code does not exist.'
-assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)),\
+assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
     (f'The specified directory with ITT API source code ({itt_dir}) is empty.\n'
      f'Make sure that submodules are checked out as well using following command:\n'
      f'git submodule update --init --recursive')

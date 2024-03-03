@@ -411,7 +411,7 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('task_begin_overlapped')
     @pyitt_native_patch('task_end_overlapped')
     def test_overlapped_tasks(self, domain_mock, id_mock, string_handle_mock,
-                                              task_begin_overlapped_mock, task_end_overlapped_mock):
+                              task_begin_overlapped_mock, task_end_overlapped_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
 

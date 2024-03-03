@@ -1,7 +1,7 @@
 """
 region.py - Python module wrapper for code region
 """
-from functools import partial as _partial, wraps as _wraps
+from functools import wraps as _wraps
 
 
 class _Region:
