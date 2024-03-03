@@ -1,5 +1,6 @@
 from inspect import stack
 from os.path import basename
+from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
@@ -331,18 +332,77 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    def test_task_for_static_method_with_wrond_order_of_decorators(self):
-        # @staticmethod and @classmethod decorators return a descriptor and the descriptor is not callable object,
-        # therefore, it cannot be traced. @staticmethod and @classmethod have to be always above pyitt decorators,
-        # otherwise, the exception is thrown.
+        task_begin_mock.reset_mock()
+        task_end_mock.reset_mock()
+
+        self.assertEqual(MyClass().my_static_method(), 42)
+
+        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_static_method.__qualname__}',
+                                                id_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    @pyitt_native_patch('task_begin')
+    @pyitt_native_patch('task_end')
+    def test_task_for_static_method_with_wrond_order_of_decorators(self, domain_mock, id_mock, string_handle_mock,
+                                                                   task_begin_mock, task_end_mock):
+        domain_mock.return_value = 'domain_handle'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 'id_handle'
+
         class MyClass:
             @pyitt.task
             @staticmethod
             def my_static_method():
                 return 42  # pragma: no cover
 
+        if version_info >= (3, 10):
+            string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+
+            self.assertEqual(MyClass().my_static_method(), 42)
+
+            task_begin_mock.assert_called_once_with(domain_mock.return_value,
+                                                    f'{MyClass.my_static_method.__qualname__}',
+                                                    id_mock.return_value, None)
+            task_end_mock.assert_called_once_with(domain_mock.return_value)
+
+            task_begin_mock.reset_mock()
+            task_end_mock.reset_mock()
+
+            self.assertEqual(MyClass.my_static_method(), 42)
+
+            task_begin_mock.assert_called_once_with(domain_mock.return_value,
+                                                    f'{MyClass.my_static_method.__qualname__}',
+                                                    id_mock.return_value, None)
+            task_end_mock.assert_called_once_with(domain_mock.return_value)
+        else:
+            # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
+            # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
+            # older. otherwise, the exception is thrown.
+            with self.assertRaises(TypeError) as context:
+                MyClass().my_static_method()
+
+            self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
+
+    def test_task_for_class_method_with_wrond_order_of_decorators(self):
+        # @classmethod decorator returns a descriptor and the descriptor is not callable object,
+        # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
+        # otherwise, the exception is thrown.
+        class MyClass:
+            @pyitt.task
+            @classmethod
+            def my_class_method(cls):
+                return 42  # pragma: no cover
+
         with self.assertRaises(TypeError) as context:
-            MyClass().my_static_method()
+            MyClass().my_class_method()
+
+        self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
+
+        with self.assertRaises(TypeError) as context:
+            MyClass.my_class_method()
 
         self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 

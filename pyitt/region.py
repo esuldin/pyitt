@@ -106,4 +106,4 @@ class _Region:
 
             return func_result
 
-        return _function_wrapper if obj is None else _method_wrapper
+        return _function_wrapper if obj is None or isinstance(func, staticmethod) else _method_wrapper
