@@ -59,30 +59,28 @@ If the task name is not specified, the `pyitt.task` uses call site information (
 the name to the task. A custom name for the task and other task parameters can be specified via arguments
 for `pyitt.task` in the same way as for the decorator form.
 
+## Installation
+
+pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
+
+    pip install pyitt
+
 ## Build
 
 The native part of pyitt module is written using C++20 standard, therefore you need a compiler that supports this
-standard, for example GCC-13 for Linux and Visual Studio 2022 for Windows.
+standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 ### Ubuntu 22.04
 
 1. Install the compiler and Python utilities to build module:
 
-       sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-       sudo apt update
-       sudo apt install gcc-13 g++-13 python3-pip
+       sudo apt install gcc g++ python3-pip
 
 2. Clone the repository:
 
        git clone --recurse-submodules https://github.com/esuldin/pyitt.git
 
-3. Prepare the build environment: specify the compiler and the path to ITT header and static library.
-
-       export CC=`which gcc-13`
-       export CXX=`which g++-13`
-       export VTUNE_PROFILER_DIR=/opt/intel/oneapi/vtune/latest
-
-4. Build and install pyitt:
+3. Build and install pyitt:
 
        cd pyitt
        pip install .
@@ -98,12 +96,7 @@ standard, for example GCC-13 for Linux and Visual Studio 2022 for Windows.
 
        git clone --recurse-submodules https://github.com/esuldin/pyitt.git
 
-4. Prepare the build environment: specify the paths to Python and to ITT header and static library.
-
-       set PATH=C:\Program Files\Python38;C:\Program Files\Python38\Scripts;%PATH%
-       set VTUNE_PROFILER_DIR=C:\Program Files (x86)\Intel\oneAPI\vtune\latest
-
-5. Build and install pyitt
+4. Build and install pyitt
 
        cd pyitt
        pip install .
@@ -112,3 +105,4 @@ standard, for example GCC-13 for Linux and Visual Studio 2022 for Windows.
 
  - [Instrumentation and Tracing Technology APIs](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/instrumentation-and-tracing-technology-apis.html)
  - [Intel® VTune™ Profiler User Guide - Task Analysis](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/task-analysis.html)
+ - [Intel® Graphics Performance Analyzers User Guide - Instrumentation and Tracing Technology API Support](https://www.intel.com/content/www/us/en/docs/gpa/user-guide/2022-4/instrumentation-and-tracing-technology-apis.html)
