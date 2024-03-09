@@ -21,6 +21,7 @@ struct Domain
 extern PyTypeObject DomainType;
 
 inline Domain* domain_obj(PyObject* self);
+Domain* domain_check(PyObject* self);
 int exec_domain(PyObject* module);
 
 

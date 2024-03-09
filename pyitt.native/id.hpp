@@ -21,6 +21,7 @@ struct Id
 extern PyTypeObject IdType;
 
 inline Id* id_obj(PyObject* self);
+Id* id_check(PyObject* self);
 int exec_id(PyObject* module);
 
 

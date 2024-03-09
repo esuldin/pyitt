@@ -18,7 +18,7 @@ PyObject* id_cast(Id* self)
     return reinterpret_cast<PyObject*>(self);
 }
 
- static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
+static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void id_dealloc(PyObject* self);
 
 static PyObject* id_repr(PyObject* self);
@@ -137,18 +137,16 @@ static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
         return nullptr;
     }
 
-    if (Py_TYPE(domain) != &DomainType)
+    Domain* domain_obj = domain_check(domain);
+    if (domain_obj == nullptr)
     {
-        Py_DecRef(id_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
         return nullptr;
     }
 
     self->domain = pyext::new_ref(domain);
     self->id = __itt_id_make(self, 0);
 
-    __itt_id_create(domain_obj(self->domain)->handle, self->id);
+    __itt_id_create(domain_obj->handle, self->id);
 
     return id_cast<PyObject>(self);
 }
@@ -171,17 +169,27 @@ static void id_dealloc(PyObject* self)
 
 static PyObject* id_repr(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &IdType)
+    Id* obj = id_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed id is not a valid instance of Id type.");
         return nullptr;
     }
 
-    Id* obj = id_obj(self);
     return PyUnicode_FromFormat("%s(%llu, %llu)", IdType.tp_name, obj->id.d1, obj->id.d2);
 }
 
 static PyObject* id_str(PyObject* self)
+{
+    Id* obj = id_check(self);
+    if (obj == nullptr)
+    {
+        return nullptr;
+    }
+
+    return PyUnicode_FromFormat("(%llu, %llu)", obj->id.d1, obj->id.d2);
+}
+
+Id* id_check(PyObject* self)
 {
     if (self == nullptr || Py_TYPE(self) != &IdType)
     {
@@ -189,8 +197,7 @@ static PyObject* id_str(PyObject* self)
         return nullptr;
     }
 
-    Id* obj = id_obj(self);
-    return PyUnicode_FromFormat("(%llu, %llu)", obj->id.d1, obj->id.d2);
+    return id_obj(self);
 }
 
 int exec_id(PyObject* module)

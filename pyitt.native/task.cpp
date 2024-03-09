@@ -21,43 +21,43 @@ PyObject* task_begin(PyObject* self, PyObject* args)
         return nullptr;
     }
 
-    if (Py_TYPE(domain) != &DomainType)
+    Domain* domain_obj = domain_check(domain);
+    if (domain_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain object is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    if (Py_TYPE(name_string_handle) != &StringHandleType)
+    StringHandle* name_string_handle_obj = string_handle_check(name_string_handle);
+    if (name_string_handle_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed task name object is not a valid instance of StringHandle type.");
         return nullptr;
     }
 
     __itt_id id = __itt_null;
     if (task_id && task_id != Py_None)
     {
-        if (Py_TYPE(task_id) != &IdType)
+        Id* task_id_obj = id_check(task_id);
+        if (task_id_obj == nullptr)
         {
-            PyErr_SetString(PyExc_TypeError, "The passed task id object is not a valid instance of Id type.");
             return nullptr;
         }
 
-        id = id_obj(task_id)->id;
+        id = task_id_obj->id;
     }
 
     __itt_id p_id = __itt_null;
     if (parent_id && parent_id != Py_None)
     {
-        if (Py_TYPE(parent_id) != &IdType)
+        Id* parent_id_obj = id_check(parent_id);
+        if (parent_id_obj == nullptr)
         {
-            PyErr_SetString(PyExc_TypeError, "The passed parent id object is not a valid instance of Id type.");
             return nullptr;
         }
 
-        p_id = id_obj(parent_id)->id;
+        p_id = parent_id_obj->id;
     }
 
-    __itt_task_begin(domain_obj(domain)->handle, id, p_id, string_handle_obj(name_string_handle)->handle);
+    __itt_task_begin(domain_obj->handle, id, p_id, name_string_handle_obj->handle);
 
     Py_RETURN_NONE;
 }
@@ -72,13 +72,13 @@ PyObject* task_end(PyObject* self, PyObject* args)
         return nullptr;
     }
 
-    if (Py_TYPE(domain) != &DomainType)
+    Domain* domain_obj = domain_check(domain);
+    if (domain_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain object is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    __itt_task_end(domain_obj(domain)->handle);
+    __itt_task_end(domain_obj->handle);
 
     Py_RETURN_NONE;
 }
@@ -95,41 +95,40 @@ PyObject* task_begin_overlapped(PyObject* self, PyObject* args)
         return nullptr;
     }
 
-    if (Py_TYPE(domain) != &DomainType)
+    Domain* domain_obj = domain_check(domain);
+    if (domain_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain object is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    if (Py_TYPE(name_string_handle) != &StringHandleType)
+    StringHandle* name_string_handle_obj = string_handle_check(name_string_handle);
+    if (name_string_handle_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed task name object is not a valid instance of StringHandle type.");
         return nullptr;
     }
 
-
-    if (Py_TYPE(task_id) != &IdType)
+    Id* task_id_obj = id_check(task_id);
+    if (task_id_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed task id object is not a valid instance of Id type.");
         return nullptr;
     }
 
     __itt_id p_id = __itt_null;
     if (parent_id && parent_id != Py_None)
     {
-        if (Py_TYPE(parent_id) != &IdType)
+        Id* parent_id_obj = id_check(parent_id);
+        if (parent_id_obj == nullptr)
         {
-            PyErr_SetString(PyExc_TypeError, "The passed parent id object is not a valid instance of Id type.");
             return nullptr;
         }
 
-        p_id = id_obj(parent_id)->id;
+        p_id = parent_id_obj->id;
     }
 
-    __itt_task_begin_overlapped(domain_obj(domain)->handle,
-                                id_obj(task_id)->id,
+    __itt_task_begin_overlapped(domain_obj->handle,
+                                task_id_obj->id,
                                 p_id,
-                                string_handle_obj(name_string_handle)->handle);
+                                name_string_handle_obj->handle);
 
     Py_RETURN_NONE;
 }
@@ -145,19 +144,19 @@ PyObject* task_end_overlapped(PyObject* self, PyObject* args)
         return nullptr;
     }
 
-    if (Py_TYPE(domain) != &DomainType)
+    Domain* domain_obj = domain_check(domain);
+    if (domain_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain object is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    if (Py_TYPE(task_id) != &IdType)
+    Id* task_id_obj = id_check(task_id);
+    if (task_id_obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed task id object is not a valid instance of Id type.");
         return nullptr;
     }
 
-    __itt_task_end_overlapped(domain_obj(domain)->handle, id_obj(task_id)->id);
+    __itt_task_end_overlapped(domain_obj->handle, task_id_obj->id);
 
     Py_RETURN_NONE;
 }

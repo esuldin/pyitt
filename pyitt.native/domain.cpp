@@ -184,13 +184,12 @@ static void domain_dealloc(PyObject* self)
 
 static PyObject* domain_repr(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    Domain* obj = domain_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    Domain* obj = domain_obj(self);
     if (obj->name == nullptr)
     {
         PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
@@ -202,13 +201,12 @@ static PyObject* domain_repr(PyObject* self)
 
 static PyObject* domain_str(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    Domain* obj = domain_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    Domain* obj = domain_obj(self);
     if (obj->name == nullptr)
     {
         PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
@@ -216,6 +214,17 @@ static PyObject* domain_str(PyObject* self)
     }
 
     return pyext::new_ref(obj->name);
+}
+
+Domain* domain_check(PyObject* self)
+{
+    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    {
+        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
+        return nullptr;
+    }
+
+    return domain_obj(self);
 }
 
 int exec_domain(PyObject* module)

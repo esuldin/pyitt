@@ -21,6 +21,7 @@ struct StringHandle
 extern PyTypeObject StringHandleType;
 
 inline StringHandle* string_handle_obj(PyObject* self);
+StringHandle* string_handle_check(PyObject* self);
 int exec_string_handle(PyObject* module);
 
 

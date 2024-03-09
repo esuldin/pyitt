@@ -136,7 +136,7 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
         return nullptr;
     }
 
-    if (PyUnicode_Check(str))
+    if (str && PyUnicode_Check(str))
     {
         self->str = pyext::new_ref(str);
     }
@@ -177,13 +177,12 @@ static void string_handle_dealloc(PyObject* self)
 
 static PyObject* string_handle_repr(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &StringHandleType)
+    StringHandle* obj = string_handle_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
         return nullptr;
     }
 
-    StringHandle* obj = string_handle_obj(self);
     if (obj->str == nullptr)
     {
         PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
@@ -195,13 +194,12 @@ static PyObject* string_handle_repr(PyObject* self)
 
 static PyObject* string_handle_str(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &StringHandleType)
+    StringHandle* obj = string_handle_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
         return nullptr;
     }
 
-    StringHandle* obj = string_handle_obj(self);
     if (obj->str == nullptr)
     {
         PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
@@ -209,6 +207,17 @@ static PyObject* string_handle_str(PyObject* self)
     }
 
     return pyext::new_ref(obj->str);
+}
+
+StringHandle* string_handle_check(PyObject* self)
+{
+    if (self == nullptr || Py_TYPE(self) != &StringHandleType)
+    {
+        PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
+        return nullptr;
+    }
+
+    return string_handle_obj(self);
 }
 
 int exec_string_handle(PyObject* module)
