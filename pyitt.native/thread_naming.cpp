@@ -2,15 +2,21 @@
 
 #include <ittnotify.h>
 
+#include "string_handle.hpp"
+
 
 namespace pyitt
 {
 
 PyObject* thread_set_name(PyObject* self, PyObject* name)
 {
-    if (!PyUnicode_Check(name))
+    if (Py_TYPE(name) == &StringHandleType)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed thread name is not a valid instance of str.");
+        name = string_handle_obj(name)->str;
+    }
+    else if (!PyUnicode_Check(name))
+    {
+        PyErr_SetString(PyExc_TypeError, "The passed thread name is not a valid instance of str or StringHandle.");
         return nullptr;
     }
 

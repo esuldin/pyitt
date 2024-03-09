@@ -2,6 +2,7 @@
 
 #include <structmember.h>
 
+#include "string_handle.hpp"
 #include "extensions/string.hpp"
 
 
@@ -142,11 +143,15 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     {
         self->name = pyext::new_ref(name);
     }
+    else if (Py_TYPE(name) == &StringHandleType)
+    {
+        self->name = pyext::new_ref(string_handle_obj(name)->str);
+    }
     else
     {
         Py_DecRef(domain_cast<PyObject>(self));
 
-        PyErr_SetString(PyExc_TypeError, "The passed domain name is not a valid instance of str.");
+        PyErr_SetString(PyExc_TypeError, "The passed domain name is not a valid instance of str or StringHandle.");
         return nullptr;
     }
 
