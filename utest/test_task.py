@@ -113,6 +113,34 @@ class TaskCreationTests(TestCase):
         self.assertEqual(task.id(), id_mock.return_value)
         self.assertIsNone(task.parent_id())
 
+    @pyitt_native_patch('Domain')
+    @pyitt_native_patch('Id')
+    @pyitt_native_patch('StringHandle')
+    def test_unnamed_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
+        domain_mock.return_value = 'domain'
+        string_handle_mock.side_effect = lambda x: x
+        id_mock.return_value = 1
+
+        class CallableClass:
+            def __call__(self, *args, **kwargs):
+                pass  # pragma: no cover
+
+        caller = stack()[0]
+        task = pyitt.task()
+        task(CallableClass())
+
+        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_calls = [
+            call(f'{basename(caller.filename)}:{caller.lineno+1}'),
+            call(expected_name)
+        ]
+        string_handle_mock.assert_has_calls(expected_calls)
+
+        self.assertEqual(task.name(), expected_name)
+        self.assertEqual(task.domain(), domain_mock.return_value)
+        self.assertEqual(task.id(), id_mock.return_value)
+        self.assertIsNone(task.parent_id())
+
     @pyitt_native_patch('StringHandle')
     def test_task_creation_for_method(self, string_handle_mock):
         class MyClass:
