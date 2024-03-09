@@ -22,7 +22,7 @@ class _CollectionRegion(_Region):
         """
         super().__init__(func)
         self.activator = activator
-        self._is_paired_call_needed = False
+        self.__is_paired_call_needed = False
 
     def _begin(self):
         raise NotImplementedError()
@@ -34,17 +34,17 @@ class _CollectionRegion(_Region):
         """Marks the beginning of a collection region."""
         if callable(self.activator):
             activator_state = self.activator()
-            self._is_paired_call_needed = activator_state
+            self.__is_paired_call_needed = activator_state
 
             if activator_state:
                 self._begin()
         else:
-            self._is_paired_call_needed = True
+            self.__is_paired_call_needed = True
             self._begin()
 
     def end(self):
         """Marks the end of a collection region."""
-        if self._is_paired_call_needed:
+        if self.__is_paired_call_needed:
             self._end()
 
 
