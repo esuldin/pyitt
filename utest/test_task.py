@@ -282,6 +282,20 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
+    def test_task_for_multiple_callable_objects(self):
+        class CallableClass:
+            def __call__(self, *args, **kwargs):
+                pass
+
+        task = pyitt.task()
+        task(CallableClass())
+
+        with self.assertRaises(RuntimeError) as context:
+            task(CallableClass())
+
+        self.assertEqual(str(context.exception), 'A custom name for a code region must be specified before'
+                                                 ' _NamedRegion.__call__() can be called more than once.')
+
     def test_task_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:
             pyitt.task()(42)
