@@ -388,7 +388,7 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_static_method_with_wrond_order_of_decorators(self, domain_mock, id_mock, string_handle_mock,
+    def test_task_for_static_method_with_wrong_order_of_decorators(self, domain_mock, id_mock, string_handle_mock,
                                                                    task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -428,7 +428,7 @@ class TaskExecutionTests(TestCase):
 
             self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 
-    def test_task_for_class_method_with_wrond_order_of_decorators(self):
+    def test_task_for_class_method_with_wrong_order_of_decorators(self):
         # @classmethod decorator returns a descriptor and the descriptor is not callable object,
         # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
         # otherwise, the exception is thrown.
