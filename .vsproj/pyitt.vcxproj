@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClCompile Include="..\pyitt.native\collection_control.cpp" />
     <ClCompile Include="..\pyitt.native\domain.cpp" />
+    <ClCompile Include="..\pyitt.native\event.cpp" />
     <ClCompile Include="..\pyitt.native\extensions\python.cpp" />
     <ClCompile Include="..\pyitt.native\extensions\string.cpp" />
     <ClCompile Include="..\pyitt.native\id.cpp" />
@@ -217,6 +218,7 @@
   <ItemGroup>
     <ClInclude Include="..\pyitt.native\collection_control.hpp" />
     <ClInclude Include="..\pyitt.native\domain.hpp" />
+    <ClInclude Include="..\pyitt.native\event.hpp" />
     <ClInclude Include="..\pyitt.native\extensions\python.hpp" />
     <ClInclude Include="..\pyitt.native\extensions\string.hpp" />
     <ClInclude Include="..\pyitt.native\id.hpp" />

@@ -48,6 +48,9 @@
     <ClCompile Include="..\pyitt.native\extensions\string.cpp">
       <Filter>Source Files\extensions</Filter>
     </ClCompile>
+    <ClCompile Include="..\pyitt.native\event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pyitt.native\collection_control.hpp">
@@ -73,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="..\pyitt.native\extensions\string.hpp">
       <Filter>Header Files\extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pyitt.native\event.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

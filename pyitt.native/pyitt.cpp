@@ -3,6 +3,7 @@
 
 #include "collection_control.hpp"
 #include "domain.hpp"
+#include "event.hpp"
 #include "id.hpp"
 #include "string_handle.hpp"
 #include "task.hpp"
@@ -57,6 +58,7 @@ PyMODINIT_FUNC PyInit_native()
     {
         { Py_mod_exec, reinterpret_cast<void*>(exec_pyitt_module) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_domain) },
+        { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_string_handle) },
         { 0, nullptr }

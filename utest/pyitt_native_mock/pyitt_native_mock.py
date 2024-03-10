@@ -17,6 +17,7 @@ class PyittNativeMock(_ModuleType):
             'task_end_overlapped': _MagicMock(),
             'thread_set_name': _MagicMock(),
             'Domain': _MagicMock(),
+            'Event': _MagicMock(),
             'Id': _MagicMock(),
             'StringHandle': _MagicMock(),
         }
