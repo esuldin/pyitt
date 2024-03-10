@@ -10,9 +10,10 @@ or others.
 pyitt supports following ITT APIs:
  - Collection Control API
  - Domain API
+ - Event API
+ - Id API
  - String Handle API
- - Id API *(partial support)*
- - Task API *(partial support)*
+ - Task API
  - Thread Naming API
 
 ## Usage
