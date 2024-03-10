@@ -239,7 +239,7 @@ class EventExecutionTests(TestCase):
     def test_event_for_multiple_callable_objects(self):
         class CallableClass:
             def __call__(self, *args, **kwargs):
-                pass
+                pass  # pragma: no cover
 
         event = pyitt.event()
         event(CallableClass())
