@@ -124,6 +124,7 @@ static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 
     if (self == nullptr)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Id object.");
         return nullptr;
     }
 
@@ -134,6 +135,7 @@ static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &domain))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 

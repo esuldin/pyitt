@@ -134,6 +134,7 @@ static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 
     if (self == nullptr)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Event object.");
         return nullptr;
     }
 
@@ -144,6 +145,7 @@ static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &name))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -167,6 +169,8 @@ static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
     if (name_str.c_str() == nullptr)
     {
         Py_DecRef(event_cast<PyObject>(self));
+
+        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 

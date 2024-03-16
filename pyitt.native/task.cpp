@@ -18,6 +18,7 @@ PyObject* task_begin(PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple(args, "OO|OO", &domain, &name_string_handle, &task_id, &parent_id))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -69,6 +70,7 @@ PyObject* task_end(PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple(args, "O", &domain))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -92,6 +94,7 @@ PyObject* task_begin_overlapped(PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple(args, "OOO|O", &domain, &name_string_handle, &task_id, &parent_id))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -141,6 +144,7 @@ PyObject* task_end_overlapped(PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple(args, "OO", &domain, &task_id))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 

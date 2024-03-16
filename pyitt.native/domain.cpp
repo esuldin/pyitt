@@ -123,6 +123,7 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     Domain* self = domain_obj(type->tp_alloc(type, 0));
     if (self == nullptr)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Domain object.");
         return nullptr;
     }
 
@@ -132,6 +133,7 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     PyObject* name = nullptr;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &name))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -159,6 +161,8 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     if (name_str.c_str() == nullptr)
     {
         Py_DecRef(domain_cast<PyObject>(self));
+
+        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 

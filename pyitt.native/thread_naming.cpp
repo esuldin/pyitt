@@ -3,6 +3,7 @@
 #include <ittnotify.h>
 
 #include "string_handle.hpp"
+#include "extensions/string.hpp"
 
 
 namespace pyitt
@@ -20,23 +21,17 @@ PyObject* thread_set_name(PyObject* self, PyObject* name)
         return nullptr;
     }
 
+    pyext::string name_str = pyext::string::from_unicode(name);
+    if (name_str.c_str() == nullptr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
+        return nullptr;
+    }
+
 #if defined(_WIN32)
-    wchar_t* name_wstr = PyUnicode_AsWideCharString(name, nullptr);
-    if (name_wstr == nullptr)
-    {
-        return nullptr;
-    }
-
-    __itt_thread_set_nameW(name_wstr);
-    PyMem_Free(name_wstr);
+    __itt_thread_set_nameW(name_str.c_str());
 #else
-    const char* name_str = PyUnicode_AsUTF8(name);
-    if (name_str == nullptr)
-    {
-        return nullptr;
-    }
-
-    __itt_thread_set_name(name_str);
+    __itt_thread_set_name(name_str.c_str());
 #endif
 
     Py_RETURN_NONE;

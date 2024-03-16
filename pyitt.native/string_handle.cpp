@@ -123,6 +123,7 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
 
     if (self == nullptr)
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the StringHandle object.");
         return nullptr;
     }
 
@@ -133,6 +134,7 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &str))
     {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -152,6 +154,8 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
     if (str_wrapper.c_str() == nullptr)
     {
         Py_DecRef(string_handle_cast<PyObject>(self));
+
+        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 
