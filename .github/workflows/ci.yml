@@ -71,10 +71,10 @@ jobs:
         python -m pip install build coverage flake8 pylint
     - name: Lint with pylint the code of the package
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 $(git ls-files "*.py" ":!:samples/*" ":!:utest/*")
+        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
     - name: Lint with pylint the code of tests and samples
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 $(git ls-files "utest/*.py" "samples/*.py")
+        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "utest/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

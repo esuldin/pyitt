@@ -22,7 +22,6 @@ def run_sample():
     [thread.join() for thread in threads]  # pylint: disable=W0106
 
 
-# pylint: disable=R0801
 if __name__ == '__main__':
     parser = ArgumentParser(
         description='The sample that demonstrates the use of wrappers for the Thread Naming API.'

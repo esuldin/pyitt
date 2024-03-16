@@ -66,7 +66,6 @@ def run_sample():
     callable_object()
 
 
-# pylint: disable=R0801
 if __name__ == '__main__':
     parser = ArgumentParser(description='The sample that demonstrates the use of wrappers for the Task API.')
     parser.add_argument('--run-sample',
