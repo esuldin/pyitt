@@ -23,7 +23,7 @@ class EventCreationTests(TestCase):
         event.begin()
 
         event_mock.assert_called_once_with(expected_name)
-        self.assertEqual(event.name(), expected_name)
+        self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
@@ -107,7 +107,7 @@ class EventCreationTests(TestCase):
         expected_name = f'{CallableClass.__name__}.__call__'
         event_mock.assert_called_once_with(expected_name)
 
-        self.assertEqual(event.name(), expected_name)
+        self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
@@ -123,7 +123,7 @@ class EventCreationTests(TestCase):
 
         expected_name = f'{CallableClass.__name__}.__call__'
         event_mock.assert_called_once_with(expected_name)
-        self.assertEqual(event.name(), expected_name)
+        self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
@@ -153,7 +153,7 @@ class EventPropertiesTest(TestCase):
         expected_name = f'{CallableClass.__name__}.__call__'
         event_mock.assert_called_once_with(expected_name)
 
-        self.assertEqual(event.name(), expected_name)
+        self.assertEqual(event.name, expected_name)
 
         self.assertEqual(str(event), expected_name)
         self.assertEqual(repr(event), f'{event.__class__.__name__}(\'{expected_name}\')')

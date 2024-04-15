@@ -24,10 +24,10 @@ class TaskCreationTests(TestCase):
         string_handle_mock.assert_called_once_with(expected_name)
         domain_mock.assert_called_once_with(None)
 
-        self.assertEqual(task.name(), expected_name)
-        self.assertEqual(task.domain(), domain_mock.return_value)
-        self.assertEqual(task.id(), id_mock.return_value)
-        self.assertIsNone(task.parent_id())
+        self.assertEqual(task.name, expected_name)
+        self.assertEqual(task.domain, domain_mock.return_value)
+        self.assertEqual(task.id, id_mock.return_value)
+        self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_for_function(self, string_handle_mock):
@@ -108,10 +108,10 @@ class TaskCreationTests(TestCase):
         expected_name = f'{CallableClass.__name__}.__call__'
         string_handle_mock.assert_called_once_with(expected_name)
 
-        self.assertEqual(task.name(), expected_name)
-        self.assertEqual(task.domain(), domain_mock.return_value)
-        self.assertEqual(task.id(), id_mock.return_value)
-        self.assertIsNone(task.parent_id())
+        self.assertEqual(task.name, expected_name)
+        self.assertEqual(task.domain, domain_mock.return_value)
+        self.assertEqual(task.id, id_mock.return_value)
+        self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
@@ -136,10 +136,10 @@ class TaskCreationTests(TestCase):
         ]
         string_handle_mock.assert_has_calls(expected_calls)
 
-        self.assertEqual(task.name(), expected_name)
-        self.assertEqual(task.domain(), domain_mock.return_value)
-        self.assertEqual(task.id(), id_mock.return_value)
-        self.assertIsNone(task.parent_id())
+        self.assertEqual(task.name, expected_name)
+        self.assertEqual(task.domain, domain_mock.return_value)
+        self.assertEqual(task.id, id_mock.return_value)
+        self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_for_method(self, string_handle_mock):
@@ -172,10 +172,10 @@ class TaskPropertiesTest(TestCase):
         expected_name = f'{CallableClass.__name__}.__call__'
         string_handle_mock.assert_called_once_with(expected_name)
 
-        self.assertEqual(task.name(), expected_name)
-        self.assertEqual(task.domain(), domain_name)
-        self.assertEqual(task.id(), task_id)
-        self.assertEqual(task.parent_id(), parent_id)
+        self.assertEqual(task.name, expected_name)
+        self.assertEqual(task.domain, domain_name)
+        self.assertEqual(task.id, task_id)
+        self.assertEqual(task.parent_id, parent_id)
 
         self.assertEqual(str(task), f"{{ name: '{str(expected_name)}', domain: '{str(domain_name)}',"
                                     f" id: {str(task_id)}, parent_id: {str(parent_id)} }}")

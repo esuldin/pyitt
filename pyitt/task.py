@@ -24,29 +24,32 @@ class _Task(_NamedRegion):
         """
         super().__init__(task)
 
-        self._domain = self.__get_task_domain(domain)
-        self._id = self.__get_task_id(id, self._domain)
-        self._parent_id = self.__get_parent_id(parent)
+        self.__domain = self.__get_task_domain(domain)
+        self.__id = self.__get_task_id(id, self.__domain)
+        self.__parent_id = self.__get_parent_id(parent)
 
     def __str__(self) -> str:
-        return (f"{{ name: '{str(self._name)}', domain: '{str(self._domain)}',"
-                f" id: {str(self._id)}, parent_id: {str(self._parent_id)} }}")
+        return (f"{{ name: '{str(self.name)}', domain: '{str(self.domain)}',"
+                f" id: {str(self.id)}, parent_id: {str(self.parent_id)} }}")
 
     def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}({repr(self._name)}, {repr(self._domain)},'
-                f' {repr(self._id)}, {repr(self._parent_id)})')
+        return (f'{self.__class__.__name__}({repr(self.name)}, {repr(self.domain)},'
+                f' {repr(self.id)}, {repr(self.parent_id)})')
 
+    @property
     def domain(self):
         """Returns the domain of the task."""
-        return self._domain
+        return self.__domain
 
+    @property
     def id(self):
         """Returns the id of the task."""
-        return self._id
+        return self.__id
 
+    @property
     def parent_id(self):
         """Returns the parent id for the task."""
-        return self._parent_id
+        return self.__parent_id
 
     def begin(self) -> None:
         """Marks the beginning of a task."""
@@ -84,11 +87,11 @@ class NestedTask(_Task):
     """
     def begin(self) -> None:
         """Marks the beginning of a task."""
-        _task_begin(self._domain, self._name, self._id, self._parent_id)
+        _task_begin(self.domain, self.name, self.id, self.parent_id)
 
     def end(self) -> None:
         """Marks the end of a task."""
-        _task_end(self._domain)
+        _task_end(self.domain)
 
 
 def nested_task(task=None, domain=None, id=None, parent=None):
@@ -112,11 +115,11 @@ class OverlappedTask(_Task):
     """
     def begin(self) -> None:
         """Marks the beginning of a task."""
-        _task_begin_overlapped(self._domain, self._name, self._id, self._parent_id)
+        _task_begin_overlapped(self.domain, self.name, self.id, self.parent_id)
 
     def end(self) -> None:
         """Marks the end of a task."""
-        _task_end_overlapped(self._domain, self._id)
+        _task_end_overlapped(self.domain, self.id)
 
 
 def overlapped_task(task=None, domain=None, id=None, parent=None):

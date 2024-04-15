@@ -135,11 +135,13 @@ class _CallSite:
         self._filename = _basename(caller.filename)
         self._lineno = caller.lineno
 
-    def filename(self):
+    @property
+    def filename(self) -> str:
         """Returns filename for the call site."""
         return self._filename
 
-    def lineno(self):
+    @property
+    def lineno(self) -> int:
         """Returns line number for the call site."""
         return self._lineno
 
@@ -160,7 +162,7 @@ class _NamedRegion(_Region):
         """
         super().__init__(self.__get_function(func), _partial(_NamedRegion.__deferred_wrap_callback, self))
 
-        self._name = self.__get_name(func)
+        self.__name = self.__get_name(func)
         self.__name_creation_callback = name_creation_callback
         self.__is_final_name_determined = False
         self.__is_custom_name_specified = isinstance(func, str)
@@ -174,10 +176,10 @@ class _NamedRegion(_Region):
             self.begin = self.__determine_final_name
 
     def __str__(self) -> str:
-        return self._name
+        return self.name
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}('{self._name}')"
+        return f"{self.__class__.__name__}('{self.name}')"
 
     def begin(self) -> None:
         """Marks the beginning of a code region."""
@@ -187,25 +189,26 @@ class _NamedRegion(_Region):
         """Marks the end of a code region."""
         raise NotImplementedError()
 
+    @property
     def name(self):
-        """Return the name of the code region."""
-        return self._name
+        """Returns the name of the code region."""
+        return self.__name
 
     def __determine_final_name(self):
-        """Determines a final name of a code region"""
+        """Determines a final name of a code region."""
         self.__is_final_name_determined = True
 
         if callable(self.__name_creation_callback):
-            self.__name_creation_callback(self._name)
+            self.__name_creation_callback(self.name)
 
         if self.__original_begin_func is not None:
             self.begin = self.__original_begin_func
             self.begin()
 
     def __deferred_wrap_callback(self, func):
-        """Determines a final name of a code region if it has not been done before"""
+        """Determines a final name of a code region if it has not been done before."""
         if not self.__is_final_name_determined:
-            self._name = self.__get_name(func)
+            self.__name = self.__get_name(func)
             self.__determine_final_name()
         elif not self.__is_custom_name_specified:
             raise RuntimeError('A custom name for a code region must be specified before'
@@ -226,7 +229,7 @@ class _NamedRegion(_Region):
             return _string_handle(func)
 
         if isinstance(func, _CallSite):
-            return _string_handle(f'{func.filename()}:{func.lineno()}')
+            return _string_handle(f'{func.filename}:{func.lineno}')
 
         if hasattr(func, '__qualname__'):
             return _string_handle(func.__qualname__)
