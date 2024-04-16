@@ -1,5 +1,5 @@
 from types import ModuleType as _ModuleType
-from unittest.mock import MagicMock as _MagicMock
+from unittest.mock import Mock as _MagicMock
 
 PYITT_NATIVE_MODULE_NAME = 'pyitt.native'
 

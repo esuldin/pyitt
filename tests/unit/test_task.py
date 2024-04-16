@@ -12,57 +12,57 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('Id')
-    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock, id_mock):
-        domain_mock.return_value = 'pyitt'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 1
+    def test_task_creation_with_default_constructor(self, domain_class_mock, string_handle_class_mock, id_class_mock):
+        domain_class_mock.return_value = 'pyitt'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 1
 
         task = pyitt.task()
         caller = stack()[0]
         expected_name = f'{basename(caller.filename)}:{caller.lineno-1}'
 
-        string_handle_mock.assert_called_once_with(expected_name)
-        domain_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(expected_name)
+        domain_class_mock.assert_called_once_with(None)
 
         self.assertEqual(task.name, expected_name)
-        self.assertEqual(task.domain, domain_mock.return_value)
-        self.assertEqual(task.id, id_mock.return_value)
+        self.assertEqual(task.domain, domain_class_mock.return_value)
+        self.assertEqual(task.id, id_class_mock.return_value)
         self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_as_decorator_for_function(self, string_handle_mock):
+    def test_task_creation_as_decorator_for_function(self, string_handle_class_mock):
         @pyitt.task
         def my_function():
             pass  # pragma: no cover
 
-        string_handle_mock.assert_called_once_with(my_function.__qualname__)
+        string_handle_class_mock.assert_called_once_with(my_function.__qualname__)
 
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_as_decorator_with_empty_arguments_for_function(self, string_handle_mock):
+    def test_task_creation_as_decorator_with_empty_arguments_for_function(self, string_handle_class_mock):
         @pyitt.task()
         def my_function():
             pass  # pragma: no cover
 
-        string_handle_mock.assert_called_with(my_function.__qualname__)
+        string_handle_class_mock.assert_called_with(my_function.__qualname__)
 
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_as_decorator_with_name_for_function(self, string_handle_mock):
+    def test_task_creation_as_decorator_with_name_for_function(self, string_handle_class_mock):
         @pyitt.task('my function')
         def my_function():
             pass  # pragma: no cover
 
-        string_handle_mock.assert_called_once_with('my function')
+        string_handle_class_mock.assert_called_once_with('my function')
 
     @pyitt_native_patch('Domain')
-    def test_task_creation_as_decorator_with_domain_for_function(self, domain_mock):
+    def test_task_creation_as_decorator_with_domain_for_function(self, domain_class_mock):
         @pyitt.task(domain='my domain')
         def my_function():
             pass  # pragma: no cover
 
-        domain_mock.assert_called_once_with('my domain')
+        domain_class_mock.assert_called_once_with('my domain')
 
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_as_decorator_with_empty_args_and_name_for_function(self, string_handle_mock):
+    def test_task_creation_as_decorator_with_empty_args_and_name_for_function(self, string_handle_class_mock):
         @pyitt.task
         @pyitt.task('my function')
         def my_function():
@@ -70,34 +70,35 @@ class TaskCreationTests(TestCase):
 
         expected_calls = [call('my function'),
                           call(my_function.__qualname__)]
-        string_handle_mock.assert_has_calls(expected_calls)
+        string_handle_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_with_default_constructor_as_context_manager(self, domain_mock, string_handle_mock):
+    def test_task_creation_with_default_constructor_as_context_manager(self, domain_class_mock,
+                                                                       string_handle_class_mock):
         caller = stack()[0]
         with pyitt.task():
             pass
 
-        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
-        domain_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
+        domain_class_mock.assert_called_once_with(None)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_with_name_and_domain_as_context_manager(self, domain_mock, string_handle_mock):
+    def test_task_creation_with_name_and_domain_as_context_manager(self, domain_class_mock, string_handle_class_mock):
         with pyitt.task('my task', 'my domain'):
             pass
 
-        string_handle_mock.assert_called_once_with('my task')
-        domain_mock.assert_called_once_with('my domain')
+        string_handle_class_mock.assert_called_once_with('my task')
+        domain_class_mock.assert_called_once_with('my domain')
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
-        domain_mock.return_value = 'domain'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 1
+    def test_task_creation_for_callable_object(self, domain_class_mock, id_class_mock, string_handle_class_mock):
+        domain_class_mock.return_value = 'domain'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 1
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -106,20 +107,21 @@ class TaskCreationTests(TestCase):
         task = pyitt.task(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
-        string_handle_mock.assert_called_once_with(expected_name)
+        string_handle_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(task.name, expected_name)
-        self.assertEqual(task.domain, domain_mock.return_value)
-        self.assertEqual(task.id, id_mock.return_value)
+        self.assertEqual(task.domain, domain_class_mock.return_value)
+        self.assertEqual(task.id, id_class_mock.return_value)
         self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
-    def test_unnamed_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
-        domain_mock.return_value = 'domain'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 1
+    def test_unnamed_task_creation_for_callable_object(self, domain_class_mock, id_class_mock,
+                                                       string_handle_class_mock):
+        domain_class_mock.return_value = 'domain'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 1
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -134,31 +136,31 @@ class TaskCreationTests(TestCase):
             call(f'{basename(caller.filename)}:{caller.lineno+1}'),
             call(expected_name)
         ]
-        string_handle_mock.assert_has_calls(expected_calls)
+        string_handle_class_mock.assert_has_calls(expected_calls)
 
         self.assertEqual(task.name, expected_name)
-        self.assertEqual(task.domain, domain_mock.return_value)
-        self.assertEqual(task.id, id_mock.return_value)
+        self.assertEqual(task.domain, domain_class_mock.return_value)
+        self.assertEqual(task.id, id_class_mock.return_value)
         self.assertIsNone(task.parent_id)
 
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_for_method(self, string_handle_mock):
+    def test_task_creation_for_method(self, string_handle_class_mock):
         class MyClass:
             @pyitt.task
             def my_method(self):
                 pass  # pragma: no cover
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
 
 class TaskPropertiesTest(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
-    def test_task_properties(self, domain_mock, id_mock, string_handle_mock):
-        domain_mock.side_effect = lambda x: x
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = lambda x: x
+    def test_task_properties(self, domain_class_mock, id_class_mock, string_handle_class_mock):
+        domain_class_mock.side_effect = lambda x: x
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = lambda x: x
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -170,7 +172,7 @@ class TaskPropertiesTest(TestCase):
         task = pyitt.task(CallableClass(), domain=domain_name, id=task_id, parent=parent_id)
 
         expected_name = f'{CallableClass.__name__}.__call__'
-        string_handle_mock.assert_called_once_with(expected_name)
+        string_handle_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(task.name, expected_name)
         self.assertEqual(task.domain, domain_name)
@@ -190,34 +192,36 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_function(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.return_value = 'string_handle'
-        id_mock.return_value = 'id_handle'
+    def test_task_for_function(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                               task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.return_value = 'string_handle'
+        id_class_mock.return_value = 'id_handle'
 
         @pyitt.task
         def my_function():
             return 42
 
-        domain_mock.assert_called_once_with(None)
-        string_handle_mock.assert_called_once_with(my_function.__qualname__)
-        id_mock.assert_called_once_with(domain_mock.return_value)
+        domain_class_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(my_function.__qualname__)
+        id_class_mock.assert_called_once_with(domain_class_mock.return_value)
 
         self.assertEqual(my_function(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, string_handle_mock.return_value,
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, string_handle_class_mock.return_value,
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_nested_tasks_for_function(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+    def test_nested_tasks_for_function(self, domain_class_mock, id_class_mock, string_handle_class_mock,
+                                       task_begin_mock, task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         @pyitt.task
         @pyitt.task('my function')
@@ -226,16 +230,18 @@ class TaskExecutionTests(TestCase):
 
         expected_calls = [call('my function'),
                           call(my_function.__qualname__)]
-        string_handle_mock.assert_has_calls(expected_calls)
+        string_handle_class_mock.assert_has_calls(expected_calls)
 
         self.assertEqual(my_function(), 42)
 
-        expected_calls = [call(domain_mock.return_value, my_function.__qualname__, id_mock.return_value, None),
-                          call(domain_mock.return_value, 'my function', id_mock.return_value, None)]
+        expected_calls = [
+            call(domain_class_mock.return_value, my_function.__qualname__, id_class_mock.return_value, None),
+            call(domain_class_mock.return_value, 'my function', id_class_mock.return_value, None)
+        ]
         task_begin_mock.assert_has_calls(expected_calls)
 
-        expected_calls = [call(domain_mock.return_value),
-                          call(domain_mock.return_value)]
+        expected_calls = [call(domain_class_mock.return_value),
+                          call(domain_class_mock.return_value)]
         task_end_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Domain')
@@ -243,44 +249,47 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_as_context_manager(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+    def test_task_as_context_manager(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                                     task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         region_name = 'my region'
         with pyitt.task(region_name):
             pass
 
-        domain_mock.assert_called_once_with(None)
-        string_handle_mock.assert_called_once_with(region_name)
-        id_mock.assert_called_once_with(domain_mock.return_value)
+        domain_class_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(region_name)
+        id_class_mock.assert_called_once_with(domain_class_mock.return_value)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, region_name, id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, region_name, id_class_mock.return_value,
+                                                None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_callable_object(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.return_value = 'string_handle'
-        id_mock.return_value = 'id_handle'
+    def test_task_for_callable_object(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                                      task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.return_value = 'string_handle'
+        id_class_mock.return_value = 'id_handle'
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
                 return 42
 
         callable_object = pyitt.task(CallableClass())
-        string_handle_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
+        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
 
         self.assertEqual(callable_object(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, string_handle_mock.return_value,
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, string_handle_class_mock.return_value,
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     def test_task_for_multiple_callable_objects(self):
         class CallableClass:
@@ -307,34 +316,36 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+    def test_task_for_method(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                             task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         class MyClass:
             @pyitt.task
             def my_method(self):
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
         my_object = MyClass()
         self.assertEqual(my_object.my_method(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_method.__qualname__}',
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, f'{MyClass.my_method.__qualname__}',
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_class_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+    def test_task_for_class_method(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                                   task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         class MyClass:
             @classmethod
@@ -342,23 +353,25 @@ class TaskExecutionTests(TestCase):
             def my_class_method(cls):
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
 
         self.assertEqual(MyClass.my_class_method(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_class_method.__qualname__}',
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value,
+                                                f'{MyClass.my_class_method.__qualname__}',
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_static_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+    def test_task_for_static_method(self, domain_class_mock, id_class_mock, string_handle_class_mock, task_begin_mock,
+                                    task_end_mock):
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         class MyClass:
             @staticmethod
@@ -366,33 +379,36 @@ class TaskExecutionTests(TestCase):
             def my_static_method():
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
 
         self.assertEqual(MyClass.my_static_method(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_static_method.__qualname__}',
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value,
+                                                f'{MyClass.my_static_method.__qualname__}',
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
         task_begin_mock.reset_mock()
         task_end_mock.reset_mock()
 
         self.assertEqual(MyClass().my_static_method(), 42)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_static_method.__qualname__}',
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value,
+                                                f'{MyClass.my_static_method.__qualname__}',
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_static_method_with_wrong_order_of_decorators(self, domain_mock, id_mock, string_handle_mock,
+    def test_task_for_static_method_with_wrong_order_of_decorators(self, domain_class_mock, id_class_mock,
+                                                                   string_handle_class_mock,
                                                                    task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         class MyClass:
             @pyitt.task
@@ -401,24 +417,24 @@ class TaskExecutionTests(TestCase):
                 return 42  # pragma: no cover
 
         if version_info >= (3, 10):
-            string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+            string_handle_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
 
             self.assertEqual(MyClass().my_static_method(), 42)
 
-            task_begin_mock.assert_called_once_with(domain_mock.return_value,
+            task_begin_mock.assert_called_once_with(domain_class_mock.return_value,
                                                     f'{MyClass.my_static_method.__qualname__}',
-                                                    id_mock.return_value, None)
-            task_end_mock.assert_called_once_with(domain_mock.return_value)
+                                                    id_class_mock.return_value, None)
+            task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
             task_begin_mock.reset_mock()
             task_end_mock.reset_mock()
 
             self.assertEqual(MyClass.my_static_method(), 42)
 
-            task_begin_mock.assert_called_once_with(domain_mock.return_value,
+            task_begin_mock.assert_called_once_with(domain_class_mock.return_value,
                                                     f'{MyClass.my_static_method.__qualname__}',
-                                                    id_mock.return_value, None)
-            task_end_mock.assert_called_once_with(domain_mock.return_value)
+                                                    id_class_mock.return_value, None)
+            task_end_mock.assert_called_once_with(domain_class_mock.return_value)
         else:
             # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
             # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
@@ -453,11 +469,11 @@ class TaskExecutionTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_function_raised_exception(self, domain_mock, id_mock, string_handle_mock,
+    def test_task_for_function_raised_exception(self, domain_class_mock, id_class_mock, string_handle_class_mock,
                                                 task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.return_value = 'string_handle'
-        id_mock.return_value = 'id_handle'
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.return_value = 'string_handle'
+        id_class_mock.return_value = 'id_handle'
 
         exception_msg = 'ValueError exception from my_function'
 
@@ -465,29 +481,29 @@ class TaskExecutionTests(TestCase):
         def my_function():
             raise ValueError(exception_msg)
 
-        domain_mock.assert_called_once_with(None)
-        string_handle_mock.assert_called_once_with(my_function.__qualname__)
-        id_mock.assert_called_once_with(domain_mock.return_value)
+        domain_class_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(my_function.__qualname__)
+        id_class_mock.assert_called_once_with(domain_class_mock.return_value)
 
         with self.assertRaises(ValueError) as context:
             my_function()
 
         self.assertEqual(str(context.exception), exception_msg)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, string_handle_mock.return_value,
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, string_handle_class_mock.return_value,
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin')
     @pyitt_native_patch('task_end')
-    def test_task_for_method_raised_exception(self, domain_mock, id_mock, string_handle_mock,
+    def test_task_for_method_raised_exception(self, domain_class_mock, id_class_mock, string_handle_class_mock,
                                               task_begin_mock, task_end_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
-        id_mock.return_value = 'id_handle'
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
+        id_class_mock.return_value = 'id_handle'
 
         exception_msg = 'ValueError exception from my_method'
 
@@ -496,26 +512,26 @@ class TaskExecutionTests(TestCase):
             def my_method(self):
                 raise ValueError(exception_msg)
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
         with self.assertRaises(ValueError) as context:
             MyClass().my_method()
 
         self.assertEqual(str(context.exception), exception_msg)
 
-        task_begin_mock.assert_called_once_with(domain_mock.return_value, f'{MyClass.my_method.__qualname__}',
-                                                id_mock.return_value, None)
-        task_end_mock.assert_called_once_with(domain_mock.return_value)
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, f'{MyClass.my_method.__qualname__}',
+                                                id_class_mock.return_value, None)
+        task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('Id')
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('task_begin_overlapped')
     @pyitt_native_patch('task_end_overlapped')
-    def test_overlapped_tasks(self, domain_mock, id_mock, string_handle_mock,
+    def test_overlapped_tasks(self, domain_class_mock, id_class_mock, string_handle_class_mock,
                               task_begin_overlapped_mock, task_end_overlapped_mock):
-        domain_mock.return_value = 'domain_handle'
-        string_handle_mock.side_effect = lambda x: x
+        domain_class_mock.return_value = 'domain_handle'
+        string_handle_class_mock.side_effect = lambda x: x
 
         id_value = 0
 
@@ -524,7 +540,7 @@ class TaskExecutionTests(TestCase):
             id_value += 1
             return id_value
 
-        id_mock.side_effect = id_generator
+        id_class_mock.side_effect = id_generator
 
         overlapped_task_1_name = 'overlapped task 1'
         overlapped_task_2_name = 'overlapped task 2'
@@ -542,17 +558,17 @@ class TaskExecutionTests(TestCase):
             call(overlapped_task_1_name),
             call(overlapped_task_2_name)
         ]
-        string_handle_mock.assert_has_calls(expected_calls)
+        string_handle_class_mock.assert_has_calls(expected_calls)
 
         expected_calls = [
-            call(domain_mock.return_value, overlapped_task_1_name, 1, None),
-            call(domain_mock.return_value, overlapped_task_2_name, 2, None)
+            call(domain_class_mock.return_value, overlapped_task_1_name, 1, None),
+            call(domain_class_mock.return_value, overlapped_task_2_name, 2, None)
         ]
         task_begin_overlapped_mock.assert_has_calls(expected_calls)
 
         expected_calls = [
-            call(domain_mock.return_value, 1),
-            call(domain_mock.return_value, 2)
+            call(domain_class_mock.return_value, 1),
+            call(domain_class_mock.return_value, 2)
         ]
         task_end_overlapped_mock.assert_has_calls(expected_calls)
 
@@ -560,21 +576,21 @@ class TaskExecutionTests(TestCase):
 class NestedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
+    def test_task_creation_with_default_constructor(self, domain_class_mock, string_handle_class_mock):
         pyitt.nested_task()
         caller = stack()[0]
-        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
-        domain_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
+        domain_class_mock.assert_called_once_with(None)
 
 
 class OverlappedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
-    def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
+    def test_task_creation_with_default_constructor(self, domain_class_mock, string_handle_class_mock):
         pyitt.overlapped_task()
         caller = stack()[0]
-        string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
-        domain_mock.assert_called_once_with(None)
+        string_handle_class_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
+        domain_class_mock.assert_called_once_with(None)
 
 
 if __name__ == '__main__':

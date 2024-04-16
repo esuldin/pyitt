@@ -11,57 +11,59 @@ import pyitt  # pylint: disable=C0411
 class EventCreationTests(TestCase):
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_with_default_constructor(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_with_default_constructor(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         event = pyitt.event()
         caller = stack()[0]
         expected_name = f'{basename(caller.filename)}:{caller.lineno-1}'
 
-        event_mock.assert_not_called()
+        event_class_mock.assert_not_called()
 
         event.begin()
 
-        event_mock.assert_called_once_with(expected_name)
+        event_class_mock.assert_called_once_with(expected_name)
         self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_as_decorator_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_as_decorator_for_function(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         @pyitt.event
         def my_function():
             pass  # pragma: no cover
 
-        event_mock.assert_called_once_with(my_function.__qualname__)
+        event_class_mock.assert_called_once_with(my_function.__qualname__)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_as_decorator_with_empty_arguments_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_as_decorator_with_empty_arguments_for_function(self, event_class_mock,
+                                                                           string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         @pyitt.event()
         def my_function():
             pass  # pragma: no cover
 
-        event_mock.assert_called_with(my_function.__qualname__)
+        event_class_mock.assert_called_with(my_function.__qualname__)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_as_decorator_with_name_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_as_decorator_with_name_for_function(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         @pyitt.event('my function')
         def my_function():
             pass  # pragma: no cover
 
-        event_mock.assert_called_once_with('my function')
+        event_class_mock.assert_called_once_with('my function')
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_as_decorator_with_empty_args_and_name_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_as_decorator_with_empty_args_and_name_for_function(self, event_class_mock,
+                                                                               string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         @pyitt.event
         @pyitt.event('my function')
@@ -70,33 +72,34 @@ class EventCreationTests(TestCase):
 
         expected_calls = [call('my function'),
                           call(my_function.__qualname__)]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_with_default_constructor_as_context_manager(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_with_default_constructor_as_context_manager(self, event_class_mock,
+                                                                        string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         caller = stack()[0]
         with pyitt.event():
             pass
 
-        event_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
+        event_class_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_with_name_and_domain_as_context_manager(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_with_name_and_domain_as_context_manager(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         with pyitt.event('my event'):
             pass
 
-        event_mock.assert_called_once_with('my event')
+        event_class_mock.assert_called_once_with('my event')
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_for_callable_object(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_for_callable_object(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -105,14 +108,14 @@ class EventCreationTests(TestCase):
         event = pyitt.event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
-        event_mock.assert_called_once_with(expected_name)
+        event_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_unnamed_event_creation_for_callable_object(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_unnamed_event_creation_for_callable_object(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -122,27 +125,27 @@ class EventCreationTests(TestCase):
         event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
-        event_mock.assert_called_once_with(expected_name)
+        event_class_mock.assert_called_once_with(expected_name)
         self.assertEqual(event.name, expected_name)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_creation_for_method(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_creation_for_method(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class MyClass:
             @pyitt.event
             def my_method(self):
                 pass  # pragma: no cover
 
-        event_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        event_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
 
 class EventPropertiesTest(TestCase):
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_properties(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_properties(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
@@ -151,7 +154,7 @@ class EventPropertiesTest(TestCase):
         event = pyitt.event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
-        event_mock.assert_called_once_with(expected_name)
+        event_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(event.name, expected_name)
 
@@ -162,26 +165,26 @@ class EventPropertiesTest(TestCase):
 class EventExecutionTests(TestCase):
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.return_value = 'string_handle'
+    def test_event_for_function(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.return_value = 'string_handle'
 
         @pyitt.event
         def my_function():
             return 42
 
-        string_handle_mock.assert_called_once_with(my_function.__qualname__)
-        event_mock.assert_called_once_with(string_handle_mock.return_value)
+        string_handle_class_mock.assert_called_once_with(my_function.__qualname__)
+        event_class_mock.assert_called_once_with(string_handle_class_mock.return_value)
 
         self.assertEqual(my_function(), 42)
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_nested_events_for_function(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_nested_events_for_function(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         @pyitt.event
         @pyitt.event('my function')
@@ -190,8 +193,8 @@ class EventExecutionTests(TestCase):
 
         expected_calls = [call('my function'),
                           call(my_function.__qualname__)]
-        string_handle_mock.assert_has_calls(expected_calls)
-        event_mock.assert_has_calls(expected_calls)
+        string_handle_class_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
         self.assertEqual(my_function(), 42)
 
@@ -199,42 +202,42 @@ class EventExecutionTests(TestCase):
                           call().begin(),
                           call().end(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_as_context_manager(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_as_context_manager(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         region_name = 'my region'
         with pyitt.event(region_name):
             pass
 
-        string_handle_mock.assert_called_once_with(region_name)
-        event_mock.assert_called_once_with(region_name)
+        string_handle_class_mock.assert_called_once_with(region_name)
+        event_class_mock.assert_called_once_with(region_name)
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_callable_object(self, event_mock, string_handle_mock):
-        string_handle_mock.return_value = 'string_handle'
+    def test_event_for_callable_object(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.return_value = 'string_handle'
 
         class CallableClass:
             def __call__(self, *args, **kwargs):
                 return 42
 
         callable_object = pyitt.event(CallableClass())
-        string_handle_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
-        event_mock.assert_called_once_with(string_handle_mock.return_value)
+        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
+        event_class_mock.assert_called_once_with(string_handle_class_mock.return_value)
 
         self.assertEqual(callable_object(), 42)
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     def test_event_for_multiple_callable_objects(self):
         class CallableClass:
@@ -258,28 +261,28 @@ class EventExecutionTests(TestCase):
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_method(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_for_method(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class MyClass:
             @pyitt.event
             def my_method(self):
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
-        event_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        event_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
         my_object = MyClass()
         self.assertEqual(my_object.my_method(), 42)
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_class_method(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_for_class_method(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class MyClass:
             @classmethod
@@ -287,19 +290,19 @@ class EventExecutionTests(TestCase):
             def my_class_method(cls):
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
-        event_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
+        event_class_mock.assert_called_once_with(f'{MyClass.my_class_method.__qualname__}')
 
         self.assertEqual(MyClass.my_class_method(), 42)
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_static_method(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_for_static_method(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class MyClass:
             @staticmethod
@@ -307,8 +310,8 @@ class EventExecutionTests(TestCase):
             def my_static_method():
                 return 42
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
-        event_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+        event_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
 
         self.assertEqual(MyClass.my_static_method(), 42)
         self.assertEqual(MyClass().my_static_method(), 42)
@@ -317,12 +320,12 @@ class EventExecutionTests(TestCase):
                           call().end(),
                           call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_static_method_with_wrong_order_of_decorators(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_for_static_method_with_wrong_order_of_decorators(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         class MyClass:
             @pyitt.event
@@ -331,8 +334,8 @@ class EventExecutionTests(TestCase):
                 return 42  # pragma: no cover
 
         if version_info >= (3, 10):
-            string_handle_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
-            event_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+            string_handle_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
+            event_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
 
             self.assertEqual(MyClass().my_static_method(), 42)
             self.assertEqual(MyClass.my_static_method(), 42)
@@ -341,7 +344,7 @@ class EventExecutionTests(TestCase):
                               call().end(),
                               call().begin(),
                               call().end()]
-            event_mock.assert_has_calls(expected_calls)
+            event_class_mock.assert_has_calls(expected_calls)
         else:
             # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
             # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
@@ -373,8 +376,8 @@ class EventExecutionTests(TestCase):
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_function_raised_exception(self, event_mock, string_handle_mock):
-        string_handle_mock.return_value = 'string_handle'
+    def test_event_for_function_raised_exception(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.return_value = 'string_handle'
 
         exception_msg = 'ValueError exception from my_function'
 
@@ -382,8 +385,8 @@ class EventExecutionTests(TestCase):
         def my_function():
             raise ValueError(exception_msg)
 
-        string_handle_mock.assert_called_once_with(my_function.__qualname__)
-        event_mock.assert_called_once_with(string_handle_mock.return_value)
+        string_handle_class_mock.assert_called_once_with(my_function.__qualname__)
+        event_class_mock.assert_called_once_with(string_handle_class_mock.return_value)
 
         with self.assertRaises(ValueError) as context:
             my_function()
@@ -392,12 +395,12 @@ class EventExecutionTests(TestCase):
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
-    def test_event_for_method_raised_exception(self, event_mock, string_handle_mock):
-        string_handle_mock.side_effect = lambda x: x
+    def test_event_for_method_raised_exception(self, event_class_mock, string_handle_class_mock):
+        string_handle_class_mock.side_effect = lambda x: x
 
         exception_msg = 'ValueError exception from my_method'
 
@@ -406,8 +409,8 @@ class EventExecutionTests(TestCase):
             def my_method(self):
                 raise ValueError(exception_msg)
 
-        string_handle_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
-        event_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+        event_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
 
         with self.assertRaises(ValueError) as context:
             MyClass().my_method()
@@ -416,7 +419,7 @@ class EventExecutionTests(TestCase):
 
         expected_calls = [call().begin(),
                           call().end()]
-        event_mock.assert_has_calls(expected_calls)
+        event_class_mock.assert_has_calls(expected_calls)
 
 
 if __name__ == '__main__':

@@ -6,10 +6,10 @@ import pyitt  # pylint: disable=C0411
 
 class IdTests(TestCase):
     @pyitt_native_patch('Id')
-    def test_id_call(self, id_mock):
+    def test_id_call(self, id_class_mock):
         domain = 'my domain'
         pyitt.id(domain)
-        id_mock.assert_called_once_with(domain)
+        id_class_mock.assert_called_once_with(domain)
 
 
 if __name__ == '__main__':
