@@ -18,9 +18,10 @@ class Event(_NamedRegion):
         :param region: a name of the event or a callable object (e.g. function) to wrap. If the callable object is
                        passed the name of this object is used as a name for the event.
         """
-        self._event = None
+        super().__init__(region)
 
-        super().__init__(region, _partial(Event.__deferred_event_creation, self))
+        self._event = None
+        self._on_name_determination = _partial(Event.__deferred_event_creation, self)
 
     def __deferred_event_creation(self, name) -> None:
         """Performs deferred creation of native Event."""
