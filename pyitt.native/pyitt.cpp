@@ -57,10 +57,10 @@ PyMODINIT_FUNC PyInit_native()
     static PyModuleDef_Slot pyitt_slots[] =
     {
         { Py_mod_exec, reinterpret_cast<void*>(exec_pyitt_module) },
+        { Py_mod_exec, reinterpret_cast<void*>(exec_string_handle) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_domain) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
-        { Py_mod_exec, reinterpret_cast<void*>(exec_string_handle) },
         { 0, nullptr }
     };
 

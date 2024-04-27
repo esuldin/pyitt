@@ -3,6 +3,9 @@
 #include <structmember.h>
 
 #include "string_handle.hpp"
+
+#include "extensions/error_template.hpp"
+#include "extensions/python.hpp"
 #include "extensions/string.hpp"
 
 
@@ -40,7 +43,7 @@ static PyMethodDef event_methods[] =
     {nullptr},
 };
 
-PyTypeObject EventType =
+PyTypeObject Event::object_type =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
     .tp_name              = "pyitt.native.Event",
@@ -130,22 +133,26 @@ PyTypeObject EventType =
 
 static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    Event* self = event_obj(type->tp_alloc(type, 0));
+    if (type == nullptr)
+    {
+        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
+    }
 
+    pyext::pyobject_holder<Event> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Event object.");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
     }
+
+    self->name = nullptr;
+    self->handle = 0;
 
     char name_key[] = { "name" };
     char* kwlist[] = { name_key, nullptr };
 
     PyObject* name = nullptr;
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &name))
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -153,70 +160,74 @@ static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
     {
         self->name = pyext::new_ref(name);
     }
-    else if (name && Py_TYPE(name) == &StringHandleType)
+    else if (auto string_handle_obj = pyext::pyobject_cast<StringHandle>(name))
     {
-        self->name = pyext::new_ref(string_handle_obj(name)->str);
+        self->name = pyext::xnew_ref(string_handle_get_string(string_handle_obj));
     }
     else
     {
-        Py_DecRef(event_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_TypeError, "The passed event name is not a valid instance of str or StringHandle.");
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            "The passed %s is not a valid instance of str or %s.", name_key, StringHandle::object_type.tp_name);
     }
 
     pyext::string name_str = pyext::string::from_unicode(self->name);
     if (name_str.c_str() == nullptr)
     {
-        Py_DecRef(event_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 
 #if defined(_WIN32)
-    self->event = __itt_event_createW(name_str.c_str(), static_cast<int>(name_str.length()));
+    self->handle = __itt_event_createW(name_str.c_str(), static_cast<int>(name_str.length()));
 #else
-    self->event = __itt_event_create(name_str.c_str(), static_cast<int>(name_str.length()));
+    self->handle = __itt_event_create(name_str.c_str(), static_cast<int>(name_str.length()));
 #endif
 
-    return event_cast<PyObject>(self);
+    return self.release();
 }
 
 static void event_dealloc(PyObject* self)
 {
-    Event* obj = event_obj(self);
-    if (obj == nullptr)
+    if (self)
     {
-        return;
-    }
+        Event* obj = pyext::pyobject_cast<Event>(self);
+        if (obj)
+        {
+            Py_XDECREF(obj->name);
+        }
 
-    Py_XDECREF(obj->name);
+        Py_TYPE(self)->tp_free(self);
+    }
 }
 
 static PyObject* event_repr(PyObject* self)
 {
-    Event* obj = event_check(self);
+    Event* obj = pyext::pyobject_cast<Event>(self);
     if (obj == nullptr)
     {
-        return nullptr;
-    }
-
-    return PyUnicode_FromFormat("%s('%U')", EventType.tp_name, obj->name);
-}
-
-static PyObject* event_str(PyObject* self)
-{
-    Event* obj = event_check(self);
-    if (obj == nullptr)
-    {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
     }
 
     if (obj->name == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
-        return nullptr;
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
+    }
+
+    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, obj->name);
+}
+
+static PyObject* event_str(PyObject* self)
+{
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
+    }
+
+    if (obj->name == nullptr)
+    {
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
     }
 
     return pyext::new_ref(obj->name);
@@ -224,44 +235,35 @@ static PyObject* event_str(PyObject* self)
 
 static PyObject* event_begin(PyObject* self, PyObject* args)
 {
-    Event* obj = event_check(self);
+    Event* obj = pyext::pyobject_cast<Event>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
     }
 
-    __itt_event_start(obj->event);
+    __itt_event_start(obj->handle);
 
     Py_RETURN_NONE;
 }
 
 static PyObject* event_end(PyObject* self, PyObject* args)
 {
-    Event* obj = event_check(self);
+    Event* obj = pyext::pyobject_cast<Event>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
     }
 
-    __itt_event_end(obj->event);
+    __itt_event_end(obj->handle);
 
     Py_RETURN_NONE;
 }
 
-Event* event_check(PyObject* self)
-{
-    if (self == nullptr || Py_TYPE(self) != &EventType)
-    {
-        PyErr_SetString(PyExc_TypeError, "The passed event is not a valid instance of Event type.");
-        return nullptr;
-    }
-
-    return event_obj(self);
-}
-
 int exec_event(PyObject* module)
 {
-    return pyext::add_type(module, &EventType);
+    return pyext::add_type(module, &Event::object_type);
 }
 
 } // namespace pyitt

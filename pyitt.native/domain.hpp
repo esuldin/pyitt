@@ -5,8 +5,6 @@
 
 #include <ittnotify.h>
 
-#include "extensions/python.hpp"
-
 
 namespace pyitt
 {
@@ -16,19 +14,20 @@ struct Domain
 	PyObject_HEAD
 	PyObject* name;
 	__itt_domain* handle;
+
+	static PyTypeObject object_type;
 };
 
-extern PyTypeObject DomainType;
-
-inline Domain* domain_obj(PyObject* self);
-Domain* domain_check(PyObject* self);
-int exec_domain(PyObject* module);
-
-
-/* Implementation of inline functions */
-Domain* domain_obj(PyObject* self)
+inline __itt_domain* domain_get_handle(const Domain* obj)
 {
-	return pyext::pyobject_cast<Domain>(self);
+	return obj ? obj->handle : nullptr;
 }
+
+inline PyObject* domain_get_name(const Domain* obj)
+{
+	return obj ? obj->name : nullptr;
+}
+
+int exec_domain(PyObject* module);
 
 } // namespace pyitt

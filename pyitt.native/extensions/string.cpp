@@ -1,12 +1,30 @@
 #include "string.hpp"
 
+#include <algorithm>
+
 
 namespace pyitt
 {
 namespace pyext
 {
 
-string::~string()
+string::string(string&& oth) noexcept
+	: m_str(oth.m_str)
+	, m_is_owner(oth.m_is_owner)
+{
+	oth.m_str = nullptr;
+	oth.m_is_owner = false;
+}
+
+string& string::operator=(string&& rhs) noexcept
+{
+	std::swap(m_str, rhs.m_str);
+	std::swap(m_is_owner, rhs.m_is_owner);
+
+	return *this;
+}
+
+void string::deallocate() noexcept
 {
 	if (m_is_owner)
 	{
@@ -14,7 +32,7 @@ string::~string()
 	}
 }
 
-string string::from_unicode(PyObject* str)
+string string::from_unicode(PyObject* str) noexcept
 {
 	if (!PyUnicode_Check(str))
 	{

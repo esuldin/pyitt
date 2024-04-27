@@ -5,8 +5,6 @@
 
 #include <ittnotify.h>
 
-#include "extensions/python.hpp"
-
 
 namespace pyitt
 {
@@ -15,20 +13,12 @@ struct Event
 {
 	PyObject_HEAD
 	PyObject* name;
-	__itt_event event;
+	__itt_event handle;
+
+	static PyTypeObject object_type;
 };
 
-extern PyTypeObject EventType;
 
-inline Event* event_obj(PyObject* self);
-Event* event_check(PyObject* self);
 int exec_event(PyObject* module);
-
-
-/* Implementation of inline functions */
-Event* event_obj(PyObject* self)
-{
-	return pyext::pyobject_cast<Event>(self);
-}
 
 } // namespace pyitt

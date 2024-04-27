@@ -3,20 +3,16 @@
 #include <structmember.h>
 
 #include "domain.hpp"
+
+#include "extensions/error_template.hpp"
+#include "extensions/python.hpp"
 #include "extensions/string.hpp"
+
+#include <cstring>
 
 
 namespace pyitt
 {
-
-template<typename T>
-T* id_cast(Id* self);
-
-template<>
-PyObject* id_cast(Id* self)
-{
-    return reinterpret_cast<PyObject*>(self);
-}
 
 static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void id_dealloc(PyObject* self);
@@ -30,7 +26,7 @@ static PyMemberDef id_attrs[] =
     {nullptr},
 };
 
-PyTypeObject IdType =
+PyTypeObject Id::object_type =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
     .tp_name              = "pyitt.native.Id",
@@ -120,91 +116,91 @@ PyTypeObject IdType =
 
 static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    Id* self = id_obj(type->tp_alloc(type, 0));
+    if (type == nullptr)
+    {
+        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
+    }
 
+    pyext::pyobject_holder<Id> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Id object.");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
     }
+
+    self->domain = nullptr;
+    self->handle = __itt_null;
 
     char domain_key[] = { "domain" };
     char* kwlist[] = { domain_key, nullptr };
 
     PyObject* domain = nullptr;
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &domain))
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
-    Domain* domain_obj = domain_check(domain);
+    Domain* domain_obj = pyext::pyobject_cast<Domain>(domain);
     if (domain_obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, domain_key, Domain::object_type.tp_name);
     }
 
     self->domain = pyext::new_ref(domain);
-    self->id = __itt_id_make(self, 0);
+    self->handle = __itt_id_make(self.get(), 0);
 
-    __itt_id_create(domain_obj->handle, self->id);
+    __itt_id_create(domain_get_handle(domain_obj), self->handle);
 
-    return id_cast<PyObject>(self);
+    return self.release();
 }
 
 static void id_dealloc(PyObject* self)
 {
-    if (self == nullptr)
+    if (self)
     {
-        return;
-    }
+        Id* obj = pyext::pyobject_cast<Id>(self);
+        if (obj)
+        {
+            Domain* domain_obj = pyext::pyobject_cast<Domain>(obj->domain);
+            if (domain_obj && std::memcmp(&(obj->handle), &(__itt_null), sizeof(obj->handle)))
+            {
+                __itt_id_destroy(domain_get_handle(domain_obj), obj->handle);
+            }
 
-    Id* obj = id_obj(self);
-    if (obj->domain)
-    {
-        __itt_id_destroy(domain_obj(obj->domain)->handle, obj->id);
-    }
+            Py_XDECREF(obj->domain);
+        }
 
-    Py_XDECREF(obj->domain);
+        Py_TYPE(self)->tp_free(self);
+    }
 }
 
 static PyObject* id_repr(PyObject* self)
 {
-    Id* obj = id_check(self);
+    Id* obj = pyext::pyobject_cast<Id>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Id::object_type.tp_name);
     }
 
-    return PyUnicode_FromFormat("%s(%llu, %llu)", IdType.tp_name, obj->id.d1, obj->id.d2);
+    return PyUnicode_FromFormat("%s(%llu, %llu)", obj->object_type.tp_name, obj->handle.d1, obj->handle.d2);
 }
 
 static PyObject* id_str(PyObject* self)
 {
-    Id* obj = id_check(self);
+    Id* obj = pyext::pyobject_cast<Id>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Id::object_type.tp_name);
     }
 
-    return PyUnicode_FromFormat("(%llu, %llu)", obj->id.d1, obj->id.d2);
-}
-
-Id* id_check(PyObject* self)
-{
-    if (self == nullptr || Py_TYPE(self) != &IdType)
-    {
-        PyErr_SetString(PyExc_TypeError, "The passed id is not a valid instance of Id type.");
-        return nullptr;
-    }
-
-    return id_obj(self);
+    return PyUnicode_FromFormat("(%llu, %llu)", obj->handle.d1, obj->handle.d2);
 }
 
 int exec_id(PyObject* module)
 {
-    return pyext::add_type(module, &IdType);
+    return pyext::add_type(module, &Id::object_type);
 }
 
 } // namespace pyitt

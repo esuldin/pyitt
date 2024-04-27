@@ -3,20 +3,14 @@
 #include <structmember.h>
 
 #include "string_handle.hpp"
+
+#include "extensions/error_template.hpp"
+#include "extensions/python.hpp"
 #include "extensions/string.hpp"
 
 
 namespace pyitt
 {
-
-template<typename T>
-T* domain_cast(Domain* self);
-
-template<>
-PyObject* domain_cast(Domain* self)
-{
-    return reinterpret_cast<PyObject*>(self);
-}
 
 static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void domain_dealloc(PyObject* self);
@@ -30,7 +24,7 @@ static PyMemberDef domain_attrs[] =
     {nullptr},
 };
 
-PyTypeObject DomainType =
+PyTypeObject Domain::object_type =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
     .tp_name              = "pyitt.native.Domain",
@@ -120,12 +114,19 @@ PyTypeObject DomainType =
 
 static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    Domain* self = domain_obj(type->tp_alloc(type, 0));
+    if (type == nullptr)
+    {
+        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
+    }
+
+    pyext::pyobject_holder<Domain> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the Domain object.");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
     }
+
+    self->handle = nullptr;
+    self->name = nullptr;
 
     char name_key[] = { "name" };
     char* kwlist[] = { name_key, nullptr };
@@ -133,7 +134,6 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     PyObject* name = nullptr;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &name))
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -145,24 +145,19 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     {
         self->name = pyext::new_ref(name);
     }
-    else if (Py_TYPE(name) == &StringHandleType)
+    else if (auto string_handle_obj = pyext::pyobject_cast<StringHandle>(name))
     {
-        self->name = pyext::new_ref(string_handle_obj(name)->str);
+        self->name = pyext::xnew_ref(string_handle_get_string(string_handle_obj));
     }
     else
     {
-        Py_DecRef(domain_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_TypeError, "The passed domain name is not a valid instance of str or StringHandle.");
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            "The passed %s is not a valid instance of str or %s.", name_key, StringHandle::object_type.tp_name);
     }
 
     pyext::string name_str = pyext::string::from_unicode(self->name);
     if (name_str.c_str() == nullptr)
     {
-        Py_DecRef(domain_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 
@@ -172,68 +167,60 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     self->handle = __itt_domain_create(name_str.c_str());
 #endif
 
-    return domain_cast<PyObject>(self);
+    return self.release();
 }
 
 static void domain_dealloc(PyObject* self)
 {
-    if (self == nullptr)
+    if (self)
     {
-        return;
-    }
+        Domain* obj = pyext::pyobject_cast<Domain>(self);
+        if (obj)
+        {
+            Py_XDECREF(obj->name);
+        }
 
-    Domain* obj = domain_obj(self);
-    Py_XDECREF(obj->name);
+        Py_TYPE(self)->tp_free(self);
+    }
 }
 
 static PyObject* domain_repr(PyObject* self)
 {
-    Domain* obj = domain_check(self);
+    Domain* obj = pyext::pyobject_cast<Domain>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Domain::object_type.tp_name);
     }
 
     if (obj->name == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
-        return nullptr;
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
     }
 
-    return PyUnicode_FromFormat("%s('%U')", DomainType.tp_name, obj->name);
+    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, obj->name);
 }
 
 static PyObject* domain_str(PyObject* self)
 {
-    Domain* obj = domain_check(self);
+    Domain* obj = pyext::pyobject_cast<Domain>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Domain::object_type.tp_name);
     }
 
     if (obj->name == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
-        return nullptr;
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
     }
 
     return pyext::new_ref(obj->name);
 }
 
-Domain* domain_check(PyObject* self)
-{
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
-    {
-        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
-        return nullptr;
-    }
-
-    return domain_obj(self);
-}
-
 int exec_domain(PyObject* module)
 {
-    return pyext::add_type(module, &DomainType);
+    return pyext::add_type(module, &Domain::object_type);
 }
 
 } // namespace pyitt

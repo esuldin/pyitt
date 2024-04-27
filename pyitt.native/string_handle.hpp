@@ -5,8 +5,6 @@
 
 #include <ittnotify.h>
 
-#include "extensions/python.hpp"
-
 
 namespace pyitt
 {
@@ -16,19 +14,20 @@ struct StringHandle
 	PyObject_HEAD
 	PyObject* str;
 	__itt_string_handle* handle;
+
+	static PyTypeObject object_type;
 };
 
-extern PyTypeObject StringHandleType;
-
-inline StringHandle* string_handle_obj(PyObject* self);
-StringHandle* string_handle_check(PyObject* self);
-int exec_string_handle(PyObject* module);
-
-
-/* Implementation of inline functions */
-StringHandle* string_handle_obj(PyObject* self)
+inline __itt_string_handle* string_handle_get_handle(const StringHandle* obj)
 {
-	return pyext::pyobject_cast<StringHandle>(self);
+	return obj ? obj->handle : nullptr;
 }
+
+inline PyObject* string_handle_get_string(const StringHandle* obj)
+{
+	return obj ? obj->str : nullptr;
+}
+
+int exec_string_handle(PyObject* module);
 
 } // namespace pyitt

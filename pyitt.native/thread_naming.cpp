@@ -3,6 +3,10 @@
 #include <ittnotify.h>
 
 #include "string_handle.hpp"
+
+
+#include "extensions/error_template.hpp"
+#include "extensions/python.hpp"
 #include "extensions/string.hpp"
 
 
@@ -11,20 +15,26 @@ namespace pyitt
 
 PyObject* thread_set_name(PyObject* self, PyObject* name)
 {
-    if (Py_TYPE(name) == &StringHandleType)
+    if (auto string_handle_obj = pyext::pyobject_cast<StringHandle>(name))
     {
-        name = string_handle_obj(name)->str;
+        PyObject* string_handle_str = string_handle_get_string(string_handle_obj);
+        if (string_handle_str == nullptr)
+        {
+            return PyErr_Format(PyExc_ValueError,
+                "Passed %s object as name does not hold string.", StringHandle::object_type.tp_name);
+        }
+
+        name = pyext::new_ref(string_handle_str);
     }
     else if (!PyUnicode_Check(name))
     {
-        PyErr_SetString(PyExc_TypeError, "The passed thread name is not a valid instance of str or StringHandle.");
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            "The passed name is not a valid instance of str or %s.", StringHandle::object_type.tp_name);
     }
 
     pyext::string name_str = pyext::string::from_unicode(name);
     if (name_str.c_str() == nullptr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 

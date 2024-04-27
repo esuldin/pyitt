@@ -2,20 +2,13 @@
 
 #include <structmember.h>
 
+#include "extensions/error_template.hpp"
+#include "extensions/python.hpp"
 #include "extensions/string.hpp"
 
 
 namespace pyitt
 {
-
-template<typename T>
-T* string_handle_cast(StringHandle* self);
-
-template<>
-PyObject* string_handle_cast(StringHandle* self)
-{
-    return reinterpret_cast<PyObject*>(self);
-}
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void string_handle_dealloc(PyObject* self);
@@ -29,7 +22,7 @@ static PyMemberDef string_handle_attrs[] =
     {nullptr},
 };
 
-PyTypeObject StringHandleType =
+PyTypeObject StringHandle::object_type =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
     .tp_name              = "pyitt.native.StringHandle",
@@ -119,22 +112,26 @@ PyTypeObject StringHandleType =
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    StringHandle* self = string_handle_obj(type->tp_alloc(type, 0));
+    if (type == nullptr)
+    {
+        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
+    }
 
+    pyext::pyobject_holder<StringHandle> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot allocate the StringHandle object.");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
     }
+
+    self->str = nullptr;
+    self->handle = nullptr;
 
     char str_key[] = { "str" };
     char* kwlist[] = { str_key, nullptr };
 
     PyObject* str = nullptr;
-
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &str))
     {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot parse arguments.");
         return nullptr;
     }
 
@@ -144,18 +141,12 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
     }
     else
     {
-        Py_DecRef(string_handle_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_TypeError, "The passed string to create string handle is not a valid instance of str.");
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError, pyext::error::invalid_argument_type_tmpl, "string", "str");
     }
 
     pyext::string str_wrapper = pyext::string::from_unicode(self->str);
     if (str_wrapper.c_str() == nullptr)
     {
-        Py_DecRef(string_handle_cast<PyObject>(self));
-
-        PyErr_SetString(PyExc_RuntimeError, "Cannot convert unicode to native string.");
         return nullptr;
     }
 
@@ -165,68 +156,60 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
     self->handle = __itt_string_handle_create(str_wrapper.c_str());
 #endif
 
-    return string_handle_cast<PyObject>(self);
+    return self.release();
 }
 
 static void string_handle_dealloc(PyObject* self)
 {
-    if (self == nullptr)
+    if (self)
     {
-        return;
-    }
+        StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
+        if (obj)
+        {
+            Py_XDECREF(obj->str);
+        }
 
-    StringHandle* obj = string_handle_obj(self);
-    Py_XDECREF(obj->str);
+        Py_TYPE(self)->tp_free(self);
+    }
 }
 
 static PyObject* string_handle_repr(PyObject* self)
 {
-    StringHandle* obj = string_handle_check(self);
+    StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", StringHandle::object_type.tp_name);
     }
 
     if (obj->str == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
-        return nullptr;
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
     }
 
-    return PyUnicode_FromFormat("%s('%U')", StringHandleType.tp_name, obj->str);
+    return PyUnicode_FromFormat("%s('%U')", obj->object_type.tp_name, obj->str);
 }
 
 static PyObject* string_handle_str(PyObject* self)
 {
-    StringHandle* obj = string_handle_check(self);
+    StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
     if (obj == nullptr)
     {
-        return nullptr;
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", StringHandle::object_type.tp_name);
     }
 
     if (obj->str == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
-        return nullptr;
+        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
     }
 
     return pyext::new_ref(obj->str);
 }
 
-StringHandle* string_handle_check(PyObject* self)
-{
-    if (self == nullptr || Py_TYPE(self) != &StringHandleType)
-    {
-        PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
-        return nullptr;
-    }
-
-    return string_handle_obj(self);
-}
-
 int exec_string_handle(PyObject* module)
 {
-    return pyext::add_type(module, &StringHandleType);
+    return pyext::add_type(module, &StringHandle::object_type);
 }
 
 }

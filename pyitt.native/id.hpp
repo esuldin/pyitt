@@ -5,8 +5,6 @@
 
 #include <ittnotify.h>
 
-#include "extensions/python.hpp"
-
 
 namespace pyitt
 {
@@ -15,20 +13,16 @@ struct Id
 {
 	PyObject_HEAD
 	PyObject* domain;
-	__itt_id id;
+	__itt_id handle;
+
+	static PyTypeObject object_type;
 };
 
-extern PyTypeObject IdType;
-
-inline Id* id_obj(PyObject* self);
-Id* id_check(PyObject* self);
-int exec_id(PyObject* module);
-
-
-/* Implementation of inline functions */
-Id* id_obj(PyObject* self)
+inline __itt_id id_get_handle(const Id* obj)
 {
-	return pyext::pyobject_cast<Id>(self);
+	return obj ? obj->handle : __itt_null;
 }
+
+int exec_id(PyObject* module);
 
 } // namespace pyitt
