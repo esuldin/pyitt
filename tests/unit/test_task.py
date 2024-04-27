@@ -86,8 +86,11 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_name_and_domain_as_context_manager(self, domain_class_mock, string_handle_class_mock):
-        with pyitt.task('my task', 'my domain'):
-            pass
+        string_handle_class_mock.side_effect = lambda x: x
+        
+        task_name = 'my task'
+        with pyitt.task(task_name, 'my domain') as task:
+            self.assertEqual(task.name, task_name)
 
         string_handle_class_mock.assert_called_once_with('my task')
         domain_class_mock.assert_called_once_with('my domain')
@@ -255,15 +258,15 @@ class TaskExecutionTests(TestCase):
         string_handle_class_mock.side_effect = lambda x: x
         id_class_mock.return_value = 'id_handle'
 
-        region_name = 'my region'
-        with pyitt.task(region_name):
-            pass
+        task_name = 'my task'
+        with pyitt.task(task_name) as task:
+            self.assertEqual(task.name, task_name)
 
         domain_class_mock.assert_called_once_with(None)
-        string_handle_class_mock.assert_called_once_with(region_name)
+        string_handle_class_mock.assert_called_once_with(task_name)
         id_class_mock.assert_called_once_with(domain_class_mock.return_value)
 
-        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, region_name, id_class_mock.return_value,
+        task_begin_mock.assert_called_once_with(domain_class_mock.return_value, task_name, id_class_mock.return_value,
                                                 None)
         task_end_mock.assert_called_once_with(domain_class_mock.return_value)
 

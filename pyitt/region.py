@@ -35,8 +35,9 @@ class _Region:
     def __get__(self, obj, objtype):
         return _wraps(self)(self.__get_wrapper(self.__function, obj))
 
-    def __enter__(self) -> None:
+    def __enter__(self):
         self.begin()
+        return self
 
     def __exit__(self, *args) -> None:
         self.end()
