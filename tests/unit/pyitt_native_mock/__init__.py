@@ -1,3 +1,6 @@
+"""
+A framework to replace objects from pyitt.native with mock objects.
+"""
 from sys import modules
 
 from .patch import patch

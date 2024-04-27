@@ -1,7 +1,7 @@
 from unittest import main as unittest_main, TestCase
 
-from pyitt_native_mock import patch as pyitt_native_patch
-import pyitt
+from .pyitt_native_mock import patch as pyitt_native_patch
+import pyitt  # pylint: disable=C0411
 
 
 class DomainTests(TestCase):

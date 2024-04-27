@@ -24,13 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install build coverage flake8 pylint
+        python -m pip install build coverage gcovr flake8 pylint
     - name: Lint with pylint the code of the package
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 $(git ls-files "*.py" ":!:samples/*" ":!:utest/*")
+        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
     - name: Lint with pylint the code of tests and samples
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 $(git ls-files "utest/*.py" "samples/*.py")
+        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "tests/*/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -38,16 +38,34 @@ jobs:
     - name: Build package
       run: |
         python -m build
-    - name: Test with unittest
+    - name: Run unit tests
       run: |
-        coverage run -m unittest discover -s utest
-    - name: Generate code coverage report
+        coverage run -m unittest discover -s tests/unit -t .
+    - name: Generate code coverage report for python code
       run: |
-        coverage html
+        coverage html --directory=htmlcov-python
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-linux-python-${{ matrix.python-version }}
-        path: htmlcov
+        path: htmlcov-python
+        retention-days: 1
+    - name: Build package with code coverage for native part and install it for integration testing
+      env:
+        PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE: 1
+      run: |
+        python -m pip install .
+    - name: Run integration tests
+      working-directory: ./tests
+      run: |
+        python -m unittest discover -s integration -t .
+    - name: Generate code coverage report for native code
+      run: |
+        mkdir htmlcov-native
+        gcovr --html-details htmlcov-native/coverage.html --html-theme github.green
+    - uses: actions/upload-artifact@v4
+      with:
+        name: htmlcov-linux-native-${{ matrix.python-version }}
+        path: htmlcov-native
         retention-days: 1
   build-windows:
     runs-on: windows-latest
@@ -74,7 +92,7 @@ jobs:
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
     - name: Lint with pylint the code of tests and samples
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "utest/*.py" "samples/*.py"
+        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "tests/*/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -82,14 +100,14 @@ jobs:
     - name: Build package
       run: |
         python -m build
-    - name: Test with unittest
+    - name: Run unit tests
       run: |
-        coverage run -m unittest discover -s utest
-    - name: Generate code coverage report
+        coverage run -m unittest discover -s tests/unit -t .
+    - name: Generate code coverage report for python code
       run: |
-        coverage html
+        coverage html --directory=htmlcov-python
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-windows-python-${{ matrix.python-version }}
-        path: htmlcov
+        path: htmlcov-python
         retention-days: 1
