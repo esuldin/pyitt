@@ -249,8 +249,8 @@ class _NamedRegion(_Region):
             self.__name = self.__get_name(func)
             self.__mark_name_as_final()
         elif not self.__is_custom_name_specified:
-            raise RuntimeError('A custom name for a code region must be specified before'
-                               ' _NamedRegion.__call__() can be called more than once.')
+            raise RuntimeError(f'A custom name for a code region must be specified before'
+                               f' {self.__class__.__name__}.__call__() can be called more than once.')
 
     @staticmethod
     def __get_function(func):

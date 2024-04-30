@@ -87,7 +87,7 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_name_and_domain_as_context_manager(self, domain_class_mock, string_handle_class_mock):
         string_handle_class_mock.side_effect = lambda x: x
-        
+
         task_name = 'my task'
         with pyitt.task(task_name, 'my domain') as task:
             self.assertEqual(task.name, task_name)
@@ -305,8 +305,8 @@ class TaskExecutionTests(TestCase):
         with self.assertRaises(RuntimeError) as context:
             task(CallableClass())
 
-        self.assertEqual(str(context.exception), 'A custom name for a code region must be specified before'
-                                                 ' _NamedRegion.__call__() can be called more than once.')
+        self.assertEqual(str(context.exception), f'A custom name for a code region must be specified before'
+                                                 f' {task.__class__.__name__}.__call__() can be called more than once.')
 
     def test_task_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:

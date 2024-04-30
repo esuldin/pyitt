@@ -250,8 +250,8 @@ class EventExecutionTests(TestCase):
         with self.assertRaises(RuntimeError) as context:
             event(CallableClass())
 
-        self.assertEqual(str(context.exception), 'A custom name for a code region must be specified before'
-                                                 ' _NamedRegion.__call__() can be called more than once.')
+        self.assertEqual(str(context.exception), f'A custom name for a code region must be specified before '
+                                                 f'{event.__class__.__name__}.__call__() can be called more than once.')
 
     def test_event_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:
