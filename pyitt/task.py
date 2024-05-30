@@ -15,7 +15,7 @@ class _Task(_NamedRegion):
     """
     def __init__(self, task=None, domain=None, id=None, parent=None) -> None:
         """
-        Creates the instance of the class that represents ITT task.
+        Creates the instance of the class that represents an ITT task.
         :param task: a name of the task or a callable object (e.g. function) to wrap. If the callable object is passed
                      the name of this object is used as a name for the task.
         :param domain: a task domain
@@ -52,16 +52,16 @@ class _Task(_NamedRegion):
         return self.__parent_id
 
     def begin(self) -> None:
-        """Marks the beginning of a task."""
+        """Marks the beginning of the task."""
         raise NotImplementedError()
 
     def end(self) -> None:
-        """Marks the end of a task."""
+        """Marks the end of the task."""
         raise NotImplementedError()
 
     @staticmethod
     def __get_task_domain(original_domain):
-        """Returns task domain"""
+        """Returns the domain of the task."""
         if original_domain is None or isinstance(original_domain, str):
             return _domain(original_domain)
 
@@ -69,12 +69,12 @@ class _Task(_NamedRegion):
 
     @staticmethod
     def __get_task_id(original_id, domain):
-        """Returns task id for specified domain"""
+        """Returns task id for the specified domain."""
         return _id(domain) if original_id is None else original_id
 
     @staticmethod
     def __get_parent_id(original_parent):
-        """Returns parent id"""
+        """Returns parent id."""
         return original_parent.id() if isinstance(original_parent, task.__class__) else original_parent
 
 
@@ -86,11 +86,11 @@ class NestedTask(_Task):
     most recent begin() call of the same or another nested task.
     """
     def begin(self) -> None:
-        """Marks the beginning of a task."""
+        """Marks the beginning of the task."""
         _task_begin(self.domain, self.name, self.id, self.parent_id)
 
     def end(self) -> None:
-        """Marks the end of a task."""
+        """Marks the end of the task."""
         _task_end(self.domain)
 
 
@@ -114,11 +114,11 @@ class OverlappedTask(_Task):
     Execution regions of overlapped tasks may intersect.
     """
     def begin(self) -> None:
-        """Marks the beginning of a task."""
+        """Marks the beginning of the task."""
         _task_begin_overlapped(self.domain, self.name, self.id, self.parent_id)
 
     def end(self) -> None:
-        """Marks the end of a task."""
+        """Marks the end of the task."""
         _task_end_overlapped(self.domain, self.id)
 
 

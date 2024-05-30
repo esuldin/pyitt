@@ -49,17 +49,17 @@ class _CollectionRegion(_Region):
 
 
 def detach() -> None:
-    """Detach collection of profiling data."""
+    """Detaches collection of profiling data."""
     _detach()
 
 
 def pause() -> None:
-    """Pause collection of profiling data."""
+    """Pauses collection of profiling data."""
     _pause()
 
 
 def resume() -> None:
-    """Resume collection of profiling data."""
+    """Resumes collection of profiling data."""
     _resume()
 
 

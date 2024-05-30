@@ -98,7 +98,7 @@ class _Region:
 
         def _function_wrapper(*args, **kwargs):
             """
-            A wrapper to trace the execution of a callable object
+            A wrapper to trace the execution of a callable object.
             :param args: positional arguments of the callable object
             :param kwargs: keyword arguments of the callable object
             :return: result of a call of the callable object
@@ -114,7 +114,7 @@ class _Region:
 
         def _method_wrapper(*args, **kwargs):
             """
-            A wrapper to trace the execution of a class method
+            A wrapper to trace the execution of a class method.
             :param args: positional arguments of the class method
             :param kwargs: keyword arguments of the class method
             :return: result of a call of the class method
@@ -140,7 +140,7 @@ class _CallSite:
     def __init__(self, frame_number: int) -> None:
         """
         Creates a call site.
-        :param frame_number: relative frame number that should be used to extract the information about the call site
+        :param frame_number: relative frame number that should be used to extract the information about the call site.
         """
         caller = _stack()[frame_number+1]
         self._filename = _basename(caller.filename)
@@ -254,12 +254,12 @@ class _NamedRegion(_Region):
 
     @staticmethod
     def __get_function(func):
-        """Returns the argument if it is callable, otherwise returns None"""
+        """Returns the argument if it is callable, otherwise returns None."""
         return func if callable(func) else None
 
     @staticmethod
     def __get_name(func):
-        """Returns appropriate code region name"""
+        """Returns appropriate code region name."""
         if func is None:
             return None
 

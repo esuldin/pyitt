@@ -6,7 +6,7 @@ from pyitt.native import thread_set_name as _thread_set_name
 
 def thread_set_name(name: str):
     """
-    Sets a thread name of calling thread.
+    Sets a thread name for the calling thread.
     :param name: the thread name
     """
     _thread_set_name(name)
