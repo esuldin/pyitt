@@ -22,7 +22,7 @@ class _CollectionRegion(_Region):
         """
         super().__init__(func)
         self.activator = activator
-        self.__is_paired_call_needed = False
+        self.__is_active = False
 
     def _begin(self):
         raise NotImplementedError()
@@ -33,18 +33,17 @@ class _CollectionRegion(_Region):
     def begin(self):
         """Marks the beginning of a collection region."""
         if callable(self.activator):
-            activator_state = self.activator()
-            self.__is_paired_call_needed = activator_state
+            self.__is_active = bool(self.activator())
 
-            if activator_state:
+            if self.__is_active:
                 self._begin()
         else:
-            self.__is_paired_call_needed = True
+            self.__is_active = True
             self._begin()
 
     def end(self):
         """Marks the end of a collection region."""
-        if self.__is_paired_call_needed:
+        if self.__is_active:
             self._end()
 
 
@@ -75,18 +74,18 @@ class ManualCollectionRegionActivator:
         Creates an activator.
         :param state: sets the initial state of activator.
         """
-        self._state = state
+        self.__state = state
 
     def __call__(self):
-        return self._state == self.ACTIVE
+        return self.__state == self.ACTIVE
 
     def activate(self):
         """Activates the region."""
-        self._state = self.ACTIVE
+        self.__state = self.ACTIVE
 
     def deactivate(self):
         """Deactivates the region."""
-        self._state = self.INACTIVE
+        self.__state = self.INACTIVE
 
 
 class ActiveRegion(_CollectionRegion):
