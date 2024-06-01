@@ -102,6 +102,27 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
        cd pyitt
        pip install .
 
+## Known Issues and Limitations
+
+- If pyitt is used in a function which is specified as a target for calls from 
+  [multiprocessing](https://docs.python.org/3/library/multiprocessing.html) module and an application is profiled on
+  Linux with Intel VTune Profiler, the following error may occur:
+
+      <...>/data.0/userapicollector-*.trace' (Data file is corrupted)
+
+  This issue is caused by libittnotify_collector.so library which is a part of Intel VTune Profiler.
+  Unfortunately, the issue is not resolvable within pyitt itself. However, a potential workaround is to use 'spawn'
+  method for multiprocessing module in the profiled application:
+
+  ```python
+  import multiprocessing
+  ...
+  if __name__ == '__main__':
+      multiprocessing.set_start_method('spawn')
+  ```
+  
+  Please see [#1](https://github.com/esuldin/pyitt/issues/1) for more technical information.
+
 ## References
 
  - [Instrumentation and Tracing Technology APIs](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/instrumentation-and-tracing-technology-apis.html)
