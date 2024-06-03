@@ -31,13 +31,12 @@ class _Region:
         if self.__function is None:
             self.__call_target = self.__wrap
         elif callable(self.__function):
-            self.__call_target = self.__get_wrapper(self.__function)
-            _wraps(self.__function, updated=())(self)
+            self.__wrap(self.__function)
         else:
             raise TypeError('func must be a callable object or None.')
 
     def __get__(self, obj, objtype):
-        return _wraps(self)(self.__get_wrapper(self.__function, obj))
+        return _wraps(self.__function)(self.__get_wrapper(self.__function, obj))
 
     def __enter__(self):
         self.begin()
@@ -82,8 +81,10 @@ class _Region:
             raise TypeError('Callable object is expected as a first argument.')
 
         self.__call_wrap_callback()
+        self.__call_target = self.__get_wrapper(func)
+        _wraps(self.__function, updated=())(self)
 
-        return _wraps(self.__function)(self.__get_wrapper(self.__function))
+        return self
 
     def __call_wrap_callback(self):
         """Call a callback for wrapper creation."""
@@ -180,7 +181,6 @@ class _NamedRegion(_Region):
         self.__name = self.__get_name(func)
         self.__name_determination_callback = None
         self.__is_final_name_determined = False
-        self.__is_custom_name_specified = isinstance(func, str)
 
         final_name_is_determined = not (func is None or isinstance(func, _CallSite))
         if final_name_is_determined:
@@ -252,9 +252,6 @@ class _NamedRegion(_Region):
             self.__restore_original_begin_function()
             self.__name = self.__get_name(func)
             self.__mark_name_as_final()
-        elif not self.__is_custom_name_specified:
-            raise RuntimeError(f'A custom name for a code region must be specified before'
-                               f' {self.__class__.__name__}.__call__() can be called more than once.')
 
     @staticmethod
     def __get_function(func):

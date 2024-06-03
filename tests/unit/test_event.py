@@ -242,16 +242,13 @@ class EventExecutionTests(TestCase):
     def test_event_for_multiple_callable_objects(self):
         class CallableClass:
             def __call__(self, *args, **kwargs):
-                pass  # pragma: no cover
+                return 42
 
         event = pyitt.event()
-        event(CallableClass())
+        wrapped_object = event(CallableClass())
 
-        with self.assertRaises(RuntimeError) as context:
-            event(CallableClass())
-
-        self.assertEqual(str(context.exception), f'A custom name for a code region must be specified before '
-                                                 f'{event.__class__.__name__}.__call__() can be called more than once.')
+        self.assertEqual(wrapped_object, event)
+        self.assertEqual(event(), 42)
 
     def test_event_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:
