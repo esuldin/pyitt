@@ -14,12 +14,16 @@ class _Region:
 
     The subclasses itself and instances of the subclasses can be used as a context manager or as a decorator
     to automatically track the execution of code region and callable objects (e.g. function).
+
+    Although the class instance can be used to wrap any callable objects. It is not supposed that it will act as a proxy
+    for instances of classes that implement the `__call__()` method. It means that the instance will not be a descendant
+    of the passed object's class, and it will not provide the access to attributes of the passed object.
     """
     def __init__(self, func=None) -> None:
         """
         Creates the instance of class that represents a traced code region.
         :param func: a callable object to wrap. If it is None, a wrapper creation will be deferred and can be done
-                     using __call__() function for the object.
+                     using `__call__()` method for the instance.
         """
         self.__function = func
         self.__wrap_callback = None
