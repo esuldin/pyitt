@@ -13,7 +13,7 @@ class _Task(_NamedRegion):
     """
     An abstract base class that provides common functionality for subtypes that represent ITT Tasks.
     """
-    def __init__(self, task=None, domain=None, id=None, parent=None) -> None:
+    def __init__(self, task=None, /, domain=None, id=None, parent=None) -> None:
         """
         Creates the instance of the class that represents an ITT task.
         :param task: a name of the task or a callable object (e.g. function) to wrap. If the callable object is passed
@@ -94,7 +94,7 @@ class NestedTask(_Task):
         _task_end(self.domain)
 
 
-def nested_task(task=None, domain=None, id=None, parent=None):
+def nested_task(task=None, /, domain=None, id=None, parent=None):
     """
     Creates a nested task instance with the given arguments.
     :param task: a name of the task or a callable object
@@ -122,7 +122,7 @@ class OverlappedTask(_Task):
         _task_end_overlapped(self.domain, self.id)
 
 
-def overlapped_task(task=None, domain=None, id=None, parent=None):
+def overlapped_task(task=None, /, domain=None, id=None, parent=None):
     """
     Creates an overlapped task instance with the given arguments.
     :param task: a name of the task or a callable object
@@ -135,7 +135,7 @@ def overlapped_task(task=None, domain=None, id=None, parent=None):
     return OverlappedTask(task, domain, id, parent)
 
 
-def task(task=None, domain=None, id=None, parent=None, overlapped=False):
+def task(task=None, /, domain=None, id=None, parent=None, overlapped=False):
     """
     Creates a task instance with the given arguments.
     :param task: a name of the task or a callable object
