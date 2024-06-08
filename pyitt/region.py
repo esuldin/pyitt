@@ -1,7 +1,7 @@
 """
 region.py - Python module wrapper for code region
 """
-from functools import partial as _partial, wraps as _wraps
+from functools import lru_cache as _lru_cache, partial as _partial, wraps as _wraps
 from inspect import stack as _stack
 from os.path import basename as _basename
 
@@ -35,8 +35,8 @@ class _Region:
         else:
             raise TypeError('func must be a callable object or None.')
 
-    def __get__(self, obj, objtype):
-        return _wraps(self.__function)(self.__get_wrapper(self.__function, obj))
+    def __get__(self, obj, objtype=None):
+        return self.__get_method_wrapper(self.__function, obj)
 
     def __enter__(self):
         self.begin()
@@ -101,6 +101,9 @@ class _Region:
         if not callable(func):
             raise TypeError('Callable object is expected to be passed.')
 
+        begin_func = self.begin
+        end_func = self.end
+
         def _function_wrapper(*args, **kwargs):
             """
             A wrapper to trace the execution of a callable object.
@@ -108,14 +111,12 @@ class _Region:
             :param kwargs: keyword arguments of the callable object
             :return: result of a call of the callable object
             """
-            self.begin()
+            begin_func()
 
             try:
-                func_result = func(*args, **kwargs)
+                return func(*args, **kwargs)
             finally:
-                self.end()
-
-            return func_result
+                end_func()
 
         def _method_wrapper(*args, **kwargs):
             """
@@ -124,16 +125,18 @@ class _Region:
             :param kwargs: keyword arguments of the class method
             :return: result of a call of the class method
             """
-            self.begin()
+            begin_func()
 
             try:
-                func_result = func(obj, *args, **kwargs)
+                return func(obj, *args, **kwargs)
             finally:
-                self.end()
-
-            return func_result
+                end_func()
 
         return _function_wrapper if obj is None or isinstance(func, staticmethod) else _method_wrapper
+
+    @_lru_cache
+    def __get_method_wrapper(self, func, obj):
+        return _wraps(func)(self.__get_wrapper(func, obj))
 
 
 class _CallSite:
