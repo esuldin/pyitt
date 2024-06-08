@@ -1,7 +1,9 @@
 from unittest import main as unittest_main, TestCase
 
+# pylint: disable=C0411
 from .pyitt_native_mock import patch as pyitt_native_patch
-import pyitt  # pylint: disable=C0411
+from pyitt.collection_control import _CollectionRegion
+import pyitt
 
 
 class DirectCollectionControlTests(TestCase):
@@ -19,6 +21,16 @@ class DirectCollectionControlTests(TestCase):
     def test_resume_call(self, resume_mock):
         pyitt.collection_control.resume()
         resume_mock.assert_called_once()
+
+
+class CollectionRegionAbstractMethodsTest(TestCase):
+    def test_region_abstract_method_begin(self):
+        with self.assertRaises(NotImplementedError):
+            _CollectionRegion._begin(_CollectionRegion())  # pylint: disable=W0212
+
+    def test_region_abstract_method_end(self):
+        with self.assertRaises(NotImplementedError):
+            _CollectionRegion._end(_CollectionRegion())  # pylint: disable=W0212
 
 
 class ActiveRegionTests(TestCase):

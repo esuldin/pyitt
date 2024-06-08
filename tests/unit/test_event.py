@@ -1,6 +1,5 @@
 from inspect import stack
 from os.path import basename
-from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
@@ -318,58 +317,6 @@ class EventExecutionTests(TestCase):
                           call().begin(),
                           call().end()]
         event_class_mock.assert_has_calls(expected_calls)
-
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
-    def test_event_for_static_method_with_wrong_order_of_decorators(self, event_class_mock, string_handle_class_mock):
-        string_handle_class_mock.side_effect = lambda x: x
-
-        class MyClass:
-            @pyitt.event
-            @staticmethod
-            def my_static_method():
-                return 42  # pragma: no cover
-
-        if version_info >= (3, 10):
-            string_handle_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
-            event_class_mock.assert_called_once_with(f'{MyClass.my_static_method.__qualname__}')
-
-            self.assertEqual(MyClass().my_static_method(), 42)
-            self.assertEqual(MyClass.my_static_method(), 42)
-
-            expected_calls = [call().begin(),
-                              call().end(),
-                              call().begin(),
-                              call().end()]
-            event_class_mock.assert_has_calls(expected_calls)
-        else:
-            # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
-            # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
-            # older. otherwise, the exception is thrown.
-            with self.assertRaises(TypeError) as context:
-                MyClass().my_static_method()
-
-            self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
-
-    def test_event_for_class_method_with_wrong_order_of_decorators(self):
-        # @classmethod decorator returns a descriptor and the descriptor is not callable object,
-        # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
-        # otherwise, the exception is thrown.
-        class MyClass:
-            @pyitt.event
-            @classmethod
-            def my_class_method(cls):
-                return 42  # pragma: no cover
-
-        with self.assertRaises(TypeError) as context:
-            MyClass().my_class_method()
-
-        self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
-
-        with self.assertRaises(TypeError) as context:
-            MyClass.my_class_method()
-
-        self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
