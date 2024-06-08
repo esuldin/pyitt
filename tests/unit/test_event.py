@@ -107,7 +107,7 @@ class EventCreationTests(TestCase):
 
         event = pyitt.event(CallableClass())
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         event_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(event.name, expected_name)
@@ -124,7 +124,7 @@ class EventCreationTests(TestCase):
         event = pyitt.event()
         event(CallableClass())
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         event_class_mock.assert_called_once_with(expected_name)
         self.assertEqual(event.name, expected_name)
 
@@ -153,13 +153,13 @@ class EventPropertiesTest(TestCase):
 
         event = pyitt.event(CallableClass())
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         event_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(event.name, expected_name)
 
         self.assertEqual(str(event), expected_name)
-        self.assertEqual(repr(event), f'{event.__class__.__name__}(\'{expected_name}\')')
+        self.assertEqual(repr(event), f'{event.__class__.__qualname__}(\'{expected_name}\')')
 
 
 class EventExecutionTests(TestCase):
@@ -230,7 +230,7 @@ class EventExecutionTests(TestCase):
                 return 42
 
         callable_object = pyitt.event(CallableClass())
-        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
+        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__qualname__}.__call__')
         event_class_mock.assert_called_once_with(string_handle_class_mock.return_value)
 
         self.assertEqual(callable_object(), 42)

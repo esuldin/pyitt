@@ -109,7 +109,7 @@ class TaskCreationTests(TestCase):
 
         task = pyitt.task(CallableClass())
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         string_handle_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(task.name, expected_name)
@@ -134,7 +134,7 @@ class TaskCreationTests(TestCase):
         task = pyitt.task()
         task(CallableClass())
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         expected_calls = [
             call(f'{basename(caller.filename)}:{caller.lineno+1}'),
             call(expected_name)
@@ -174,7 +174,7 @@ class TaskPropertiesTest(TestCase):
         parent_id = 1
         task = pyitt.task(CallableClass(), domain=domain_name, id=task_id, parent=parent_id)
 
-        expected_name = f'{CallableClass.__name__}.__call__'
+        expected_name = f'{CallableClass.__qualname__}.__call__'
         string_handle_class_mock.assert_called_once_with(expected_name)
 
         self.assertEqual(task.name, expected_name)
@@ -185,7 +185,7 @@ class TaskPropertiesTest(TestCase):
         self.assertEqual(str(task), f"{{ name: '{str(expected_name)}', domain: '{str(domain_name)}',"
                                     f" id: {str(task_id)}, parent_id: {str(parent_id)} }}")
 
-        self.assertEqual(repr(task), f'{task.__class__.__name__}({repr(expected_name)}, {repr(domain_name)},'
+        self.assertEqual(repr(task), f'{task.__class__.__qualname__}({repr(expected_name)}, {repr(domain_name)},'
                                      f' {repr(task_id)}, {repr(parent_id)})')
 
 
@@ -286,7 +286,7 @@ class TaskExecutionTests(TestCase):
                 return 42
 
         callable_object = pyitt.task(CallableClass())
-        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
+        string_handle_class_mock.assert_called_once_with(f'{CallableClass.__qualname__}.__call__')
 
         self.assertEqual(callable_object(), 42)
 

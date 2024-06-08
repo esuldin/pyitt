@@ -277,6 +277,7 @@ class _NamedRegion(_Region):
             return _string_handle(func.__name__)
 
         if hasattr(func, '__class__'):
-            return _string_handle(f'{func.__class__.__name__}.__call__')
+            # PEP 3155 (Python 3.3) introduces __qualname__ on class objects
+            return _string_handle(f'{func.__class__.__qualname__}.__call__')
 
         raise ValueError('Cannot get the name for the code region.')
