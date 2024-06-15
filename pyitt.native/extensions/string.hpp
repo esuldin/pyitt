@@ -31,7 +31,7 @@ public:
 
     inline string() noexcept;
     string(const string&) = delete;
-    string(string&& oth) noexcept;
+    inline string(string&& oth) noexcept;
     inline ~string();
 
     string& operator=(const string&) = delete;
@@ -59,6 +59,14 @@ string::string(const_pointer str, bool take_ownership) noexcept
     : m_str(str)
     , m_is_owner(take_ownership)
 {}
+
+string::string(string&& oth) noexcept
+	: m_str(oth.m_str)
+	, m_is_owner(oth.m_is_owner)
+{
+	oth.m_str = nullptr;
+	oth.m_is_owner = false;
+}
 
 string::~string()
 {

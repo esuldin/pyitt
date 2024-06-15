@@ -65,7 +65,7 @@ pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
                         'pyitt.native/pyitt.cpp']
 
 pyitt_native_compiler_args = ['/std:c++20' if sys.platform == 'win32' else '-std=c++20']
-pyitt_native_libraries = []
+pyitt_native_link_args = []
 
 # Check if code coverage is requested
 build_with_code_coverage = get_environment_flag('PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE')
@@ -74,12 +74,13 @@ build_with_code_coverage = build_with_code_coverage if build_with_code_coverage 
 if build_with_code_coverage:
     assert build_with_code_coverage and sys.platform != 'win32', 'Build with code coverage is not supported on Windows.'
     pyitt_native_compiler_args.append('--coverage')
-    pyitt_native_libraries.append('gcov')
+    pyitt_native_link_args.append('--coverage')
 
 pyitt_native = Extension('pyitt.native',
                          sources=itt_source + pyitt_native_sources,
                          include_dirs=itt_include_dirs,
                          extra_compile_args=itt_compiler_flags + pyitt_native_compiler_args,
+                         extra_link_args=pyitt_native_link_args,
                          extra_objects=itt_extra_objects)
 
 

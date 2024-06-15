@@ -8,16 +8,10 @@ namespace pyitt
 namespace pyext
 {
 
-string::string(string&& oth) noexcept
-	: m_str(oth.m_str)
-	, m_is_owner(oth.m_is_owner)
-{
-	oth.m_str = nullptr;
-	oth.m_is_owner = false;
-}
-
 string& string::operator=(string&& rhs) noexcept
 {
+    deallocate();
+
 	std::swap(m_str, rhs.m_str);
 	std::swap(m_is_owner, rhs.m_is_owner);
 
@@ -30,6 +24,9 @@ void string::deallocate() noexcept
 	{
 		PyMem_Free(const_cast<pointer>(m_str));
 	}
+
+	m_is_owner = false;
+	m_str = nullptr;
 }
 
 string string::from_unicode(PyObject* str) noexcept

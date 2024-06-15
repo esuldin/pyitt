@@ -12,15 +12,6 @@
 namespace pyitt
 {
 
-template<typename T>
-T* event_cast(Event* self);
-
-template<>
-PyObject* event_cast(Event* self)
-{
-    return reinterpret_cast<PyObject*>(self);
-}
-
 static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
 static void event_dealloc(PyObject* self);
 

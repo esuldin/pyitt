@@ -13,12 +13,12 @@ class DomainTests(TestCase):
         self.assertEqual(domain.name, 'pyitt')
 
     def test_domain_creation_with_string(self):
-        domain_name = 'My Domain'
+        domain_name = 'my domain'
         domain = Domain(domain_name)
         self.assertEqual(domain.name, domain_name)
 
     def test_domain_creation_with_string_handle(self):
-        domain_name = 'My Domain'
+        domain_name = 'my domain'
         string_handle = StringHandle(domain_name)
         domain = Domain(string_handle)
         self.assertEqual(domain.name, domain_name)
@@ -27,8 +27,33 @@ class DomainTests(TestCase):
         with self.assertRaises(TypeError) as context:
             Domain(42)
 
-        self.assertEqual(str(context.exception), 'The passed name is not a valid instance of str or'
-                                                 ' pyitt.native.StringHandle.')
+        self.assertEqual(str(context.exception), f'The passed name is not a valid instance of str or'
+                                                 f' pyitt.native.{StringHandle.__name__}.')
+
+    def test_domain_representation(self):
+        domain_name = 'my domain'
+        domain = Domain(domain_name)
+
+        self.assertEqual(repr(domain), f"pyitt.native.{Domain.__name__}('{domain_name}')")
+
+    def test_domain_representation_for_non_domain_object(self):
+        with self.assertRaises(TypeError) as context:
+            Domain.__repr__(None)  # pylint: disable=C2801
+
+        self.assertEqual(str(context.exception), f"descriptor '__repr__' requires a 'pyitt.native.{Domain.__name__}'"
+                                                 f" object but received a 'NoneType'")
+
+    def test_domain_string_representation(self):
+        domain_name = 'my domain'
+        domain = Domain(domain_name)
+        self.assertEqual(str(domain), domain_name)
+
+    def test_domain_string_representation_for_non_domain_object(self):
+        with self.assertRaises(TypeError) as context:
+            Domain.__str__(None)  # pylint: disable=C2801
+
+        self.assertEqual(str(context.exception), f"descriptor '__str__' requires a 'pyitt.native.{Domain.__name__}'"
+                                                 f" object but received a 'NoneType'")
 
 
 if __name__ == '__main__':
