@@ -13,10 +13,10 @@ namespace pyitt
 {
 
 static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void domain_dealloc(PyObject* self);
+static void domain_dealloc(Domain* self);
 
-static PyObject* domain_repr(PyObject* self);
-static PyObject* domain_str(PyObject* self);
+static PyObject* domain_repr(Domain* self);
+static PyObject* domain_str(Domain* self);
 
 static PyMemberDef domain_attrs[] =
 {
@@ -32,12 +32,12 @@ PyTypeObject Domain::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = domain_dealloc,
+    .tp_dealloc           = reinterpret_cast<destructor>(domain_dealloc),
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = domain_repr,
+    .tp_repr              = reinterpret_cast<reprfunc>(domain_repr),
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -47,7 +47,7 @@ PyTypeObject Domain::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = domain_str,
+    .tp_str               = reinterpret_cast<reprfunc>(domain_str),
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -114,15 +114,10 @@ PyTypeObject Domain::object_type =
 
 static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    if (type == nullptr)
-    {
-        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
-    }
-
     pyext::pyobject_holder<Domain> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
+        return nullptr;
     }
 
     self->handle = nullptr;
@@ -170,52 +165,30 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     return self.release();
 }
 
-static void domain_dealloc(PyObject* self)
+static void domain_dealloc(Domain* self)
 {
-    if (self)
-    {
-        Domain* obj = pyext::pyobject_cast<Domain>(self);
-        if (obj)
-        {
-            Py_XDECREF(obj->name);
-        }
-
-        Py_TYPE(self)->tp_free(self);
-    }
+    Py_XDECREF(self->name);
+    Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* domain_repr(PyObject* self)
+static PyObject* domain_repr(Domain* self)
 {
-    Domain* obj = pyext::pyobject_cast<Domain>(self);
-    if (obj == nullptr)
-    {
-        return PyErr_Format(PyExc_TypeError,
-            pyext::error::invalid_argument_type_tmpl, "object", Domain::object_type.tp_name);
-    }
-
-    if (obj->name == nullptr)
+    if (self->name == nullptr)
     {
         return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
     }
 
-    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, obj->name);
+    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, self->name);
 }
 
-static PyObject* domain_str(PyObject* self)
+static PyObject* domain_str(Domain* self)
 {
-    Domain* obj = pyext::pyobject_cast<Domain>(self);
-    if (obj == nullptr)
-    {
-        return PyErr_Format(PyExc_TypeError,
-            pyext::error::invalid_argument_type_tmpl, "object", Domain::object_type.tp_name);
-    }
-
-    if (obj->name == nullptr)
+    if (self->name == nullptr)
     {
         return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
     }
 
-    return pyext::new_ref(obj->name);
+    return pyext::new_ref(self->name);
 }
 
 int exec_domain(PyObject* module)

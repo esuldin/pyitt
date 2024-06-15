@@ -11,10 +11,10 @@ namespace pyitt
 {
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void string_handle_dealloc(PyObject* self);
+static void string_handle_dealloc(StringHandle* self);
 
-static PyObject* string_handle_repr(PyObject* self);
-static PyObject* string_handle_str(PyObject* self);
+static PyObject* string_handle_repr(StringHandle* self);
+static PyObject* string_handle_str(StringHandle* self);
 
 static PyMemberDef string_handle_attrs[] =
 {
@@ -30,12 +30,12 @@ PyTypeObject StringHandle::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = string_handle_dealloc,
+    .tp_dealloc           = reinterpret_cast<destructor>(string_handle_dealloc),
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = string_handle_repr,
+    .tp_repr              = reinterpret_cast<reprfunc>(string_handle_repr),
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -45,7 +45,7 @@ PyTypeObject StringHandle::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = string_handle_str,
+    .tp_str               = reinterpret_cast<reprfunc>(string_handle_str),
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -112,15 +112,10 @@ PyTypeObject StringHandle::object_type =
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    if (type == nullptr)
-    {
-        return PyErr_Format(PyExc_ValueError, pyext::error::invalid_argument_value_tmpl, "type");
-    }
-
     pyext::pyobject_holder<StringHandle> self = type->tp_alloc(type, 0);
     if (self == nullptr)
     {
-        return PyErr_Format(PyExc_RuntimeError, pyext::error::bad_alloc_tmpl, type->tp_name);
+        return nullptr;
     }
 
     self->str = nullptr;
@@ -159,52 +154,30 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
     return self.release();
 }
 
-static void string_handle_dealloc(PyObject* self)
+static void string_handle_dealloc(StringHandle* self)
 {
-    if (self)
-    {
-        StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
-        if (obj)
-        {
-            Py_XDECREF(obj->str);
-        }
-
-        Py_TYPE(self)->tp_free(self);
-    }
+    Py_XDECREF(self->str);
+    Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* string_handle_repr(PyObject* self)
+static PyObject* string_handle_repr(StringHandle* self)
 {
-    StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
-    if (obj == nullptr)
-    {
-        return PyErr_Format(PyExc_TypeError,
-            pyext::error::invalid_argument_type_tmpl, "object", StringHandle::object_type.tp_name);
-    }
-
-    if (obj->str == nullptr)
+    if (self->str == nullptr)
     {
         return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
     }
 
-    return PyUnicode_FromFormat("%s('%U')", obj->object_type.tp_name, obj->str);
+    return PyUnicode_FromFormat("%s('%U')", self->object_type.tp_name, self->str);
 }
 
-static PyObject* string_handle_str(PyObject* self)
+static PyObject* string_handle_str(StringHandle* self)
 {
-    StringHandle* obj = pyext::pyobject_cast<StringHandle>(self);
-    if (obj == nullptr)
-    {
-        return PyErr_Format(PyExc_TypeError,
-            pyext::error::invalid_argument_type_tmpl, "object", StringHandle::object_type.tp_name);
-    }
-
-    if (obj->str == nullptr)
+    if (self->str == nullptr)
     {
         return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
     }
 
-    return pyext::new_ref(obj->str);
+    return pyext::new_ref(self->str);
 }
 
 int exec_string_handle(PyObject* module)
