@@ -1,8 +1,7 @@
 from functools import partial
 from inspect import stack
 from os.path import basename
-from sys import version_info
-from unittest import main as unittest_main, TestCase, skipIf
+from unittest import main as unittest_main, TestCase
 from unittest.mock import call, Mock
 
 from .pyitt_native_mock import patch as pyitt_native_patch
@@ -12,6 +11,7 @@ from pyitt.region import _CallSite, _NamedRegion, _Region  # pylint: disable=C04
 class TestRegion(_Region):
     def __init__(self, func=None) -> None:
         super().__init__(func)
+        self.region = self
         self.number_of_begin_method_calls = 0
         self.number_of_end_method_calls = 0
         self.number_of_wrap_callback_method_calls = 0
@@ -77,7 +77,6 @@ class RegionCreationTests(TestCase):
             self.assertIsNotNone(region)
 
     def test_region_creation_for_callable_object(self):
-        # pylint: disable=E1101
         class CallableClass:
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
@@ -97,44 +96,25 @@ class RegionCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             TestRegion(42)
 
-        self.assertEqual(str(context.exception), 'func must be a callable object or None.')
+        self.assertEqual(str(context.exception), 'func must be a callable object, method descriptor or None.')
 
-    def test_region_creation_for_class_method_with_wrong_order_of_decorators(self):
-        with self.assertRaises(TypeError) as context:
-            # @classmethod decorator returns a descriptor and the descriptor is not callable object,
-            # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
-            # otherwise, the exception is thrown.
-            class MyClass:  # pylint: disable=W0612
-                @TestRegion
-                @classmethod
-                def my_class_method(cls):
-                    pass  # pragma: no cover
+    def test_region_creation_for_class_method(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            def my_class_method(cls):
+                pass  # pragma: no cover
 
-            MyClass()  # pragma: no cover
+        self.assertTrue(hasattr(MyClass.my_class_method, '__wrapped__'))
 
-        self.assertEqual(str(context.exception), 'func must be a callable object or None.')
+    def test_region_creation_for_static_method(self):
+        class MyClass:
+            @TestRegion
+            @staticmethod
+            def my_static_method():
+                pass  # pragma: no cover
 
-    def test_region_creation_for_static_method_with_wrong_order_of_decorators(self):
-        if version_info >= (3, 10):
-            class MyClass:
-                @TestRegion
-                @staticmethod
-                def my_static_method():
-                    pass  # pragma: no cover
-
-            self.assertEqual(MyClass.my_static_method.__name__, 'my_method')
-        else:
-            # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
-            # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
-            # older. otherwise, the exception is thrown.
-            with self.assertRaises(TypeError) as context:
-                class MyClass:
-                    @TestRegion
-                    @staticmethod
-                    def my_static_method():
-                        pass  # pragma: no cover
-
-            self.assertEqual(str(context.exception), 'func must be a callable object or None.')
+        self.assertTrue(hasattr(MyClass.my_static_method, '__wrapped__'))
 
     def test_region_creation_as_descriptor_wo_arguments(self):
         class MyClass:
@@ -143,7 +123,7 @@ class RegionCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             MyClass().my_method()
 
-        self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
+        self.assertEqual(str(context.exception), 'Callable object or method descriptor are expected to be passed.')
 
 
 class RegionPropertiesTests(TestCase):
@@ -214,7 +194,7 @@ class RegionExecutionTests(TestCase):
         with self.assertRaises(TypeError) as context:
             TestRegion()(42)
 
-        self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
+        self.assertEqual(str(context.exception), 'Callable object or method descriptor are expected to be passed.')
 
     def test_region_for_method(self):
         # pylint: disable=E1101
@@ -274,9 +254,9 @@ class RegionExecutionTests(TestCase):
                 return 42
 
         self.assertEqual(MyClass.my_class_method(), 42)
-        self.assertEqual(MyClass.my_class_method.number_of_begin_method_calls, 1)
-        self.assertEqual(MyClass.my_class_method.number_of_end_method_calls, 1)
-        self.assertEqual(MyClass.my_class_method.number_of_wrap_callback_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
 
     def test_region_for_static_method(self):
         class MyClass:
@@ -295,9 +275,7 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(MyClass.my_static_method.number_of_end_method_calls, 2)
         self.assertEqual(MyClass.my_static_method.number_of_wrap_callback_method_calls, 1)
 
-    @skipIf(version_info < (3, 10), '@staticmethod decorator returns a descriptor which is not callable before '
-                                    'Python 3.10 therefore, it cannot be traced.')
-    def test_region_for_static_method_with_wrong_order_of_decorators(self):
+    def test_region_on_top_of_staticmethod_decorator(self):
         class MyClass:
             @TestRegion
             @staticmethod
@@ -313,6 +291,23 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(MyClass.my_static_method.region.number_of_begin_method_calls, 2)
         self.assertEqual(MyClass.my_static_method.region.number_of_end_method_calls, 2)
         self.assertEqual(MyClass.my_static_method.region.number_of_wrap_callback_method_calls, 1)
+
+    def test_region_on_top_of_classmethod_decorator(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            def my_class_method(cls):
+                return 42
+
+        self.assertEqual(MyClass.my_class_method(), 42)
+        self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
+
+        self.assertEqual(MyClass().my_class_method(), 42)
+        self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 2)
+        self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 2)
+        self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
 
     def test_region_for_function_raised_exception(self):
         exception_msg = 'ValueError exception from my_function'
@@ -359,9 +354,6 @@ class CallSiteTest(TestCase):
 
 
 class TestNamedRegion(_NamedRegion):
-    def __init__(self, func=None) -> None:
-        super().__init__(func)
-
     def begin(self) -> None:
         pass
 
@@ -483,6 +475,13 @@ class NamedRegionCreationTests(TestCase):
                 pass  # pragma: no cover
 
         string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_as_descriptor(self, string_handle_class_mock):
+        class MyClass:
+            my_method = TestNamedRegion()
+
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.__qualname__}.my_method')
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_for_callable_object_with_name_attribute(self, string_handle_class_mock):

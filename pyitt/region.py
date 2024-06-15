@@ -2,7 +2,7 @@
 region.py - Python module wrapper for code region
 """
 from functools import lru_cache as _lru_cache, partial as _partial, wraps as _wraps
-from inspect import stack as _stack
+from inspect import ismethoddescriptor as _ismethoddescriptor, stack as _stack
 from os.path import basename as _basename
 
 from .string_handle import string_handle as _string_handle
@@ -25,15 +25,15 @@ class _Region:
         :param func: a callable object to wrap. If it is None, a wrapper creation will be deferred and can be done
                      using `__call__()` method for the instance.
         """
-        self.__function = func
+        self.__function = None
         self.__wrap_callback = None
 
-        if self.__function is None:
+        if func is None:
             self.__call_target = self.__wrap
-        elif callable(self.__function):
-            self.__wrap(self.__function)
+        elif self.__is_wrappable(func):
+            self.__wrap(func)
         else:
-            raise TypeError('func must be a callable object or None.')
+            raise TypeError('func must be a callable object, method descriptor or None.')
 
     def __get__(self, obj, objtype=None):
         return self.__get_method_wrapper(self.__function, obj)
@@ -66,7 +66,7 @@ class _Region:
         """Sets a callable object that will be called when wrapper is created if func is None."""
         self.__wrap_callback = callback
 
-        if callable(self.__function):
+        if self.__is_wrappable(self.__function):
             self.__call_wrap_callback()
 
     def __wrap(self, func):
@@ -75,21 +75,24 @@ class _Region:
         :param func: a callable object to wrap
         :return: a wrapper to trace the execution of the callable object
         """
-        if callable(func):
-            self.__function = func
-        else:
-            raise TypeError('Callable object is expected as a first argument.')
+        if not self.__is_wrappable(func):
+            raise TypeError('Callable object or method descriptor are expected to be passed.')
 
+        self.__function = func
         self.__call_wrap_callback()
-        self.__call_target = self.__get_wrapper(func)
-        _wraps(self.__function, updated=())(self)
+        self.__call_target = self.__get_wrapper(self.__function)
 
+        _wraps(self.__function, updated=())(self)
         return self
 
     def __call_wrap_callback(self):
         """Call a callback for wrapper creation."""
         if callable(self.__wrap_callback):
             self.__wrap_callback(self.__function)
+
+    def __is_wrappable(self, func):
+        """Returns True if the func can be wrapped, otherwise False."""
+        return callable(func) or _ismethoddescriptor(func)
 
     def __get_wrapper(self, func, obj=None):
         """
@@ -98,11 +101,31 @@ class _Region:
         :param obj: an object to which the callable object is bound
         :return: the wrapper to trace the execution of the callable object
         """
-        if not callable(func):
-            raise TypeError('Callable object is expected to be passed.')
+        if not self.__is_wrappable(func):
+            raise TypeError('Callable object or method descriptor are expected to be passed.')
 
         begin_func = self.begin
         end_func = self.end
+
+        if _ismethoddescriptor(func):
+            obj_type = type(obj)
+            descr_get = func.__get__
+
+            def _descriptor_wrapper(*args, **kwargs):
+                """
+                A wrapper to trace the execution of a callable object that is returned by the method descriptor object.
+                :param args: positional arguments of the callable object
+                :param kwargs: keyword arguments of the callable object
+                :return: result of a call of a returned function by the method descriptor object
+                """
+                begin_func()
+
+                try:
+                    return descr_get(obj, obj_type)(*args, **kwargs)
+                finally:
+                    end_func()
+
+            return _descriptor_wrapper
 
         def _function_wrapper(*args, **kwargs):
             """
@@ -132,7 +155,7 @@ class _Region:
             finally:
                 end_func()
 
-        return _function_wrapper if obj is None or isinstance(func, staticmethod) else _method_wrapper
+        return _function_wrapper if obj is None else _method_wrapper
 
     @_lru_cache
     def __get_method_wrapper(self, func, obj):
@@ -181,7 +204,7 @@ class _NamedRegion(_Region):
         """
         super().__init__(self.__get_function(func))
 
-        self.__name = self.__get_name(func)
+        self.__name = self.__to_string_handle(self.__get_name(func))
         self.__name_determination_callback = None
         self.__is_final_name_determined = False
 
@@ -200,6 +223,9 @@ class _NamedRegion(_Region):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.name}')"
+
+    def __set_name__(self, owner, name):
+        self.__set_final_name(f'{self.__get_name(owner)}.{name}')
 
     def begin(self) -> None:
         """Marks the beginning of a code region."""
@@ -249,12 +275,16 @@ class _NamedRegion(_Region):
             self.begin = self.__original_begin_func
             self.__original_begin_func = None
 
-    def __wrap_callback(self, func):
-        """Determines a final name of a code region if it has not been done before."""
+    def __set_final_name(self, name):
+        """Sets a final name of a code region if it has not been done before."""
         if not self.__is_final_name_determined:
             self.__restore_original_begin_function()
-            self.__name = self.__get_name(func)
+            self.__name = self.__to_string_handle(name)
             self.__mark_name_as_final()
+
+    def __wrap_callback(self, func):
+        """Determines a final name of a code region if it has not been done before."""
+        self.__set_final_name(self.__get_name(func))
 
     @staticmethod
     def __get_function(func):
@@ -268,19 +298,24 @@ class _NamedRegion(_Region):
             return None
 
         if isinstance(func, str):
-            return _string_handle(func)
+            return func
 
         if isinstance(func, _CallSite):
-            return _string_handle(f'{func.filename}:{func.lineno}')
+            return f'{func.filename}:{func.lineno}'
 
         if hasattr(func, '__qualname__'):
-            return _string_handle(func.__qualname__)
+            return func.__qualname__
 
         if hasattr(func, '__name__'):
-            return _string_handle(func.__name__)
+            return func.__name__
 
         if hasattr(func, '__class__'):
             # PEP 3155 (Python 3.3) introduces __qualname__ on class objects
-            return _string_handle(f'{func.__class__.__qualname__}.__call__')
+            return f'{func.__class__.__qualname__}.__call__'
 
         raise ValueError('Cannot get the name for the code region.')
+
+    @staticmethod
+    def __to_string_handle(s):
+        """Creates StringHandle object from the passed object if it is not None, otherwise returns None."""
+        return None if s is None else _string_handle(s)

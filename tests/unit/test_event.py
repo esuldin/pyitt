@@ -253,7 +253,7 @@ class EventExecutionTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.event()(42)
 
-        self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
+        self.assertEqual(str(context.exception), 'Callable object or method descriptor are expected to be passed.')
 
     @pyitt_native_patch('Event')
     @pyitt_native_patch('StringHandle')
