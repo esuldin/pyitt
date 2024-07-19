@@ -4,6 +4,7 @@ task.py - Python module wrapper for ITT Task API
 from pyitt.native import task_begin as _task_begin, task_end as _task_end
 from pyitt.native import task_begin_overlapped as _task_begin_overlapped, task_end_overlapped as _task_end_overlapped
 
+from ._funcutils import is_coroutine_function as _is_coroutine_function
 from .domain import domain as _domain
 from .id import id as _id
 from .region import _CallSite, _NamedRegion
@@ -135,16 +136,15 @@ def overlapped_task(task=None, /, domain=None, id=None, parent=None):
     return OverlappedTask(task, domain, id, parent)
 
 
-def task(task=None, /, domain=None, id=None, parent=None, overlapped=False):
+def task(task=None, /, domain=None, id=None, parent=None):
     """
     Creates a task instance with the given arguments.
     :param task: a name of the task or a callable object
     :param domain: a task domain
     :param id: a task id
     :param parent: a parent task or an id of the parent
-    :param overlapped: determines if the created task should be an instance of OverlappedTask class
-                       or NestedTask class
-    :return: a task instance
+    :return: an OverlappedTask task instance if task is a coroutine function, otherwise, a NestedTask instance
     """
+    can_be_overlapped = _is_coroutine_function(task)
     task = _CallSite(_CallSite.CallerFrame) if task is None else task
-    return OverlappedTask(task, domain, id, parent) if overlapped else NestedTask(task, domain, id, parent)
+    return OverlappedTask(task, domain, id, parent) if can_be_overlapped else NestedTask(task, domain, id, parent)

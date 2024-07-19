@@ -1,7 +1,8 @@
+from asyncio import sleep, iscoroutinefunction
 from functools import partial
 from inspect import stack
 from os.path import basename
-from unittest import main as unittest_main, TestCase
+from unittest import main as unittest_main, TestCase, IsolatedAsyncioTestCase
 from unittest.mock import call, Mock
 
 from .pyitt_native_mock import patch as pyitt_native_patch
@@ -57,6 +58,21 @@ class RegionCreationTests(TestCase):
 
         self.assertEqual(my_function.__name__, 'my_function')
 
+    def test_region_creation_as_decorator_for_async_function(self):
+        @TestRegion
+        async def my_function():
+            pass  # pragma: no cover
+
+        self.assertEqual(my_function.__name__, 'my_function')
+        self.assertTrue(iscoroutinefunction(my_function))
+
+    def test_region_creation_as_decorator_for_generator_function(self):
+        @TestRegion
+        def my_function():
+            yield 42  # pragma: no cover
+
+        self.assertEqual(my_function.__name__, 'my_function')
+
     def test_region_creation_as_decorator_with_empty_arguments_for_function(self):
         @TestRegion()
         def my_function():
@@ -82,13 +98,30 @@ class RegionCreationTests(TestCase):
                 pass  # pragma: no cover
 
         callable_object = CallableClass()
-        TestRegion(callable_object)
+        self.assertIsNotNone(TestRegion(callable_object))
 
     def test_region_creation_for_method(self):
         class MyClass:
             @TestRegion
             def my_method(self):
                 pass  # pragma: no cover
+
+        self.assertEqual(MyClass.my_method.__name__, 'my_method')
+
+    def test_region_creation_for_async_method(self):
+        class MyClass:
+            @TestRegion
+            async def my_method(self):
+                await sleep(0)  # pragma: no cover
+
+        self.assertEqual(MyClass.my_method.__name__, 'my_method')
+        self.assertTrue(iscoroutinefunction(MyClass.my_method))
+
+    def test_region_creation_for_generator_method(self):
+        class MyClass:
+            @TestRegion
+            def my_method(self):
+                yield 42  # pragma: no cover
 
         self.assertEqual(MyClass.my_method.__name__, 'my_method')
 
@@ -107,12 +140,48 @@ class RegionCreationTests(TestCase):
 
         self.assertTrue(hasattr(MyClass.my_class_method, '__wrapped__'))
 
+    def test_region_creation_for_async_class_method(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            async def my_class_method(cls):
+                await sleep(0)  # pragma: no cover
+
+        self.assertTrue(hasattr(MyClass.my_class_method, '__wrapped__'))
+
+    def test_region_creation_for_generator_class_method(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            def my_class_method(cls):
+                yield 42  # pragma: no cover
+
+        self.assertTrue(hasattr(MyClass.my_class_method, '__wrapped__'))
+
     def test_region_creation_for_static_method(self):
         class MyClass:
             @TestRegion
             @staticmethod
             def my_static_method():
                 pass  # pragma: no cover
+
+        self.assertTrue(hasattr(MyClass.my_static_method, '__wrapped__'))
+
+    def test_region_creation_for_async_static_method(self):
+        class MyClass:
+            @TestRegion
+            @staticmethod
+            async def my_static_method():
+                await sleep(0)  # pragma: no cover
+
+        self.assertTrue(hasattr(MyClass.my_static_method, '__wrapped__'))
+
+    def test_region_creation_for_generator_static_method(self):
+        class MyClass:
+            @TestRegion
+            @staticmethod
+            def my_static_method():
+                yield 42  # pragma: no cover
 
         self.assertTrue(hasattr(MyClass.my_static_method, '__wrapped__'))
 
@@ -136,6 +205,7 @@ class RegionPropertiesTests(TestCase):
         self.assertEqual(region._on_wrapping, callback_mock)
 
 
+# pylint: disable=R0904
 class RegionExecutionTests(TestCase):
     def test_region_for_function(self):
         @TestRegion
@@ -143,6 +213,31 @@ class RegionExecutionTests(TestCase):
             return 42
 
         self.assertEqual(my_function(), 42)
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 1)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+    def test_region_for_generator_function(self):
+        @TestRegion
+        def my_function():
+            yield 42
+
+        generator = my_function()
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 0)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        generator_iterator = iter(generator)
+        self.assertEqual(next(generator_iterator), 42)
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        with self.assertRaises(StopIteration):
+            next(generator_iterator)
+
         self.assertEqual(my_function.number_of_begin_method_calls, 1)
         self.assertEqual(my_function.number_of_end_method_calls, 1)
         self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
@@ -197,7 +292,6 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(str(context.exception), 'Callable object or method descriptor are expected to be passed.')
 
     def test_region_for_method(self):
-        # pylint: disable=E1101
         class MyClass:
             @TestRegion
             def my_method(self):
@@ -205,6 +299,27 @@ class RegionExecutionTests(TestCase):
 
         my_object = MyClass()
         self.assertEqual(my_object.my_method(), 42)
+        # pylint: disable=E1101
+        self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
+
+    def test_region_for_generator_method(self):
+        class MyClass:
+            @TestRegion
+            def my_method(self):
+                yield 42
+
+        my_object = MyClass()
+        generator_iterator = iter(my_object.my_method())
+        self.assertEqual(next(generator_iterator), 42)
+        # pylint: disable=E1101
+        self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 0)
+        self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
+
+        with self.assertRaises(StopIteration):
+            next(generator_iterator)
         self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
         self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 1)
         self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
@@ -292,6 +407,26 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(MyClass.my_static_method.region.number_of_end_method_calls, 2)
         self.assertEqual(MyClass.my_static_method.region.number_of_wrap_callback_method_calls, 1)
 
+    def test_region_on_top_of_staticmethod_decorator_for_generator(self):
+        class MyClass:
+            @TestRegion
+            @staticmethod
+            def my_static_method():
+                yield 42
+
+        generator_iterator = iter(MyClass.my_static_method())
+
+        self.assertEqual(next(generator_iterator), 42)
+        self.assertEqual(MyClass.my_static_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_static_method.region.number_of_end_method_calls, 0)
+        self.assertEqual(MyClass.my_static_method.region.number_of_wrap_callback_method_calls, 1)
+
+        with self.assertRaises(StopIteration):
+            next(generator_iterator)
+        self.assertEqual(MyClass.my_static_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_static_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_static_method.region.number_of_wrap_callback_method_calls, 1)
+
     def test_region_on_top_of_classmethod_decorator(self):
         class MyClass:
             @TestRegion
@@ -307,6 +442,26 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(MyClass().my_class_method(), 42)
         self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 2)
         self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 2)
+        self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
+
+    def test_region_on_top_of_classmethod_decorator_for_generator(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            def my_class_method(cls):
+                yield 42
+
+        generator_iterator = iter(MyClass.my_class_method())
+
+        self.assertEqual(next(generator_iterator), 42)
+        self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 0)
+        self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
+
+        with self.assertRaises(StopIteration):
+            next(generator_iterator)
+        self.assertEqual(MyClass.my_class_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_class_method.region.number_of_end_method_calls, 1)
         self.assertEqual(MyClass.my_class_method.region.number_of_wrap_callback_method_calls, 1)
 
     def test_region_for_function_raised_exception(self):
@@ -326,7 +481,6 @@ class RegionExecutionTests(TestCase):
         self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
 
     def test_region_for_method_raised_exception(self):
-        # pylint: disable=E1101
         exception_msg = 'ValueError exception from my_method'
 
         class MyClass:
@@ -338,7 +492,90 @@ class RegionExecutionTests(TestCase):
             MyClass().my_method()
 
         self.assertEqual(str(context.exception), exception_msg)
+        # pylint: disable=E1101
+        self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
 
+    def test_region_for_closing_generator(self):
+        @TestRegion
+        def my_function():
+            yield 42
+
+        generator = my_function()
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 0)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        generator_iterator = iter(generator)
+        self.assertEqual(next(generator_iterator), 42)
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        generator.close()
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 1)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+    def test_region_for_throwing_exception_in_generator(self):
+        @TestRegion
+        def my_function():
+            yield 42
+
+        generator = my_function()
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 0)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        generator_iterator = iter(generator)
+        self.assertEqual(next(generator_iterator), 42)
+
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 0)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+        with self.assertRaises(GeneratorExit):
+            generator.throw(GeneratorExit)
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 1)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+
+class AsyncRegionExecutionTest(IsolatedAsyncioTestCase):
+    async def test_region_for_async_function(self):
+        @TestRegion
+        async def my_function():
+            return await sleep(0.01, result=42)
+
+        self.assertEqual(await my_function(), 42)
+        self.assertEqual(my_function.number_of_begin_method_calls, 1)
+        self.assertEqual(my_function.number_of_end_method_calls, 1)
+        self.assertEqual(my_function.number_of_wrap_callback_method_calls, 1)
+
+    async def test_region_for_async_method(self):
+        class MyClass:
+            @TestRegion
+            async def my_method(self):
+                return await sleep(0.01, result=42)
+
+        self.assertEqual(await MyClass().my_method(), 42)
+        # pylint: disable=E1101
+        self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 1)
+        self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
+
+    async def test_region_for_async_class_method(self):
+        class MyClass:
+            @TestRegion
+            @classmethod
+            async def my_method(cls):
+                return await sleep(0.01, result=42)
+
+        self.assertEqual(await MyClass.my_method(), 42)
         self.assertEqual(MyClass.my_method.region.number_of_begin_method_calls, 1)
         self.assertEqual(MyClass.my_method.region.number_of_end_method_calls, 1)
         self.assertEqual(MyClass.my_method.region.number_of_wrap_callback_method_calls, 1)
@@ -475,6 +712,59 @@ class NamedRegionCreationTests(TestCase):
                 pass  # pragma: no cover
 
         string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_for_async_method(self, string_handle_class_mock):
+        class MyClass:
+            @TestNamedRegion
+            async def my_method(self):
+                await sleep(0)  # pragma: no cover
+
+        string_handle_class_mock.assert_called_once_with(f'{MyClass.my_method.__qualname__}')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_for_class_method(self, string_handle_class_mock):
+        class MyClass:
+            @TestNamedRegion
+            @classmethod
+            def my_class_method(cls):
+                pass  # pragma: no cover
+
+        string_handle_class_mock.assert_called_once_with(
+            f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_for_async_class_method(self, string_handle_class_mock):
+        class MyClass:
+            @TestNamedRegion
+            @classmethod
+            async def my_class_method(cls):
+                await sleep(0)  # pragma: no cover
+
+        string_handle_class_mock.assert_called_once_with(
+            f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_for_static_method(self, string_handle_class_mock):
+        class MyClass:
+            @TestNamedRegion
+            @staticmethod
+            def my_static_method():
+                pass  # pragma: no cover
+
+        string_handle_class_mock.assert_called_once_with(
+            f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__')
+
+    @pyitt_native_patch('StringHandle')
+    def test_region_creation_for_async_static_method(self, string_handle_class_mock):
+        class MyClass:
+            @TestNamedRegion
+            @staticmethod
+            async def my_static_method():
+                await sleep(0)  # pragma: no cover
+
+        string_handle_class_mock.assert_called_once_with(
+            f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__')
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_as_descriptor(self, string_handle_class_mock):

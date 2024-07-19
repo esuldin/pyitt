@@ -558,10 +558,10 @@ class OverlappedTaskExecution(TestCase):
         overlapped_task_1_name = 'overlapped task 1'
         overlapped_task_2_name = 'overlapped task 2'
 
-        overlapped_task_1 = pyitt.task(overlapped_task_1_name, overlapped=True)
+        overlapped_task_1 = pyitt.overlapped_task(overlapped_task_1_name)
         overlapped_task_1.begin()
 
-        overlapped_task_2 = pyitt.task(overlapped_task_2_name, overlapped=True)
+        overlapped_task_2 = pyitt.overlapped_task(overlapped_task_2_name)
         overlapped_task_2.begin()
 
         overlapped_task_1.end()

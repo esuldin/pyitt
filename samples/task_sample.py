@@ -3,11 +3,12 @@ import pyitt
 
 # pylint: disable=C0411
 from argparse import ArgumentParser
+from asyncio import run, sleep, create_task
 from vtune_tool import run_vtune_hotspot_collection
 from workload import workload
 
 
-def run_sample():
+def run_sync_functions():
     # pyitt.task can be used as decorator
     @pyitt.task
     def my_function_1():
@@ -46,17 +47,6 @@ def run_sample():
     my_function_4()
     my_function_5()
 
-    # example for overlapped tasks
-    overlapped_task_1 = pyitt.task('overlapped task 1', overlapped=True)
-    overlapped_task_1.begin()
-    workload()
-    overlapped_task_2 = pyitt.task('overlapped task 2', overlapped=True)
-    overlapped_task_2.begin()
-    workload()
-    overlapped_task_1.end()
-    workload()
-    overlapped_task_2.end()
-
     # example with callable object
     class CallableClass:
         def __call__(self, *args, **kwargs):  # pylint: disable=W0621
@@ -64,6 +54,67 @@ def run_sample():
 
     callable_object = pyitt.task(CallableClass())
     callable_object()
+
+
+def run_async_functions():
+    # example for overlapped tasks
+    @pyitt.task
+    async def my_async_function_1():
+        with pyitt.task():
+            workload()
+        await sleep(0.1)
+        with pyitt.task():
+            workload()
+
+    @pyitt.task
+    async def my_async_function_2():
+        with pyitt.task():
+            workload()
+        await sleep(0.1)
+        with pyitt.task():
+            workload()
+
+    @pyitt.task
+    async def my_async_function_3():
+        with pyitt.task():
+            workload()
+        await sleep(0.1)
+        with pyitt.task():
+            workload()
+
+    class MyClass:
+        @pyitt.task
+        @classmethod
+        async def my_method(cls):
+            await my_async_function_3()
+
+    async def main_async_function():
+        task1 = create_task(my_async_function_1())
+        task2 = create_task(my_async_function_2())
+        task3 = create_task(MyClass.my_method())
+
+        await task1
+        await task2
+        await task3
+
+    run(main_async_function())
+
+
+def run_generator_functions():
+    @pyitt.task
+    def xrange(val):
+        yield from range(val)
+
+    workload_task = pyitt.task('workload')
+    for _ in xrange(2):
+        with workload_task:
+            workload()
+
+
+def run_sample():
+    run_sync_functions()
+    run_async_functions()
+    run_generator_functions()
 
 
 if __name__ == '__main__':

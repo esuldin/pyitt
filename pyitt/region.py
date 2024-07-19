@@ -1,10 +1,15 @@
 """
 region.py - Python module wrapper for code region
 """
-from functools import lru_cache as _lru_cache, partial as _partial, wraps as _wraps
-from inspect import ismethoddescriptor as _ismethoddescriptor, stack as _stack
+from functools import lru_cache as _lru_cache
+from functools import partial as _partial, wraps as _wraps
+from inspect import ismethoddescriptor as _ismethoddescriptor, isgeneratorfunction as _isgeneratorfunction
+from inspect import stack as _stack
 from os.path import basename as _basename
 
+from ._enhanced_generator_wrapper import _AwaitableObjectWrapper, _GeneratorObjectWrapper
+from ._funcutils import is_coroutine_function as _is_coroutine_function
+from ._funcutils import mark_coroutine_function as _mark_coroutine_function
 from .string_handle import string_handle as _string_handle
 
 
@@ -28,9 +33,12 @@ class _Region:
         self.__function = None
         self.__wrap_callback = None
 
+        self._is_coroutine = None
+        self._is_coroutine_marker = None
+
         if func is None:
             self.__call_target = self.__wrap
-        elif self.__is_wrappable(func):
+        elif self._is_wrappable(func):
             self.__wrap(func)
         else:
             raise TypeError('func must be a callable object, method descriptor or None.')
@@ -56,6 +64,11 @@ class _Region:
         """Marks the end of a code region."""
         raise NotImplementedError()
 
+    @staticmethod
+    def _is_wrappable(func):
+        """Returns True if the func can be wrapped, otherwise False."""
+        return callable(func) or _ismethoddescriptor(func)
+
     @property
     def _on_wrapping(self):
         """Gets a callable object that will be called when wrapper is created if func is None."""
@@ -66,7 +79,7 @@ class _Region:
         """Sets a callable object that will be called when wrapper is created if func is None."""
         self.__wrap_callback = callback
 
-        if self.__is_wrappable(self.__function):
+        if self._is_wrappable(self.__function):
             self.__call_wrap_callback()
 
     def __wrap(self, func):
@@ -75,14 +88,17 @@ class _Region:
         :param func: a callable object to wrap
         :return: a wrapper to trace the execution of the callable object
         """
-        if not self.__is_wrappable(func):
+        if not self._is_wrappable(func):
             raise TypeError('Callable object or method descriptor are expected to be passed.')
 
         self.__function = func
         self.__call_wrap_callback()
         self.__call_target = self.__get_wrapper(self.__function)
 
+        if _is_coroutine_function(self.__function):
+            _mark_coroutine_function(self)
         _wraps(self.__function, updated=())(self)
+
         return self
 
     def __call_wrap_callback(self):
@@ -90,20 +106,29 @@ class _Region:
         if callable(self.__wrap_callback):
             self.__wrap_callback(self.__function)
 
-    def __is_wrappable(self, func):
-        """Returns True if the func can be wrapped, otherwise False."""
-        return callable(func) or _ismethoddescriptor(func)
+    def __get_wrapper_for_async_callable_object(self, func, obj=None):
+        def _async_function_wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            return _AwaitableObjectWrapper(result, self.begin, self.end)
 
-    def __get_wrapper(self, func, obj=None):
-        """
-        Returns a pure wrapper for a callable object.
-        :param func: the callable object to wrap
-        :param obj: an object to which the callable object is bound
-        :return: the wrapper to trace the execution of the callable object
-        """
-        if not self.__is_wrappable(func):
-            raise TypeError('Callable object or method descriptor are expected to be passed.')
+        def _async_method_wrapper(*args, **kwargs):
+            result = func(obj, *args, **kwargs)
+            return _AwaitableObjectWrapper(result, self.begin, self.end)
 
+        return _async_function_wrapper if obj is None else _async_method_wrapper
+
+    def __get_wrapper_for_generator_object(self, func, obj=None):
+        def _generator_function_wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            return _GeneratorObjectWrapper(result, self.begin, self.end)
+
+        def _generator_method_wrapper(*args, **kwargs):
+            result = func(obj, *args, **kwargs)
+            return _GeneratorObjectWrapper(result, self.begin, self.end)
+
+        return _generator_function_wrapper if obj is None else _generator_method_wrapper
+
+    def __get_wrapper_for_sync_callable_object(self, func, obj=None):
         begin_func = self.begin
         end_func = self.end
 
@@ -118,10 +143,18 @@ class _Region:
                 :param kwargs: keyword arguments of the callable object
                 :return: result of a call of a returned function by the method descriptor object
                 """
-                begin_func()
+                target_func = descr_get(obj, obj_type)
 
+                if _is_coroutine_function(target_func):
+                    result = target_func(*args, **kwargs)
+                    return _AwaitableObjectWrapper(result, begin_func, end_func)
+                if _isgeneratorfunction(target_func):
+                    result = target_func(*args, **kwargs)
+                    return _GeneratorObjectWrapper(result, begin_func, end_func)
+
+                begin_func()
                 try:
-                    return descr_get(obj, obj_type)(*args, **kwargs)
+                    return target_func(*args, **kwargs)
                 finally:
                     end_func()
 
@@ -157,9 +190,30 @@ class _Region:
 
         return _function_wrapper if obj is None else _method_wrapper
 
+    def __get_wrapper(self, func, obj=None):
+        """
+        Returns a pure wrapper for a callable object.
+        :param func: the callable object to wrap
+        :param obj: an object to which the callable object is bound
+        :return: the wrapper to trace the execution of the callable object
+        """
+        if not self._is_wrappable(func):
+            raise TypeError('Callable object or method descriptor are expected to be passed.')
+
+        if _is_coroutine_function(func):
+            return self.__get_wrapper_for_async_callable_object(func, obj)
+
+        if _isgeneratorfunction(func):
+            return self.__get_wrapper_for_generator_object(func, obj)
+
+        return self.__get_wrapper_for_sync_callable_object(func, obj)
+
     @_lru_cache
     def __get_method_wrapper(self, func, obj):
-        return _wraps(func)(self.__get_wrapper(func, obj))
+        wrapper = self.__get_wrapper(func, obj)
+        if _is_coroutine_function(func):
+            _mark_coroutine_function(wrapper)
+        return _wraps(func)(wrapper)
 
 
 class _CallSite:
@@ -288,8 +342,8 @@ class _NamedRegion(_Region):
 
     @staticmethod
     def __get_function(func):
-        """Returns the argument if it is callable, otherwise returns None."""
-        return func if callable(func) else None
+        """Returns the argument if it is wrappable, otherwise returns None."""
+        return func if _Region._is_wrappable(func) else None
 
     @staticmethod
     def __get_name(func):
