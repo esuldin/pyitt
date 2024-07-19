@@ -3,7 +3,7 @@ collection_control.py - Python module wrapper for ITT Collection Control API
 """
 from pyitt.native import detach as _detach, pause as _pause, resume as _resume
 
-from .region import _Region
+from ._region import _Region
 
 
 class _CollectionRegion(_Region):

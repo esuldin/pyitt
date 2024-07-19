@@ -5,7 +5,7 @@ from functools import partial as _partial
 
 from pyitt.native import Event as _Event
 
-from .region import _CallSite, _NamedRegion
+from ._region import _CallSite, _NamedRegion
 
 
 class Event(_NamedRegion):

@@ -7,7 +7,7 @@ from pyitt.native import task_begin_overlapped as _task_begin_overlapped, task_e
 from ._funcutils import is_coroutine_function as _is_coroutine_function
 from .domain import domain as _domain
 from .id import id as _id
-from .region import _CallSite, _NamedRegion
+from ._region import _CallSite, _NamedRegion
 
 
 class _Task(_NamedRegion):

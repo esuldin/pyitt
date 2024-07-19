@@ -1,7 +1,7 @@
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call, Mock
 
-from pyitt.region import _AwaitableObjectWrapper, _GeneratorObjectWrapper  # pylint: disable=C0411
+from pyitt._region import _AwaitableObjectWrapper, _GeneratorObjectWrapper  # pylint: disable=C0411
 
 
 class AwaitableObjectWrapperTests(TestCase):

@@ -6,7 +6,7 @@ from unittest import main as unittest_main, TestCase, IsolatedAsyncioTestCase
 from unittest.mock import call, Mock
 
 from .pyitt_native_mock import patch as pyitt_native_patch
-from pyitt.region import _CallSite, _NamedRegion, _Region  # pylint: disable=C0411
+from pyitt._region import _CallSite, _NamedRegion, _Region  # pylint: disable=C0411
 
 
 class TestRegion(_Region):

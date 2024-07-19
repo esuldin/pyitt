@@ -1,5 +1,5 @@
 """
-region.py - Python module wrapper for code region
+_region.py - Python module wrapper for code region
 """
 from functools import lru_cache as _lru_cache
 from functools import partial as _partial, wraps as _wraps
