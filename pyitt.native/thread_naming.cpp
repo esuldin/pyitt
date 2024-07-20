@@ -13,7 +13,7 @@
 namespace pyitt
 {
 
-PyObject* thread_set_name(PyObject* self, PyObject* name)
+PyObject* thread_set_name(PyObject* Py_UNUSED(self), PyObject* name)
 {
     if (auto string_handle_obj = pyext::pyobject_cast<StringHandle>(name))
     {

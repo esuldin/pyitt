@@ -18,8 +18,8 @@ static void event_dealloc(Event* self);
 static PyObject* event_repr(Event* self);
 static PyObject* event_str(Event* self);
 
-static PyObject* event_begin(Event* self, PyObject* args);
-static PyObject* event_end(Event* self, PyObject* args);
+static PyObject* event_begin(Event* self, PyObject* Py_UNUSED(args));
+static PyObject* event_end(Event* self, PyObject* Py_UNUSED(args));
 
 static PyMemberDef event_attrs[] =
 {
@@ -197,13 +197,13 @@ static PyObject* event_str(Event* self)
     return pyext::new_ref(self->name);
 }
 
-static PyObject* event_begin(Event* self, PyObject* args)
+static PyObject* event_begin(Event* self, PyObject* Py_UNUSED(args))
 {
     __itt_event_start(self->handle);
     Py_RETURN_NONE;
 }
 
-static PyObject* event_end(Event* self, PyObject* args)
+static PyObject* event_end(Event* self, PyObject* Py_UNUSED(args))
 {
     __itt_event_end(self->handle);
     Py_RETURN_NONE;
