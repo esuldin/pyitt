@@ -6,7 +6,7 @@ include setup.py
 recursive-include pyitt *.py
 recursive-include pyitt.native *.cpp *.hpp
 recursive-include ittapi/include *.h
-recursive-include ittapi/LICENSES *
 recursive-include ittapi/src *
+include ittapi/LICENSES/BSD-3-Clause.txt
 include ittapi/README.md
 include ittapi/SECURITY.md
