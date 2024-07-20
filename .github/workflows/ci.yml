@@ -30,7 +30,7 @@ jobs:
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
     - name: Lint with pylint the code of tests and samples
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "tests/*/*.py" "samples/*.py"
+        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913 "tests/*/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -92,7 +92,7 @@ jobs:
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
     - name: Lint with pylint the code of tests and samples
       run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0913 "tests/*/*.py" "samples/*.py"
+        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913 "tests/*/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

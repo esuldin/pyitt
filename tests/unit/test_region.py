@@ -559,7 +559,6 @@ class RegionPropertiesTests(TestCase):
         self.assertEqual(region._on_wrapping, callback_mock)
 
 
-# pylint: disable=R0904
 class RegionExecutionTests(TestCase):
     def test_region_for_function(self):
         @TestRegion
