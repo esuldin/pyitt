@@ -4,6 +4,7 @@
 #include "collection_control.hpp"
 #include "domain.hpp"
 #include "event.hpp"
+#include "frame.hpp"
 #include "id.hpp"
 #include "string_handle.hpp"
 #include "task.hpp"
@@ -25,6 +26,9 @@ static int exec_pyitt_module(PyObject* module)
         {"pause",                 pause,                 METH_NOARGS,  "Pause data collection."},
         {"resume",                resume,                METH_NOARGS,  "Resume data collection."},
         {"detach",                detach,                METH_NOARGS,  "Detach data collection."},
+        /* Frame API */
+        {"frame_begin",           frame_begin,           METH_VARARGS, "Marks the beginning of a frame instance."},
+        {"frame_end",             frame_end,             METH_VARARGS, "Marks the end of a frame instance."},
         /* Thread Naming API */
         {"thread_set_name",       thread_set_name,       METH_O,       "Sets a name for current thread."},
         /* Task API */

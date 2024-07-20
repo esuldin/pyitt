@@ -11,6 +11,7 @@ pyitt supports following ITT APIs:
  - Collection Control API
  - Domain API
  - Event API
+ - Frame API
  - Id API
  - String Handle API
  - Task API

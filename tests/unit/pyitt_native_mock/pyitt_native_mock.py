@@ -11,6 +11,8 @@ class PyittNativeMock(_ModuleType):
             'detach': _Mock(),
             'pause': _Mock(),
             'resume': _Mock(),
+            'frame_begin': _Mock(),
+            'frame_end': _Mock(),
             'task_begin': _Mock(),
             'task_end': _Mock(),
             'task_begin_overlapped': _Mock(),

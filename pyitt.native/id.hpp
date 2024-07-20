@@ -18,7 +18,7 @@ struct Id
 	static PyTypeObject object_type;
 };
 
-inline __itt_id id_get_handle(const Id* obj)
+inline const __itt_id& id_get_handle(const Id* obj)
 {
 	return obj ? obj->handle : __itt_null;
 }

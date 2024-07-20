@@ -209,6 +209,7 @@
     <ClCompile Include="..\pyitt.native\collection_control.cpp" />
     <ClCompile Include="..\pyitt.native\domain.cpp" />
     <ClCompile Include="..\pyitt.native\event.cpp" />
+    <ClCompile Include="..\pyitt.native\frame.cpp" />
     <ClCompile Include="..\pyitt.native\id.cpp" />
     <ClCompile Include="..\pyitt.native\pyitt.cpp" />
     <ClCompile Include="..\pyitt.native\string_handle.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="..\pyitt.native\collection_control.hpp" />
     <ClInclude Include="..\pyitt.native\domain.hpp" />
     <ClInclude Include="..\pyitt.native\event.hpp" />
+    <ClInclude Include="..\pyitt.native\frame.hpp" />
     <ClInclude Include="..\pyitt.native\id.hpp" />
     <ClInclude Include="..\pyitt.native\string_handle.hpp" />
     <ClInclude Include="..\pyitt.native\task.hpp" />
