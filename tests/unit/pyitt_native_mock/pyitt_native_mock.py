@@ -22,6 +22,7 @@ class PyittNativeMock(_ModuleType):
             'Domain': _Mock(),
             'Event': _Mock(),
             'Id': _Mock(),
+            'PTRegion': _Mock(),
             'StringHandle': _Mock(),
         }
 

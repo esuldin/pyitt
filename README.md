@@ -14,6 +14,7 @@ pyitt supports following ITT APIs:
  - Event API
  - Frame API
  - Id API
+ - Processor Trace Control API
  - String Handle API
  - Task API
  - Thread Naming API
@@ -127,6 +128,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 ## References
 
- - [Instrumentation and Tracing Technology APIs](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/instrumentation-and-tracing-technology-apis.html)
+ - [Intel® VTune™ Profiler User Guide - Instrumentation and Tracing Technology APIs](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/instrumentation-and-tracing-technology-apis.html)
  - [Intel® VTune™ Profiler User Guide - Task Analysis](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/task-analysis.html)
+ - [Intel® VTune™ Profiler Performance Analysis Cookbook - Profiling an Application for Performance Anomalies](https://www.intel.com/content/www/us/en/docs/vtune-profiler/cookbook/2023-1/profiling-performance-anomalies.html/1000.html)
  - [Intel® Graphics Performance Analyzers User Guide - Instrumentation and Tracing Technology API Support](https://www.intel.com/content/www/us/en/docs/gpa/user-guide/2022-4/instrumentation-and-tracing-technology-apis.html)

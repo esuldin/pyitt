@@ -16,4 +16,5 @@ from .frame import frame, Frame
 from .id import id
 from .string_handle import string_handle
 from .task import NestedTask, OverlappedTask, task, nested_task, overlapped_task
+from .pt_region import PTRegion, pt_region
 from .thread_naming import thread_set_name

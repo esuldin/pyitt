@@ -7,6 +7,7 @@
 #include "event.hpp"
 #include "frame.hpp"
 #include "id.hpp"
+#include "pt_region.hpp"
 #include "string_handle.hpp"
 #include "task.hpp"
 #include "thread_naming.hpp"
@@ -67,6 +68,7 @@ PyMODINIT_FUNC PyInit_native()
         { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_counter) },
+        { Py_mod_exec, reinterpret_cast<void*>(exec_pt_region) },
         { 0, nullptr }
     };
 
