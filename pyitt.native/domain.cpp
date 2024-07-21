@@ -173,21 +173,11 @@ static void domain_dealloc(Domain* self)
 
 static PyObject* domain_repr(Domain* self)
 {
-    if (self->name == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
-    }
-
     return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, self->name);
 }
 
 static PyObject* domain_str(Domain* self)
 {
-    if (self->name == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
-    }
-
     return pyext::new_ref(self->name);
 }
 

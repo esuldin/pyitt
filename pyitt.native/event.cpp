@@ -179,21 +179,11 @@ static void event_dealloc(Event* self)
 
 static PyObject* event_repr(Event* self)
 {
-    if (self->name == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
-    }
-
     return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, self->name);
 }
 
 static PyObject* event_str(Event* self)
 {
-    if (self->name == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "name");
-    }
-
     return pyext::new_ref(self->name);
 }
 

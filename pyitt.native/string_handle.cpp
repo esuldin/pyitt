@@ -162,21 +162,11 @@ static void string_handle_dealloc(StringHandle* self)
 
 static PyObject* string_handle_repr(StringHandle* self)
 {
-    if (self->str == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
-    }
-
     return PyUnicode_FromFormat("%s('%U')", self->object_type.tp_name, self->str);
 }
 
 static PyObject* string_handle_str(StringHandle* self)
 {
-    if (self->str == nullptr)
-    {
-        return PyErr_Format(PyExc_AttributeError, pyext::error::attribute_not_initilized_tmpl, "str");
-    }
-
     return pyext::new_ref(self->str);
 }
 
