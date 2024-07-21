@@ -58,7 +58,7 @@ PyTypeObject Domain::object_type =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = "A class that represents a ITT domain.",
+    .tp_doc               = "A class that represents an ITT domain.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,

@@ -60,7 +60,7 @@ PyTypeObject Id::object_type =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = "A class that represents a ITT id.",
+    .tp_doc               = "A class that represents an ITT id.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
