@@ -16,6 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -24,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install build coverage gcovr flake8 pylint
+        python -m pip install build coverage gcovr flake8 pylint diff-cover
     - name: Lint with pylint the code of the package
       run: |
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
@@ -41,14 +42,20 @@ jobs:
     - name: Run unit tests
       run: |
         coverage run -m unittest discover -s tests/unit -t .
-    - name: Generate code coverage report for python code
+    - name: Generate HTML code coverage report for python code
       run: |
         coverage html --directory=htmlcov-python
-    - uses: actions/upload-artifact@v4
-      with:
-        name: htmlcov-linux-python-${{ matrix.python-version }}
-        path: htmlcov-python
-        retention-days: 1
+    - name: Generate XML code coverage report for python code
+      run: |
+        coverage xml
+    - name: Generate Diff Coverage report for Python code (compare with main)
+      if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main'}}
+      run: |
+        diff-cover coverage.xml --html-report diff-coverage-python.html
+    - name: Generate Diff Coverage report for Python code (compare with previous commit)
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      run: |
+        diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
     - name: Build package with code coverage for native part and install it for integration testing
       env:
         PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE: 1
@@ -58,14 +65,17 @@ jobs:
       working-directory: ./tests
       run: |
         python -m unittest discover -s integration -t .
-    - name: Generate code coverage report for native code
+    - name: Generate HTML code coverage report for native code
       run: |
         mkdir htmlcov-native
         gcovr --exclude ittapi/ --html-details htmlcov-native/coverage.html --html-theme github.green
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-linux-native-${{ matrix.python-version }}
-        path: htmlcov-native
+        path: |
+          htmlcov-native/
+          htmlcov-python/
+          diff-coverage-python.html
         retention-days: 1
   build-windows:
     runs-on: windows-latest
@@ -76,6 +86,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        fetch-depth: 0
         submodules: recursive
     - name: Insatll MSVC
       uses: microsoft/setup-msbuild@v2
@@ -86,7 +97,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install build coverage flake8 pylint
+        python -m pip install build coverage flake8 pylint diff-cover
     - name: Lint with pylint the code of the package
       run: |
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
@@ -106,8 +117,21 @@ jobs:
     - name: Generate code coverage report for python code
       run: |
         coverage html --directory=htmlcov-python
+    - name: Generate XML code coverage report for python code
+      run: |
+        coverage xml
+    - name: Generate Diff Coverage report for Python code (compare with main)
+      if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
+      run: |
+        diff-cover coverage.xml --html-report diff-coverage-python.html
+    - name: Generate Diff Coverage report for Python code (compare with previous commit)
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      run: |
+        diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-windows-python-${{ matrix.python-version }}
-        path: htmlcov-python
+        path: |
+          htmlcov-python/
+          diff-coverage-python.html
         retention-days: 1
