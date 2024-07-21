@@ -9,6 +9,7 @@ or others.
 
 pyitt supports following ITT APIs:
  - Collection Control API
+ - Counter API
  - Domain API
  - Event API
  - Frame API

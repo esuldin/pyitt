@@ -56,6 +56,7 @@ pyitt_license_files = ['LICENSE']
 pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
                         'pyitt.native/extensions/string.cpp',
                         'pyitt.native/collection_control.cpp',
+                        'pyitt.native/counter.cpp',
                         'pyitt.native/domain.cpp',
                         'pyitt.native/event.cpp',
                         'pyitt.native/frame.cpp',

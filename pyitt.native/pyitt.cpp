@@ -2,6 +2,7 @@
 #include <Python.h>
 
 #include "collection_control.hpp"
+#include "counter.hpp"
 #include "domain.hpp"
 #include "event.hpp"
 #include "frame.hpp"
@@ -65,6 +66,7 @@ PyMODINIT_FUNC PyInit_native()
         { Py_mod_exec, reinterpret_cast<void*>(exec_domain) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
+        { Py_mod_exec, reinterpret_cast<void*>(exec_counter) },
         { 0, nullptr }
     };
 

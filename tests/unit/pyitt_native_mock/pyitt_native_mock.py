@@ -18,6 +18,7 @@ class PyittNativeMock(_ModuleType):
             'task_begin_overlapped': _Mock(),
             'task_end_overlapped': _Mock(),
             'thread_set_name': _Mock(),
+            'Counter': _Mock(),
             'Domain': _Mock(),
             'Event': _Mock(),
             'Id': _Mock(),
