@@ -71,7 +71,7 @@ jobs:
         gcovr --exclude ittapi/ --html-details htmlcov-native/coverage.html --html-theme github.green
     - uses: actions/upload-artifact@v4
       with:
-        name: htmlcov-linux-native-${{ matrix.python-version }}
+        name: htmlcov-linux-${{ matrix.python-version }}
         path: |
           htmlcov-native/
           htmlcov-python/
@@ -130,7 +130,7 @@ jobs:
         diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
     - uses: actions/upload-artifact@v4
       with:
-        name: htmlcov-windows-python-${{ matrix.python-version }}
+        name: htmlcov-windows-${{ matrix.python-version }}
         path: |
           htmlcov-python/
           diff-coverage-python.html
