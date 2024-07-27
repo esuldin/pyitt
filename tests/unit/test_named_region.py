@@ -1,6 +1,7 @@
 from asyncio import sleep
 from inspect import stack
 from os.path import basename
+from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call, Mock
 
@@ -157,8 +158,11 @@ class NamedRegionCreationTests(TestCase):
             def my_class_method(cls):
                 pass  # pragma: no cover
 
-        string_handle_class_mock.assert_called_once_with(
-            f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__')
+        # Python 3.10: bpo-43682: Static methods (@staticmethod) and class methods (@classmethod) now inherit the method
+        # attributes (__module__, __name__, __qualname__, __doc__, __annotations__) and have a new __wrapped__ attribute
+        method_name = f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__' \
+            if version_info < (3, 10) else f'{MyClass.my_class_method.__qualname__}'
+        string_handle_class_mock.assert_called_once_with(method_name)
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_for_async_class_method(self, string_handle_class_mock):
@@ -168,8 +172,9 @@ class NamedRegionCreationTests(TestCase):
             async def my_class_method(cls):
                 await sleep(0)  # pragma: no cover
 
-        string_handle_class_mock.assert_called_once_with(
-            f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__')
+        method_name = f'{MyClass.my_class_method.__wrapped__.__class__.__qualname__}.__call__' \
+            if version_info < (3, 10) else f'{MyClass.my_class_method.__qualname__}'
+        string_handle_class_mock.assert_called_once_with(method_name)
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_for_static_method(self, string_handle_class_mock):
@@ -179,8 +184,9 @@ class NamedRegionCreationTests(TestCase):
             def my_static_method():
                 pass  # pragma: no cover
 
-        string_handle_class_mock.assert_called_once_with(
-            f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__')
+        method_name = f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__' \
+            if version_info < (3, 10) else f'{MyClass.my_static_method.__qualname__}'
+        string_handle_class_mock.assert_called_once_with(method_name)
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_for_async_static_method(self, string_handle_class_mock):
@@ -190,8 +196,9 @@ class NamedRegionCreationTests(TestCase):
             async def my_static_method():
                 await sleep(0)  # pragma: no cover
 
-        string_handle_class_mock.assert_called_once_with(
-            f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__')
+        method_name = f'{MyClass.my_static_method.__wrapped__.__class__.__qualname__}.__call__' \
+            if version_info < (3, 10) else f'{MyClass.my_static_method.__qualname__}'
+        string_handle_class_mock.assert_called_once_with(method_name)
 
     @pyitt_native_patch('StringHandle')
     def test_region_creation_as_descriptor(self, string_handle_class_mock):

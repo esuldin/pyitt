@@ -1,5 +1,6 @@
 from inspect import stack
 from os.path import basename
+from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call, Mock
 
@@ -507,8 +508,9 @@ class NestedTaskCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.NestedTask(task='my task')
 
-        self.assertEqual(str(context.exception), "__init__() got some positional-only arguments"
-                                                 " passed as keyword arguments: 'task'")
+        exception_message = '' if version_info < (3, 10) else '_Task.'
+        exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
+        self.assertEqual(str(context.exception), exception_message)
 
 
 class OverlappedTaskCreationTests(TestCase):
@@ -531,8 +533,9 @@ class OverlappedTaskCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.OverlappedTask(task='my task')
 
-        self.assertEqual(str(context.exception), "__init__() got some positional-only arguments"
-                                                 " passed as keyword arguments: 'task'")
+        exception_message = '' if version_info < (3, 10) else '_Task.'
+        exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
+        self.assertEqual(str(context.exception), exception_message)
 
 
 class OverlappedTaskExecution(TestCase):

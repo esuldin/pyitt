@@ -18,5 +18,5 @@ def mark_coroutine_function(func):
     func._is_coroutine = _is_coroutine
 
     if version_info >= (3, 12):
-        from inspect import _is_coroutine_mark
-        func._is_coroutine_marker = _is_coroutine_mark
+        from inspect import markcoroutinefunction
+        markcoroutinefunction(func)
