@@ -17,14 +17,7 @@ PyObject* thread_set_name(PyObject* Py_UNUSED(self), PyObject* name)
 {
     if (auto string_handle_obj = pyext::pyobject_cast<StringHandle>(name))
     {
-        PyObject* string_handle_str = string_handle_get_string(string_handle_obj);
-        if (string_handle_str == nullptr)
-        {
-            return PyErr_Format(PyExc_ValueError,
-                "Passed %s object as name does not hold string.", StringHandle::object_type.tp_name);
-        }
-
-        name = pyext::new_ref(string_handle_str);
+        name = pyext::new_ref(string_handle_get_string(string_handle_obj));
     }
     else if (!PyUnicode_Check(name))
     {
