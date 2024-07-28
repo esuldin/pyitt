@@ -6,15 +6,15 @@ import pyitt  # pylint: disable=C0411
 
 class DomainTests(TestCase):
     @pyitt_native_patch('Domain')
-    def test_domain_call_without_arguments(self, domain_mock):
+    def test_domain_call_without_arguments(self, domain_class_mock):
         pyitt.domain()
-        domain_mock.assert_called_once_with(None)
+        domain_class_mock.assert_called_once_with(None)
 
     @pyitt_native_patch('Domain')
-    def test_domain_call_with_name(self, domain_mock):
+    def test_domain_call_with_name(self, domain_class_mock):
         name = 'my domain'
         pyitt.domain(name)
-        domain_mock.assert_called_once_with(name)
+        domain_class_mock.assert_called_once_with(name)
 
 
 if __name__ == '__main__':
