@@ -106,6 +106,28 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
        cd pyitt
        python -m pip install .
 
+
+## Compatibility with other Python binding to ITT API
+
+pyitt provides compatibility layers that allow you to use pyitt as a "backend" for other Python bindings to the ITT API.
+
+### [itt-python](https://github.com/NERSC/itt-python)
+
+`pyitt.compatibility_layers.itt_python` fully implements the itt-python public API. It allows you to switch to pyitt
+without anything else by only replacing the imports. For example, the following import for itt-python:
+ 
+```python
+import itt
+```
+
+should be replaced with:
+
+```python
+import pyitt.compatibility_layers.itt_python as itt
+```
+
+For more details, please see [itt_python_compatibility_sample.py](samples/itt_python_compatibility_sample.py).
+
 ## Known Issues and Limitations
 
 - If pyitt is used in a function which is specified as a target for calls from 

@@ -6,7 +6,7 @@ import platform
 import sys
 import sysconfig
 
-from setuptools import setup, Extension
+from setuptools import find_namespace_packages, setup, Extension
 from setuptools.command.build_ext import build_ext
 from subprocess import run  # pylint: disable=C0411
 
@@ -151,7 +151,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
 setup(name='pyitt',
       version='1.5.0',
       description='ITT API bindings for Python',
-      packages=['pyitt'],
+      packages=find_namespace_packages(include=['pyitt', 'pyitt.*']),
       ext_modules=[pyitt_native],
       license_files=pyitt_license_files + itt_license_files,
       cmdclass={'build_ext': NativeBuildExtension} if build_itt_with_ipt_support else {},
