@@ -128,6 +128,23 @@ import pyitt.compatibility_layers.itt_python as itt
 
 For more details, please see [itt_python_compatibility_sample.py](samples/itt_python_compatibility_sample.py).
 
+### [ittapi](https://github.com/intel/ittapi/)
+
+`pyitt.compatibility_layers.ittapi` implements most of ittapi Python binding public API. Technically, the Python binding
+to ITT API that is included in the ITT API repository is based on the pyitt v1.1.0 code base. But, the implementations
+have been diverging since then. However, in most cases, it should be possible to use newer versions of pyitt instead of
+ittapi just by replacing the imports. For example, the import for ittapi:
+
+```python
+import ittapi
+```
+
+should be replaced with:
+
+```python
+import pyitt.compatibility_layers.ittapi as ittapi
+```
+
 ## Known Issues and Limitations
 
 - If pyitt is used in a function which is specified as a target for calls from 
