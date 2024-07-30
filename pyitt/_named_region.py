@@ -109,7 +109,7 @@ class _NamedRegion(_Region):
     def __call_name_determination_callback(self):
         """Calls a name determination callback."""
         if callable(self.__name_determination_callback):
-            self.__name_determination_callback(self.name)
+            self.__name_determination_callback(self.__name)
 
     def __mark_name_as_final(self):
         """Marks the current name as a final name of a code region."""
