@@ -73,8 +73,8 @@ void clear_error_indicator()
     Py_XDECREF(value);
     Py_XDECREF(traceback);
 #else
-    PyObject* ex = PyErr_GetRaisedException();
-    Py_XDECREF(ex);
+    PyObject* exception = PyErr_GetRaisedException();
+    Py_XDECREF(exception);
 #endif
 }
 
