@@ -56,7 +56,7 @@ void set_raised_exception(PyObject* exception)
         exception,
         PyException_GetTraceback(exception));
 #else
-    PyErr_SetRaisedException(exc);
+    PyErr_SetRaisedException(exception);
 #endif
 }
 
