@@ -3,6 +3,7 @@ setup.py - Python module to install pyitt package
 """
 import os
 import sys
+import sysconfig
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -77,6 +78,17 @@ if build_with_code_coverage:
     assert build_with_code_coverage and sys.platform != 'win32', 'Build with code coverage is not supported on Windows.'
     pyitt_native_compiler_args.append('--coverage')
     pyitt_native_link_args.append('--coverage')
+
+# Workaround for issue #4571 in setuptools
+if sys.platform != 'win32':
+    LDSHARED_VAR_NAME = 'LDSHARED'
+    LDCXXSHARED_VAR_NAME = 'LDCXXSHARED'
+
+    if LDCXXSHARED_VAR_NAME not in sysconfig.get_config_vars() and LDCXXSHARED_VAR_NAME not in os.environ:
+        if LDSHARED_VAR_NAME in os.environ:
+            os.environ[LDCXXSHARED_VAR_NAME] = os.environ[LDSHARED_VAR_NAME]
+        else:
+            os.environ[LDCXXSHARED_VAR_NAME] = sysconfig.get_config_vars().get(LDSHARED_VAR_NAME, None)
 
 pyitt_native = Extension('pyitt.native',
                          sources=itt_source + pyitt_native_sources,
