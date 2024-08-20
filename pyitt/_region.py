@@ -300,7 +300,7 @@ class _Region:
 
     def __get_wrapper(self, func, obj=None):
         """
-        Returns a pure wrapper for a callable object.
+        Gets a pure wrapper for a callable object.
         :param func: the callable object to wrap
         :param obj: an object to which the callable object is bound
         :return: the wrapper to trace the execution of the callable object

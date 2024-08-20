@@ -30,11 +30,11 @@ class Frame(_Region):
         return f'{self.__class__.__name__}({repr(self.__domain)}, {repr(self.__id)})'
 
     def domain(self):
-        """Returns the domain of the frame."""
+        """Gets the domain of the frame."""
         return self.__domain
 
     def id(self):
-        """Returns the id of the frame."""
+        """Gets the id of the frame."""
         return self.__id
 
     def begin(self) -> None:
@@ -47,7 +47,7 @@ class Frame(_Region):
 
     @staticmethod
     def __get_domain(original_domain):
-        """Returns frame domain"""
+        """Gets frame domain"""
         if original_domain is None or isinstance(original_domain, str):
             return _domain(original_domain)
 

@@ -26,12 +26,12 @@ class _CallSite:
 
     @property
     def filename(self) -> str:
-        """Returns filename for the call site."""
+        """Gets filename for the call site."""
         return self._filename
 
     @property
     def lineno(self) -> int:
-        """Returns line number for the call site."""
+        """Gets line number for the call site."""
         return self._lineno
 
 
@@ -84,7 +84,7 @@ class _NamedRegion(_Region):
 
     @property
     def name(self):
-        """Returns the name of the code region."""
+        """Gets the name of the code region."""
         return self.__name
 
     @property
@@ -140,7 +140,7 @@ class _NamedRegion(_Region):
 
     @staticmethod
     def __get_name(func):
-        """Returns appropriate code region name."""
+        """Gets appropriate code region name."""
         if func is None:
             return None
 

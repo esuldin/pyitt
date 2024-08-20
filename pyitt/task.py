@@ -39,17 +39,17 @@ class _Task(_NamedRegion):
 
     @property
     def domain(self):
-        """Returns the domain of the task."""
+        """Gets the domain of the task."""
         return self.__domain
 
     @property
     def id(self):
-        """Returns the id of the task."""
+        """Gets the id of the task."""
         return self.__id
 
     @property
     def parent_id(self):
-        """Returns the parent id for the task."""
+        """Gets the parent id for the task."""
         return self.__parent_id
 
     def begin(self) -> None:
@@ -62,7 +62,7 @@ class _Task(_NamedRegion):
 
     @staticmethod
     def __get_task_domain(original_domain):
-        """Returns the domain of the task."""
+        """Gets the domain of the task."""
         if original_domain is None or isinstance(original_domain, str):
             return _domain(original_domain)
 
@@ -70,12 +70,12 @@ class _Task(_NamedRegion):
 
     @staticmethod
     def __get_task_id(original_id, domain):
-        """Returns task id for the specified domain."""
+        """Gets task id for the specified domain."""
         return _id(domain) if original_id is None else original_id
 
     @staticmethod
     def __get_parent_id(original_parent):
-        """Returns parent id."""
+        """Gets parent id."""
         return original_parent.id() if isinstance(original_parent, task.__class__) else original_parent
 
 
