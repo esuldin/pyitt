@@ -180,7 +180,7 @@ class TaskCreationTests(TestCase):
 
     def test_task_creation_with_first_named_argument(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.task(task='my task')
+            pyitt.task(task='my task')  # pylint: disable=E3102
 
         self.assertEqual(str(context.exception), "task() got some positional-only arguments"
                                                  " passed as keyword arguments: 'task'")
@@ -499,14 +499,14 @@ class NestedTaskCreationTests(TestCase):
 
     def test_task_creation_with_first_named_argument(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.nested_task(task='my task')
+            pyitt.nested_task(task='my task')  # pylint: disable=E3102
 
         self.assertEqual(str(context.exception), "nested_task() got some positional-only arguments"
                                                  " passed as keyword arguments: 'task'")
 
     def test_task_creation_with_first_named_argument_using_class(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.NestedTask(task='my task')
+            pyitt.NestedTask(task='my task')  # pylint: disable=E3102
 
         exception_message = '' if version_info < (3, 10) else '_Task.'
         exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
@@ -524,14 +524,14 @@ class OverlappedTaskCreationTests(TestCase):
 
     def test_task_creation_with_first_named_argument(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.overlapped_task(task='my task')
+            pyitt.overlapped_task(task='my task')  # pylint: disable=E3102
 
         self.assertEqual(str(context.exception), "overlapped_task() got some positional-only arguments"
                                                  " passed as keyword arguments: 'task'")
 
     def test_task_creation_with_first_named_argument_using_class(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.OverlappedTask(task='my task')
+            pyitt.OverlappedTask(task='my task')  # pylint: disable=E3102
 
         exception_message = '' if version_info < (3, 10) else '_Task.'
         exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
