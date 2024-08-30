@@ -1,5 +1,5 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)
-![PyPI](https://badge.fury.io/py/pyitt.svg)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)](https://pypi.org/project/pyitt/)
+[![PyPI](https://badge.fury.io/py/pyitt.svg)](https://pypi.org/project/pyitt/)
 
 # pyitt
 
@@ -65,7 +65,8 @@ for `pyitt.task` in the same way as for the decorator form.
 
 ## Installation
 
-pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
+pyitt package is available on [PyPi](https://pypi.org/project/pyitt/) and can be installed in the usual way for the
+supported configurations:
 
     python -m pip install pyitt
 
