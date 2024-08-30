@@ -2,6 +2,7 @@
 setup.py - Python module to install pyitt package
 """
 import os
+import platform
 import sys
 import sysconfig
 
@@ -34,9 +35,15 @@ assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
      f'Make sure that submodules are checked out as well using following command:\n'
      f'git submodule update --init --recursive')
 
+
 # Check if IPT support is requested
+def is_x86_arch():
+    """Returns true if the machine has x86 compatible architecture."""
+    return platform.machine() in ['i386', 'i486', 'i586', 'i686', 'x86', 'x86_64', 'AMD64']
+
+
 build_itt_with_ipt_support = get_environment_flag('PYITT_BUILD_WITH_ITT_API_IPT_SUPPORT')
-build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_support is not None else True
+build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_support is not None else is_x86_arch()
 
 itt_source = [os.path.join(itt_dir, 'src', 'ittnotify', 'ittnotify_static.c')]
 itt_include_dirs = [os.path.join(itt_dir, 'include')]
