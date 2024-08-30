@@ -80,7 +80,7 @@ if build_with_code_coverage:
     pyitt_native_compiler_args.append('--coverage')
     pyitt_native_link_args.append('--coverage')
 
-# Workaround for issue #4571 in setuptools
+# Workaround for issue #283 in distutils (formerly #4571 in setuptools)
 if sys.platform != 'win32':
     LDSHARED_VAR_NAME = 'LDSHARED'
     LDCXXSHARED_VAR_NAME = 'LDCXXSHARED'
