@@ -90,7 +90,7 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-    - name: Insatll MSVC
+    - name: Install MSVC
       uses: microsoft/setup-msbuild@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
