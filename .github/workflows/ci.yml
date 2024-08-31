@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -49,11 +49,11 @@ jobs:
       run: |
         coverage xml
     - name: Generate Diff Coverage report for Python code (compare with main)
-      if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main'}}
+      if: ${{ github.event_name == 'pull_request' }}
       run: |
         diff-cover coverage.xml --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      if: ${{ github.event_name == 'push' }}
       run: |
         diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
     - name: Build package with code coverage for native part and install it for integration testing
@@ -121,11 +121,11 @@ jobs:
       run: |
         coverage xml
     - name: Generate Diff Coverage report for Python code (compare with main)
-      if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
+      if: ${{ github.event_name == 'pull_request' }}
       run: |
         diff-cover coverage.xml --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      if: ${{ github.event_name == 'push' }}
       run: |
         diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
     - uses: actions/upload-artifact@v4
