@@ -149,7 +149,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
 
 
 setup(name='pyitt',
-      version='1.5.0',
+      version='1.6.0',
       description='ITT API bindings for Python',
       packages=find_namespace_packages(include=['pyitt', 'pyitt.*']),
       ext_modules=[pyitt_native],
