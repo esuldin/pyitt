@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    - cron: "30 5 * * 1,3,5"
 
 jobs:
   build-linux:
@@ -76,7 +78,7 @@ jobs:
           htmlcov-native/
           htmlcov-python/
           diff-coverage-python.html
-        retention-days: 1
+        retention-days: 3
   build-windows:
     runs-on: windows-latest
     strategy:
@@ -134,4 +136,4 @@ jobs:
         path: |
           htmlcov-python/
           diff-coverage-python.html
-        retention-days: 1
+        retention-days: 3
