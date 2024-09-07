@@ -1,3 +1,4 @@
+from platform import python_implementation
 from unittest import main as unittest_main, TestCase
 
 from pyitt.native import Domain, StringHandle
@@ -40,8 +41,13 @@ class DomainTests(TestCase):
         with self.assertRaises(TypeError) as context:
             Domain.__repr__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__repr__' requires a 'pyitt.native.{Domain.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Domain.__name__} type."
+        else:
+            exception_str = (f"descriptor '__repr__' requires a 'pyitt.native.{Domain.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_domain_string_representation(self):
         domain_name = 'my domain'
@@ -52,8 +58,13 @@ class DomainTests(TestCase):
         with self.assertRaises(TypeError) as context:
             Domain.__str__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__str__' requires a 'pyitt.native.{Domain.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Domain.__name__} type."
+        else:
+            exception_str = (f"descriptor '__str__' requires a 'pyitt.native.{Domain.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
 
 if __name__ == '__main__':

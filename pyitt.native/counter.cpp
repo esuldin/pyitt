@@ -14,20 +14,21 @@ namespace pyitt
 {
 
 static PyObject* counter_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void counter_dealloc(Counter* self);
+static void counter_dealloc(PyObject* self);
 
-static PyObject* counter_repr(Counter* self);
-static PyObject* counter_str(Counter* self);
+static PyObject* counter_repr(PyObject* self);
+static PyObject* counter_str(PyObject* self);
 
-static PyObject* counter_inc(Counter* self, PyObject* args);
-static PyObject* counter_dec(Counter* self, PyObject* args);
-static PyObject* counter_set(Counter* self, PyObject* arg);
+static PyObject* counter_inc(PyObject* self, PyObject* args);
+static PyObject* counter_dec(PyObject* self, PyObject* args);
+static PyObject* counter_set(PyObject* self, PyObject* arg);
 
-static PyObject* counter_inplace_inc(Counter* self, PyObject* arg);
-static PyObject* counter_inplace_dec(Counter* self, PyObject* arg);
+static PyObject* counter_inplace_inc(PyObject* self, PyObject* arg);
+static PyObject* counter_inplace_dec(PyObject* self, PyObject* arg);
 
 static PyObject* counter_inc_internal(Counter* self, PyObject* arg);
 static PyObject* counter_dec_internal(Counter* self, PyObject* arg);
+static PyObject* counter_set_internal(Counter* self, PyObject* arg);
 
 static PyObject* cast_to_pylong(PyObject* obj);
 
@@ -41,9 +42,9 @@ static PyMemberDef counter_attrs[] =
 
 static PyMethodDef counter_methods[] =
 {
-    {"inc", reinterpret_cast<PyCFunction>(counter_inc), METH_VARARGS, "Increment the counter value."},
-    {"dec", reinterpret_cast<PyCFunction>(counter_dec), METH_VARARGS, "Decrement the counter value."},
-    {"set", reinterpret_cast<PyCFunction>(counter_set), METH_O,       "Set the counter value."},
+    {"inc", counter_inc, METH_VARARGS, "Increment the counter value."},
+    {"dec", counter_dec, METH_VARARGS, "Decrement the counter value."},
+    {"set", counter_set, METH_O,       "Set the counter value."},
     {nullptr},
 };
 
@@ -69,8 +70,8 @@ static PyNumberMethods counter_number_protocol =
     .nb_reserved = nullptr,  /* the slot formerly known as nb_long */
     .nb_float = nullptr,
 
-    .nb_inplace_add = reinterpret_cast<binaryfunc>(counter_inplace_inc),
-    .nb_inplace_subtract = reinterpret_cast<binaryfunc>(counter_inplace_dec),
+    .nb_inplace_add = counter_inplace_inc,
+    .nb_inplace_subtract = counter_inplace_dec,
     .nb_inplace_multiply = nullptr,
     .nb_inplace_remainder = nullptr,
     .nb_inplace_power = nullptr,
@@ -99,12 +100,12 @@ PyTypeObject Counter::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = reinterpret_cast<destructor>(counter_dealloc),
+    .tp_dealloc           = counter_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = reinterpret_cast<reprfunc>(counter_repr),
+    .tp_repr              = counter_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = &counter_number_protocol,
@@ -114,7 +115,7 @@ PyTypeObject Counter::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = reinterpret_cast<reprfunc>(counter_str),
+    .tp_str               = counter_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -302,32 +303,57 @@ static PyObject* counter_new(PyTypeObject* type, PyObject* args, PyObject* kwarg
     return self.release();
 }
 
-static void counter_dealloc(Counter* self)
+static void counter_dealloc(PyObject* self)
 {
-    if (self->handle)
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj)
     {
-        __itt_counter_destroy(self->handle);
-    }
+        if (obj->handle)
+        {
+            __itt_counter_destroy(obj->handle);
+        }
 
-    Py_XDECREF(self->name);
-    Py_XDECREF(self->domain);
-    Py_XDECREF(self->value);
+        Py_XDECREF(obj->name);
+        Py_XDECREF(obj->domain);
+        Py_XDECREF(obj->value);
+    }
 
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* counter_repr(Counter* self)
+static PyObject* counter_repr(PyObject* self)
 {
-    return PyUnicode_FromFormat("%s(%R, %R, %R)", Py_TYPE(self)->tp_name, self->name, self->domain, self->value);
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("%s(%R, %R, %R)", obj->object_type.tp_name, obj->name, obj->domain, obj->value);
 }
 
-static PyObject* counter_str(Counter* self)
+static PyObject* counter_str(PyObject* self)
 {
-    return PyUnicode_FromFormat("{ name: '%S', domain: '%S', value: %S }", self->name, self->domain, self->value);
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("{ name: '%S', domain: '%S', value: %S }", obj->name, obj->domain, obj->value);
 }
 
-static PyObject* counter_inc(Counter* self, PyObject* args)
+static PyObject* counter_inc(PyObject* self, PyObject* args)
 {
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
     PyObject* delta = nullptr;
     if (!PyArg_ParseTuple(args, "|O", &delta))
     {
@@ -338,11 +364,18 @@ static PyObject* counter_inc(Counter* self, PyObject* args)
         ? PyLong_FromLong(1)
         : pyext::xnew_ref(delta);
 
-    return counter_inc_internal(self, delta_value.get());
+    return counter_inc_internal(obj, delta_value.get());
 }
 
-static PyObject* counter_dec(Counter* self, PyObject* args)
+static PyObject* counter_dec(PyObject* self, PyObject* args)
 {
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
     PyObject* delta = nullptr;
     if (!PyArg_ParseTuple(args, "|O", &delta))
     {
@@ -353,35 +386,31 @@ static PyObject* counter_dec(Counter* self, PyObject* args)
         ? PyLong_FromLong(1)
         : pyext::xnew_ref(delta);
 
-    return counter_dec_internal(self, delta_value.get());
+    return counter_dec_internal(obj, delta_value.get());
 }
 
-static PyObject* counter_set(Counter* self, PyObject* arg)
+static PyObject* counter_set(PyObject* self, PyObject* arg)
 {
-    pyext::pyobject_holder<PyObject> new_value = cast_to_pylong(arg);
-    if (new_value == nullptr)
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
     {
-        return PyErr_Format(PyExc_ValueError,
-            "The passed value is not a valid instance of int and cannot be converted to int.");
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
     }
 
-    unsigned long long native_new_value = PyLong_AsUnsignedLongLong(new_value.get());
-    if (PyErr_Occurred())
-    {
-        return nullptr;
-    }
-
-    Py_XDECREF(self->value);
-    self->value = new_value.release();
-
-    __itt_counter_set_value(self->handle, &native_new_value);
-
-    Py_RETURN_NONE;
+    return counter_set_internal(obj, arg);
 }
 
-static PyObject* counter_inplace_inc(Counter* self, PyObject* arg)
+static PyObject* counter_inplace_inc(PyObject* self, PyObject* arg)
 {
-    if (counter_inc_internal(self, arg) == nullptr)
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
+    if (counter_inc_internal(obj, arg) == nullptr)
     {
         return nullptr;
     }
@@ -389,9 +418,16 @@ static PyObject* counter_inplace_inc(Counter* self, PyObject* arg)
     return pyext::new_ref(reinterpret_cast<PyObject*>(self));
 }
 
-static PyObject* counter_inplace_dec(Counter* self, PyObject* arg)
+static PyObject* counter_inplace_dec(PyObject* self, PyObject* arg)
 {
-    if (counter_dec_internal(self, arg) == nullptr)
+    Counter* obj = pyext::pyobject_cast<Counter>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Counter::object_type.tp_name);
+    }
+
+    if (counter_dec_internal(obj, arg) == nullptr)
     {
         return nullptr;
     }
@@ -414,7 +450,7 @@ static PyObject* counter_inc_internal(Counter* self, PyObject* arg)
         return nullptr;
     }
 
-    return counter_set(self, new_value.get());
+    return counter_set_internal(self, new_value.get());
 }
 
 static PyObject* counter_dec_internal(Counter* self, PyObject* arg)
@@ -432,7 +468,30 @@ static PyObject* counter_dec_internal(Counter* self, PyObject* arg)
         return nullptr;
     }
 
-    return counter_set(self, new_value.get());
+    return counter_set_internal(self, new_value.get());
+}
+
+static PyObject* counter_set_internal(Counter* self, PyObject* arg)
+{
+    pyext::pyobject_holder<PyObject> new_value = cast_to_pylong(arg);
+    if (new_value == nullptr)
+    {
+        return PyErr_Format(PyExc_ValueError,
+            "The passed value is not a valid instance of int and cannot be converted to int.");
+    }
+
+    unsigned long long native_new_value = PyLong_AsUnsignedLongLong(new_value.get());
+    if (PyErr_Occurred())
+    {
+        return nullptr;
+    }
+
+    Py_XDECREF(self->value);
+    self->value = new_value.release();
+
+    __itt_counter_set_value(self->handle, &native_new_value);
+
+    Py_RETURN_NONE;
 }
 
 static PyObject* cast_to_pylong(PyObject* obj)

@@ -1,3 +1,4 @@
+from platform import python_implementation
 from unittest import main as unittest_main, TestCase
 
 from pyitt.native import PTRegion, StringHandle
@@ -36,8 +37,13 @@ class PTRegionTests(TestCase):
         with self.assertRaises(TypeError) as context:
             PTRegion.__repr__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__repr__' requires a 'pyitt.native.{PTRegion.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{PTRegion.__name__} type."
+        else:
+            exception_str = (f"descriptor '__repr__' requires a 'pyitt.native.{PTRegion.__name__}' object but received"
+                             f" a 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_pt_region_string_representation(self):
         region_name = 'my region'
@@ -49,8 +55,13 @@ class PTRegionTests(TestCase):
         with self.assertRaises(TypeError) as context:
             PTRegion.__str__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__str__' requires a 'pyitt.native.{PTRegion.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{PTRegion.__name__} type."
+        else:
+            exception_str = (f"descriptor '__str__' requires a 'pyitt.native.{PTRegion.__name__}' object but received"
+                             f" a 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_pt_region_begin(self):
         region_name = 'my region'

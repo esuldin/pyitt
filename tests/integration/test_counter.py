@@ -1,3 +1,4 @@
+from platform import python_implementation
 from unittest import main as unittest_main, TestCase
 
 from pyitt.native import Counter, Domain, StringHandle
@@ -92,8 +93,13 @@ class CounterTests(TestCase):
         with self.assertRaises(TypeError) as context:
             Counter.__repr__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__repr__' requires a 'pyitt.native.{Counter.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Counter.__name__} type."
+        else:
+            exception_str = (f"descriptor '__repr__' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_string_representation(self):
         name = 'my event'
@@ -107,8 +113,13 @@ class CounterTests(TestCase):
         with self.assertRaises(TypeError) as context:
             Counter.__str__(None)  # pylint: disable=C2801
 
-        self.assertEqual(str(context.exception), f"descriptor '__str__' requires a 'pyitt.native.{Counter.__name__}'"
-                                                 f" object but received a 'NoneType'")
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Counter.__name__} type."
+        else:
+            exception_str = (f"descriptor '__str__' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_set(self):
         counter = Counter('my counter')
@@ -123,6 +134,19 @@ class CounterTests(TestCase):
 
         self.assertEqual(str(context.exception), 'The passed value is not a valid instance of int and cannot be'
                                                  ' converted to int.')
+
+    def test_counter_set_for_non_counter_object(self):
+        with self.assertRaises(TypeError) as context:
+            Counter.set(None, 42)
+
+        if python_implementation() == 'PyPy':
+            exception_str = (f"descriptor 'set' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+        else:
+            exception_str = (f"descriptor 'set' for 'pyitt.native.{Counter.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_inc(self):
         counter = Counter('my counter')
@@ -145,6 +169,19 @@ class CounterTests(TestCase):
         self.assertEqual(str(context.exception), 'The passed delta is not a valid instance of int and cannot be'
                                                  ' converted to int.')
 
+    def test_counter_inc_for_non_counter_object(self):
+        with self.assertRaises(TypeError) as context:
+            Counter.inc(None, 42)
+
+        if python_implementation() == 'PyPy':
+            exception_str = (f"descriptor 'inc' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+        else:
+            exception_str = (f"descriptor 'inc' for 'pyitt.native.{Counter.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
+
     def test_counter_dec(self):
         value = 42
         counter = Counter('my counter', value=value)
@@ -163,7 +200,13 @@ class CounterTests(TestCase):
         counter = Counter('my counter')
         with self.assertRaises(OverflowError) as context:
             counter.dec()
-        self.assertEqual(str(context.exception), "can't convert negative int to unsigned")
+
+        if python_implementation() == 'PyPy':
+            exception_str = "cannot convert negative integer to unsigned int"
+        else:
+            exception_str = "can't convert negative int to unsigned"
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_dec_with_non_int_value(self):
         counter = Counter('my counter')
@@ -171,6 +214,19 @@ class CounterTests(TestCase):
             counter.dec('')
         self.assertEqual(str(context.exception), 'The passed delta is not a valid instance of int and cannot be'
                                                  ' converted to int.')
+
+    def test_counter_dec_for_non_counter_object(self):
+        with self.assertRaises(TypeError) as context:
+            Counter.dec(None, 42)
+
+        if python_implementation() == 'PyPy':
+            exception_str = (f"descriptor 'dec' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+        else:
+            exception_str = (f"descriptor 'dec' for 'pyitt.native.{Counter.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_inc_inplace(self):
         counter = Counter('my counter')
@@ -188,6 +244,18 @@ class CounterTests(TestCase):
         self.assertEqual(str(context.exception), 'The passed delta is not a valid instance of int and cannot be'
                                                  ' converted to int.')
 
+    def test_counter_inc_inplace_for_non_counter_object(self):
+        with self.assertRaises(TypeError) as context:
+            Counter.__iadd__(None, 42)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Counter.__name__} type."
+        else:
+            exception_str = (f"descriptor '__iadd__' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
+
     def test_counter_dec_inplace(self):
         value = 42
         counter = Counter('my counter', value=value * 2)
@@ -200,7 +268,13 @@ class CounterTests(TestCase):
         counter = Counter('my counter')
         with self.assertRaises(OverflowError) as context:
             counter -= 1
-        self.assertEqual(str(context.exception), "can't convert negative int to unsigned")
+
+        if python_implementation() == 'PyPy':
+            exception_str = "cannot convert negative integer to unsigned int"
+        else:
+            exception_str = "can't convert negative int to unsigned"
+
+        self.assertEqual(str(context.exception), exception_str)
 
     def test_counter_dec_inplace_with_non_int_value(self):
         counter = Counter('my counter')
@@ -209,6 +283,18 @@ class CounterTests(TestCase):
 
         self.assertEqual(str(context.exception), 'The passed delta is not a valid instance of int and cannot be'
                                                  ' converted to int.')
+
+    def test_counter_dec_inplace_for_non_counter_object(self):
+        with self.assertRaises(TypeError) as context:
+            Counter.__isub__(None, 42)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Counter.__name__} type."
+        else:
+            exception_str = (f"descriptor '__isub__' requires a 'pyitt.native.{Counter.__name__}' object but received a"
+                             f" 'NoneType'")
+
+        self.assertEqual(str(context.exception), exception_str)
 
 
 if __name__ == '__main__':
