@@ -13,13 +13,13 @@ namespace pyitt
 {
 
 static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void event_dealloc(Event* self);
+static void event_dealloc(PyObject* self);
 
-static PyObject* event_repr(Event* self);
-static PyObject* event_str(Event* self);
+static PyObject* event_repr(PyObject* self);
+static PyObject* event_str(PyObject* self);
 
-static PyObject* event_begin(Event* self, PyObject* Py_UNUSED(args));
-static PyObject* event_end(Event* self, PyObject* Py_UNUSED(args));
+static PyObject* event_begin(PyObject* self, PyObject* Py_UNUSED(args));
+static PyObject* event_end(PyObject* self, PyObject* Py_UNUSED(args));
 
 static PyMemberDef event_attrs[] =
 {
@@ -29,8 +29,8 @@ static PyMemberDef event_attrs[] =
 
 static PyMethodDef event_methods[] =
 {
-    {"begin", reinterpret_cast<PyCFunction>(event_begin), METH_NOARGS, "Marks the beginning of the event."},
-    {"end", reinterpret_cast<PyCFunction>(event_end), METH_NOARGS, "Marks the end of the event."},
+    {"begin", event_begin, METH_NOARGS, "Marks the beginning of the event."},
+    {"end", event_end, METH_NOARGS, "Marks the end of the event."},
     {nullptr},
 };
 
@@ -42,12 +42,12 @@ PyTypeObject Event::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = reinterpret_cast<destructor>(event_dealloc),
+    .tp_dealloc           = event_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = reinterpret_cast<reprfunc>(event_repr),
+    .tp_repr              = event_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -57,7 +57,7 @@ PyTypeObject Event::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = reinterpret_cast<reprfunc>(event_str),
+    .tp_str               = event_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -171,31 +171,64 @@ static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
     return self.release();
 }
 
-static void event_dealloc(Event* self)
+static void event_dealloc(PyObject* self)
 {
-    Py_XDECREF(self->name);
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj)
+    {
+        Py_XDECREF(obj->name);
+    }
+
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* event_repr(Event* self)
+static PyObject* event_repr(PyObject* self)
 {
-    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, self->name);
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("%s('%U')", obj->object_type.tp_name, obj->name);
 }
 
-static PyObject* event_str(Event* self)
+static PyObject* event_str(PyObject* self)
 {
-    return pyext::new_ref(self->name);
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
+    }
+
+    return pyext::new_ref(obj->name);
 }
 
-static PyObject* event_begin(Event* self, PyObject* Py_UNUSED(args))
+static PyObject* event_begin(PyObject* self, PyObject* Py_UNUSED(args))
 {
-    __itt_event_start(self->handle);
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
+    }
+
+    __itt_event_start(obj->handle);
     Py_RETURN_NONE;
 }
 
-static PyObject* event_end(Event* self, PyObject* Py_UNUSED(args))
+static PyObject* event_end(PyObject* self, PyObject* Py_UNUSED(args))
 {
-    __itt_event_end(self->handle);
+    Event* obj = pyext::pyobject_cast<Event>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Event::object_type.tp_name);
+    }
+
+    __itt_event_end(obj->handle);
     Py_RETURN_NONE;
 }
 

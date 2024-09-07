@@ -15,10 +15,10 @@ namespace pyitt
 {
 
 static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void id_dealloc(Id* self);
+static void id_dealloc(PyObject* self);
 
-static PyObject* id_repr(Id* self);
-static PyObject* id_str(Id* self);
+static PyObject* id_repr(PyObject* self);
+static PyObject* id_str(PyObject* self);
 
 static PyMemberDef id_attrs[] =
 {
@@ -34,12 +34,12 @@ PyTypeObject Id::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = reinterpret_cast<destructor>(id_dealloc),
+    .tp_dealloc           = id_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = reinterpret_cast<reprfunc>(id_repr),
+    .tp_repr              = id_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -49,7 +49,7 @@ PyTypeObject Id::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = reinterpret_cast<reprfunc>(id_str),
+    .tp_str               = id_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -149,26 +149,45 @@ static PyObject* id_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
     return self.release();
 }
 
-static void id_dealloc(Id* self)
+static void id_dealloc(PyObject* self)
 {
-    Domain* domain_obj = pyext::pyobject_cast<Domain>(self->domain);
-    if (domain_obj && std::memcmp(&(self->handle), &(__itt_null), sizeof(self->handle)))
+    Id* obj = pyext::pyobject_cast<Id>(self);
+    if (obj)
     {
-        __itt_id_destroy(domain_get_handle(domain_obj), self->handle);
+        Domain* domain_obj = pyext::pyobject_cast<Domain>(obj->domain);
+        if (domain_obj && std::memcmp(&(obj->handle), &(__itt_null), sizeof(obj->handle)))
+        {
+            __itt_id_destroy(domain_get_handle(domain_obj), obj->handle);
+        }
+
+        Py_XDECREF(obj->domain);
     }
 
-    Py_XDECREF(self->domain);
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* id_repr(Id* self)
+static PyObject* id_repr(PyObject* self)
 {
-    return PyUnicode_FromFormat("%s(%llu, %llu)", self->object_type.tp_name, self->handle.d1, self->handle.d2);
+    Id* obj = pyext::pyobject_cast<Id>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Id::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("%s(%llu, %llu)", obj->object_type.tp_name, obj->handle.d1, obj->handle.d2);
 }
 
-static PyObject* id_str(Id* self)
+static PyObject* id_str(PyObject* self)
 {
-    return PyUnicode_FromFormat("(%llu, %llu)", self->handle.d1, self->handle.d2);
+    Id* obj = pyext::pyobject_cast<Id>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", Id::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("(%llu, %llu)", obj->handle.d1, obj->handle.d2);
 }
 
 int exec_id(PyObject* module)

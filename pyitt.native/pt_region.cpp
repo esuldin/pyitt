@@ -12,13 +12,13 @@ namespace pyitt
 {
 
 static PyObject* pt_region_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void pt_region_dealloc(PTRegion* self);
+static void pt_region_dealloc(PyObject* self);
 
-static PyObject* pt_region_repr(PTRegion* self);
-static PyObject* pt_region_str(PTRegion* self);
+static PyObject* pt_region_repr(PyObject* self);
+static PyObject* pt_region_str(PyObject* self);
 
-static PyObject* pt_region_begin(PTRegion* self, PyObject* Py_UNUSED(args));
-static PyObject* pt_region_end(PTRegion* self, PyObject* Py_UNUSED(args));
+static PyObject* pt_region_begin(PyObject* self, PyObject* Py_UNUSED(args));
+static PyObject* pt_region_end(PyObject* self, PyObject* Py_UNUSED(args));
 
 #if !defined(ITT_API_IPT_SUPPORT)
 static PyObject* pt_region_not_implemented_exception();
@@ -32,8 +32,8 @@ static PyMemberDef pt_region_attrs[] =
 
 static PyMethodDef pt_region_methods[] =
 {
-    {"begin", reinterpret_cast<PyCFunction>(pt_region_begin), METH_NOARGS, "Marks the beginning of a code region targeted for Intel PT analysis."},
-    {"end", reinterpret_cast<PyCFunction>(pt_region_end), METH_NOARGS, "Marks the end of a code region targeted for Intel PT analysis."},
+    {"begin", pt_region_begin, METH_NOARGS, "Marks the beginning of a code region targeted for Intel PT analysis."},
+    {"end",   pt_region_end,   METH_NOARGS, "Marks the end of a code region targeted for Intel PT analysis."},
     {nullptr}
 };
 
@@ -45,12 +45,12 @@ PyTypeObject PTRegion::object_type =
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = reinterpret_cast<destructor>(pt_region_dealloc),
+    .tp_dealloc           = pt_region_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = reinterpret_cast<reprfunc>(pt_region_repr),
+    .tp_repr              = pt_region_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -60,7 +60,7 @@ PyTypeObject PTRegion::object_type =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = reinterpret_cast<reprfunc>(pt_region_str),
+    .tp_str               = pt_region_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -186,36 +186,69 @@ static PyObject* pt_region_new(PyTypeObject* type, PyObject* args, PyObject* kwa
 #endif
 }
 
-static void pt_region_dealloc(PTRegion* self)
+static void pt_region_dealloc(PyObject* self)
 {
-    Py_XDECREF(self->name);
+    PTRegion* obj = pyext::pyobject_cast<PTRegion>(self);
+    if (obj)
+    {
+        Py_XDECREF(obj->name);
+    }
+
     Py_TYPE(self)->tp_free(self);
 }
 
-static PyObject* pt_region_repr(PTRegion* self)
+static PyObject* pt_region_repr(PyObject* self)
 {
-    return PyUnicode_FromFormat("%s('%U')", Py_TYPE(self)->tp_name, self->name);
+    PTRegion* obj = pyext::pyobject_cast<PTRegion>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", PTRegion::object_type.tp_name);
+    }
+
+    return PyUnicode_FromFormat("%s('%U')", obj->object_type.tp_name, obj->name);
 }
 
-static PyObject* pt_region_str(PTRegion* self)
+static PyObject* pt_region_str(PyObject* self)
 {
-    return pyext::new_ref(self->name);
+    PTRegion* obj = pyext::pyobject_cast<PTRegion>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", PTRegion::object_type.tp_name);
+    }
+
+    return pyext::new_ref(obj->name);
 }
 
-static PyObject* pt_region_begin(PTRegion* self, PyObject* Py_UNUSED(args))
+static PyObject* pt_region_begin(PyObject* self, PyObject* Py_UNUSED(args))
 {
 #if defined(ITT_API_IPT_SUPPORT)
-    __itt_mark_pt_region_begin(self->handle);
+    PTRegion* obj = pyext::pyobject_cast<PTRegion>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", PTRegion::object_type.tp_name);
+    }
+
+    __itt_mark_pt_region_begin(obj->handle);
     Py_RETURN_NONE;
 #else
     return pt_region_not_implemented_exception();
 #endif
 }
 
-static PyObject* pt_region_end(PTRegion* self, PyObject* Py_UNUSED(args))
+static PyObject* pt_region_end(PyObject* self, PyObject* Py_UNUSED(args))
 {
 #if defined(ITT_API_IPT_SUPPORT)
-    __itt_mark_pt_region_end(self->handle);
+    PTRegion* obj = pyext::pyobject_cast<PTRegion>(self);
+    if (obj == nullptr)
+    {
+        return PyErr_Format(PyExc_TypeError,
+            pyext::error::invalid_argument_type_tmpl, "object", PTRegion::object_type.tp_name);
+    }
+
+    __itt_mark_pt_region_end(obj->handle);
     Py_RETURN_NONE;
 #else
     return pt_region_not_implemented_exception();
