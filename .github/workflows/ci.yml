@@ -130,6 +130,13 @@ jobs:
       if: ${{ github.event_name == 'push' }}
       run: |
         diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
+    - name: Build package for native part and install it for integration testing
+      run: |
+        python -m pip install .
+    - name: Run integration tests
+      working-directory: ./tests
+      run: |
+        python -m unittest discover -s integration -t .
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-windows-${{ matrix.python-version }}
