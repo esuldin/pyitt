@@ -1,6 +1,5 @@
 from inspect import stack
 from os.path import basename
-from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call, Mock
 
@@ -182,8 +181,8 @@ class TaskCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.task(task='my task')  # pylint: disable=E3102
 
-        self.assertEqual(str(context.exception), "task() got some positional-only arguments"
-                                                 " passed as keyword arguments: 'task'")
+        self.assertRegex(str(context.exception), r"task\(\) got \w+ positional-only argument\w? passed"
+                                                 r" as keyword argument\w?: 'task'")
 
 
 class TaskPropertiesTest(TestCase):
@@ -501,16 +500,15 @@ class NestedTaskCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.nested_task(task='my task')  # pylint: disable=E3102
 
-        self.assertEqual(str(context.exception), "nested_task() got some positional-only arguments"
-                                                 " passed as keyword arguments: 'task'")
+        self.assertRegex(str(context.exception), r"nested_task\(\) got \w+ positional-only argument\w? passed"
+                                                 r" as keyword argument\w?: 'task'")
 
     def test_task_creation_with_first_named_argument_using_class(self):
         with self.assertRaises(TypeError) as context:
             pyitt.NestedTask(task='my task')  # pylint: disable=E3102
 
-        exception_message = '' if version_info < (3, 10) else '_Task.'
-        exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
-        self.assertEqual(str(context.exception), exception_message)
+        self.assertRegex(str(context.exception), r"(?:_Task\.)?__init__\(\) got \w+ positional-only argument\w? passed"
+                                                 r" as keyword argument\w?: 'task'")
 
 
 class OverlappedTaskCreationTests(TestCase):
@@ -526,16 +524,15 @@ class OverlappedTaskCreationTests(TestCase):
         with self.assertRaises(TypeError) as context:
             pyitt.overlapped_task(task='my task')  # pylint: disable=E3102
 
-        self.assertEqual(str(context.exception), "overlapped_task() got some positional-only arguments"
-                                                 " passed as keyword arguments: 'task'")
+        self.assertRegex(str(context.exception), r"overlapped_task\(\) got \w+ positional-only argument\w? passed"
+                                                 r" as keyword argument\w?: 'task'")
 
     def test_task_creation_with_first_named_argument_using_class(self):
         with self.assertRaises(TypeError) as context:
             pyitt.OverlappedTask(task='my task')  # pylint: disable=E3102
 
-        exception_message = '' if version_info < (3, 10) else '_Task.'
-        exception_message += "__init__() got some positional-only arguments passed as keyword arguments: 'task'"
-        self.assertEqual(str(context.exception), exception_message)
+        self.assertRegex(str(context.exception), r"(?:_Task\.)?__init__\(\) got \w+ positional-only argument\w? passed"
+                                                 r" as keyword argument\w?: 'task'")
 
 
 class OverlappedTaskExecution(TestCase):
