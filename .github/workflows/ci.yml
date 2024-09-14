@@ -54,7 +54,7 @@ jobs:
     - name: Generate Diff Coverage report for Python code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover coverage.xml --html-report diff-coverage-python.html
+        diff-cover coverage.xml --compare-branch main --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
@@ -72,12 +72,24 @@ jobs:
       run: |
         mkdir htmlcov-native
         gcovr --exclude ittapi/ --html-details htmlcov-native/coverage.html --html-theme github.green
+    - name: Generate LCOV code coverage report for native code
+      run: |
+        gcovr --exclude ittapi/ --lcov coverage.lcov
+    - name: Generate Diff Coverage report for native code (compare with main)
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        diff-cover coverage.lcov --compare-branch main --html-report diff-coverage-native.html
+    - name: Generate Diff Coverage report for native code (compare with previous commit)
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        diff-cover coverage.lcov --compare-branch ${{ github.event.before }} --html-report diff-coverage-native.html
     - uses: actions/upload-artifact@v4
       with:
         name: htmlcov-linux-${{ matrix.python-version }}
         path: |
           htmlcov-native/
           htmlcov-python/
+          diff-coverage-native.html
           diff-coverage-python.html
         retention-days: 3
   build-windows:
@@ -127,7 +139,7 @@ jobs:
     - name: Generate Diff Coverage report for Python code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover coverage.xml --html-report diff-coverage-python.html
+        diff-cover coverage.xml --compare-branch main --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
