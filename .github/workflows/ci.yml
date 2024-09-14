@@ -54,7 +54,7 @@ jobs:
     - name: Generate Diff Coverage report for Python code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover coverage.xml --compare-branch main --html-report diff-coverage-python.html
+        diff-cover coverage.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
@@ -78,7 +78,7 @@ jobs:
     - name: Generate Diff Coverage report for native code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover coverage.lcov --compare-branch main --html-report diff-coverage-native.html
+        diff-cover coverage.lcov --compare-branch "origin/main" --html-report diff-coverage-native.html
     - name: Generate Diff Coverage report for native code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
@@ -139,7 +139,7 @@ jobs:
     - name: Generate Diff Coverage report for Python code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover coverage.xml --compare-branch main --html-report diff-coverage-python.html
+        diff-cover coverage.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
     - name: Generate Diff Coverage report for Python code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
