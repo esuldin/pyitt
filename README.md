@@ -1,5 +1,6 @@
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)](https://pypi.org/project/pyitt/)
 [![PyPI](https://badge.fury.io/py/pyitt.svg)](https://pypi.org/project/pyitt/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)](https://pypi.org/project/pyitt/)
+![CI](https://github.com/esuldin/pyitt/actions/workflows/ci.yml/badge.svg)
 
 # pyitt
 
