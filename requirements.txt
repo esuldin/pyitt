@@ -1,0 +1,7 @@
+build
+coverage
+diff-cover
+flake8
+pylint
+
+gcovr; sys_platform == 'linux'
