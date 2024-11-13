@@ -197,5 +197,5 @@ jobs:
       uses: geekyeggo/delete-artifact@v5
       with:
           name: |
-              ${{env.PYTHON_COVERAGE_FILE}}*
-              ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}*
+              ${{env.PYTHON_COVERAGE_FILE}}.*
+              ${{env.NATIVE_COVERAGE_FILE}}.*
