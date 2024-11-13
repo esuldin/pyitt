@@ -8,16 +8,12 @@ on:
   schedule:
     - cron: "30 5 * * 1,3,5"
 
-env:
-  PYTHON_COVERAGE_FILE_BASE_NAME: coverage.python
-  NATIVE_COVERAGE_FILE_BASE_NAME: coverage.native
-
 jobs:
   build-linux:
     runs-on: ubuntu-latest
     env:
-      PYTHON_COVERAGE_FILE: ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.lin
-      NATIVE_COVERAGE_FILE: ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.lin
+      PYTHON_COVERAGE_FILE: coverage.python.lin
+      NATIVE_COVERAGE_FILE: coverage.native.lin
     strategy:
       fail-fast: false
       matrix:
@@ -79,8 +75,8 @@ jobs:
   build-windows:
     runs-on: windows-latest
     env:
-      PYTHON_COVERAGE_FILE: ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.win
-      NATIVE_COVERAGE_FILE: ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.win
+      PYTHON_COVERAGE_FILE: coverage.python.win
+      NATIVE_COVERAGE_FILE: coverage.native.win
     strategy:
       fail-fast: false
       matrix:
@@ -134,6 +130,9 @@ jobs:
   coverage:
     needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
+    env:
+      PYTHON_COVERAGE_FILE: coverage.python
+      NATIVE_COVERAGE_FILE: coverage.native
     steps:
     - name: Checkout the code
       uses: actions/checkout@v4
@@ -150,40 +149,40 @@ jobs:
     - name: Download coverage data for python code
       uses: actions/download-artifact@v4
       with:
-        pattern: ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.*
+        pattern: ${{env.PYTHON_COVERAGE_FILE}}.*
         path: ./coverage-python
         merge-multiple: true
     - name: Combine coverage data for Pyhton code from multiple coverage files
-      run: coverage combine --data-file=${{env.PYTHON_COVERAGE_FILE_BASE_NAME}} ./coverage-python/
+      run: coverage combine --data-file=${{env.PYTHON_COVERAGE_FILE}} ./coverage-python/
     - name: Generate code coverage report for python code
       run: |
-        coverage html --data-file=${{env.PYTHON_COVERAGE_FILE_BASE_NAME}} --directory=htmlcov-python
+        coverage html --data-file=${{env.PYTHON_COVERAGE_FILE}} --directory=htmlcov-python
     - name: Generate XML code coverage report for python code
       run: |
-        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE_BASE_NAME}} -o ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.xml
+        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Download coverage data for native code
       uses: actions/download-artifact@v4
       with:
-        pattern: ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.*
+        pattern: ${{env.NATIVE_COVERAGE_FILE}}.*
         path: ./coverage-native
         merge-multiple: true
     - name: Generate HTML code coverage report for native code
       run: |
         mkdir htmlcov-native
-        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.*.json" --html-details htmlcov-native/coverage.html --html-theme github.green
+        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --html-details htmlcov-native/coverage.html --html-theme github.green
     - name: Generate LCOV code coverage report for native code
       run: |
-        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.*.json" --lcov ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.lcov
+        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
     - name: Generate Diff Coverage report for native code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        diff-cover ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
-        diff-cover ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.lcov --compare-branch "origin/main" --html-report diff-coverage-native.html
+        diff-cover ${{env.PYTHON_COVERAGE_FILE}}.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
+        diff-cover ${{env.NATIVE_COVERAGE_FILE}}.lcov --compare-branch "origin/main" --html-report diff-coverage-native.html
     - name: Generate Diff Coverage report for native code (compare with previous commit)
       if: ${{ github.event_name == 'push' }}
       run: |
-        diff-cover ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
-        diff-cover ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}.lcov --compare-branch ${{ github.event.before }} --html-report diff-coverage-native.html
+        diff-cover ${{env.PYTHON_COVERAGE_FILE}}.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
+        diff-cover ${{env.NATIVE_COVERAGE_FILE}}.lcov --compare-branch ${{ github.event.before }} --html-report diff-coverage-native.html
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
       with:
@@ -198,5 +197,5 @@ jobs:
       uses: geekyeggo/delete-artifact@v5
       with:
           name: |
-              ${{env.PYTHON_COVERAGE_FILE_BASE_NAME}}*
+              ${{env.PYTHON_COVERAGE_FILE}}*
               ${{env.NATIVE_COVERAGE_FILE_BASE_NAME}}*
