@@ -12,8 +12,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     env:
-      PYTHON_COVERAGE_FILE: coverage.python.lin
-      NATIVE_COVERAGE_FILE: coverage.native.lin
+      PYTHON_COVERAGE_FILE: coverage-data.python.lin
+      NATIVE_COVERAGE_FILE: coverage-data.native.lin
     strategy:
       fail-fast: false
       matrix:
@@ -75,8 +75,8 @@ jobs:
   build-windows:
     runs-on: windows-latest
     env:
-      PYTHON_COVERAGE_FILE: coverage.python.win
-      NATIVE_COVERAGE_FILE: coverage.native.win
+      PYTHON_COVERAGE_FILE: coverage-data.python.win
+      NATIVE_COVERAGE_FILE: coverage-data.native.win
     strategy:
       fail-fast: false
       matrix:
@@ -127,12 +127,12 @@ jobs:
       run: |
         python -m unittest discover -s integration -t .
 
-  coverage:
+  code-coverage-report:
     needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     env:
-      PYTHON_COVERAGE_FILE: coverage.python
-      NATIVE_COVERAGE_FILE: coverage.native
+      PYTHON_COVERAGE_FILE: coverage-data.python
+      NATIVE_COVERAGE_FILE: coverage-data.native
     steps:
     - name: Checkout the code
       uses: actions/checkout@v4
