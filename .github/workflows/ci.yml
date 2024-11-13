@@ -11,20 +11,23 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    env:
+      PYTHON_COVERAGE_FILE: coverage-data.python.lin
+      NATIVE_COVERAGE_FILE: coverage-data.native.lin
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout the code
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
         submodules: recursive
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{matrix.python-version}}
       uses: actions/setup-python@v5
       with:
         allow-prereleases: true
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{matrix.python-version}}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -37,79 +40,59 @@ jobs:
         pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913,R0917 "tests/*/*.py" "samples/*.py"
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --per-file-ignores="__init__.py:F401" --max-complexity=10 --max-line-length=120 --statistics --exclude ittapi
     - name: Build package
       run: |
         python -m build
-    - name: Run unit tests
+    - name: Run unit tests for Python code
       run: |
-        coverage run -m unittest discover -s tests/unit -t .
-    - name: Generate HTML code coverage report for python code
-      run: |
-        coverage html --directory=htmlcov-python
-    - name: Generate XML code coverage report for python code
-      run: |
-        coverage xml
-    - name: Generate Diff Coverage report for Python code (compare with main)
-      if: ${{ github.event_name == 'pull_request' }}
-      run: |
-        diff-cover coverage.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
-    - name: Generate Diff Coverage report for Python code (compare with previous commit)
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
+        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}} -m unittest discover -s tests/unit -t .
+    - name: Upload coverage data files for Python code
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}}
+        path: ${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}}
+        retention-days: 1
     - name: Build package with code coverage for native part and install it for integration testing
       env:
         PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE: 1
       run: |
         python -m pip install .
     - name: Run integration tests
-      working-directory: ./tests
+      working-directory: tests
       run: |
         python -m unittest discover -s integration -t .
-    - name: Generate HTML code coverage report for native code
+    - name: Generate JSON code coverage report for native code
       run: |
-        mkdir htmlcov-native
-        gcovr --exclude ittapi/ --html-details htmlcov-native/coverage.html --html-theme github.green
-    - name: Generate LCOV code coverage report for native code
-      run: |
-        gcovr --exclude ittapi/ --lcov coverage.lcov
-    - name: Generate Diff Coverage report for native code (compare with main)
-      if: ${{ github.event_name == 'pull_request' }}
-      run: |
-        diff-cover coverage.lcov --compare-branch "origin/main" --html-report diff-coverage-native.html
-    - name: Generate Diff Coverage report for native code (compare with previous commit)
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        diff-cover coverage.lcov --compare-branch ${{ github.event.before }} --html-report diff-coverage-native.html
-    - uses: actions/upload-artifact@v4
+        gcovr --filter pyitt.native/ --json ${{env.NATIVE_COVERAGE_FILE}}.${{matrix.python-version}}.json
+    - name: Upload coverage data files for native code
+      uses: actions/upload-artifact@v4
       with:
-        name: htmlcov-linux-${{ matrix.python-version }}
-        path: |
-          htmlcov-native/
-          htmlcov-python/
-          diff-coverage-native.html
-          diff-coverage-python.html
-        retention-days: 3
+        name: ${{env.NATIVE_COVERAGE_FILE}}.${{matrix.python-version}}
+        path: ${{env.NATIVE_COVERAGE_FILE}}.${{matrix.python-version}}.json
+        retention-days: 1
+
   build-windows:
     runs-on: windows-latest
+    env:
+      PYTHON_COVERAGE_FILE: coverage-data.python.win
+      NATIVE_COVERAGE_FILE: coverage-data.native.win
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout the code
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
         submodules: recursive
     - name: Install MSVC
       uses: microsoft/setup-msbuild@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{matrix.python-version}}
       uses: actions/setup-python@v5
       with:
         allow-prereleases: true
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{matrix.python-version}}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -127,34 +110,92 @@ jobs:
     - name: Build package
       run: |
         python -m build
-    - name: Run unit tests
+    - name: Run unit tests for Python code
       run: |
-        coverage run -m unittest discover -s tests/unit -t .
-    - name: Generate code coverage report for python code
-      run: |
-        coverage html --directory=htmlcov-python
-    - name: Generate XML code coverage report for python code
-      run: |
-        coverage xml
-    - name: Generate Diff Coverage report for Python code (compare with main)
-      if: ${{ github.event_name == 'pull_request' }}
-      run: |
-        diff-cover coverage.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
-    - name: Generate Diff Coverage report for Python code (compare with previous commit)
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        diff-cover coverage.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
+        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}} -m unittest discover -s tests/unit -t .
+    - name: Upload coverage data files for Python code
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}}
+        path: ${{env.PYTHON_COVERAGE_FILE}}.${{matrix.python-version}}
+        retention-days: 1
     - name: Build package for native part and install it for integration testing
       run: |
         python -m pip install .
     - name: Run integration tests
-      working-directory: ./tests
+      working-directory: tests
       run: |
         python -m unittest discover -s integration -t .
-    - uses: actions/upload-artifact@v4
+
+  code-coverage-report:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_COVERAGE_FILE: coverage-data.python
+      NATIVE_COVERAGE_FILE: coverage-data.native
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v4
       with:
-        name: htmlcov-windows-${{ matrix.python-version }}
+        fetch-depth: 0
+    - name: Set up Python ${{matrix.python-version}}
+      uses: actions/setup-python@v5
+      with:
+        python-version: '>=3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+    - name: Download coverage data for python code
+      uses: actions/download-artifact@v4
+      with:
+        pattern: ${{env.PYTHON_COVERAGE_FILE}}.*
+        path: coverage-python
+        merge-multiple: true
+    - name: Combine coverage data for Pyhton code from multiple coverage files
+      run: coverage combine --data-file=${{env.PYTHON_COVERAGE_FILE}} coverage-python/
+    - name: Generate code coverage report for python code
+      run: |
+        coverage html --data-file=${{env.PYTHON_COVERAGE_FILE}} --directory=htmlcov-python
+    - name: Generate XML code coverage report for python code
+      run: |
+        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
+    - name: Download coverage data for native code
+      uses: actions/download-artifact@v4
+      with:
+        pattern: ${{env.NATIVE_COVERAGE_FILE}}.*
+        path: coverage-native
+        merge-multiple: true
+    - name: Generate HTML code coverage report for native code
+      run: |
+        mkdir htmlcov-native
+        gcovr --add-tracefile "coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --html-details htmlcov-native/coverage.html --html-theme github.green
+    - name: Generate LCOV code coverage report for native code
+      run: |
+        gcovr --add-tracefile "coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
+    - name: Generate Diff Coverage report for native code (compare with main)
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        diff-cover ${{env.PYTHON_COVERAGE_FILE}}.xml --compare-branch "origin/main" --html-report diff-coverage-python.html
+        diff-cover ${{env.NATIVE_COVERAGE_FILE}}.lcov --compare-branch "origin/main" --html-report diff-coverage-native.html
+    - name: Generate Diff Coverage report for native code (compare with previous commit)
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        diff-cover ${{env.PYTHON_COVERAGE_FILE}}.xml --compare-branch ${{ github.event.before }} --html-report diff-coverage-python.html
+        diff-cover ${{env.NATIVE_COVERAGE_FILE}}.lcov --compare-branch ${{ github.event.before }} --html-report diff-coverage-native.html
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
         path: |
+          htmlcov-native/
           htmlcov-python/
+          diff-coverage-native.html
           diff-coverage-python.html
         retention-days: 3
+    - name: Remove coverage data files
+      uses: geekyeggo/delete-artifact@v5
+      with:
+          name: |
+              ${{env.PYTHON_COVERAGE_FILE}}.*
+              ${{env.NATIVE_COVERAGE_FILE}}.*
