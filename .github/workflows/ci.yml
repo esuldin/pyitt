@@ -59,7 +59,7 @@ jobs:
       run: |
         python -m pip install .
     - name: Run integration tests
-      working-directory: ./tests
+      working-directory: tests
       run: |
         python -m unittest discover -s integration -t .
     - name: Generate JSON code coverage report for native code
@@ -123,7 +123,7 @@ jobs:
       run: |
         python -m pip install .
     - name: Run integration tests
-      working-directory: ./tests
+      working-directory: tests
       run: |
         python -m unittest discover -s integration -t .
 
@@ -150,10 +150,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: ${{env.PYTHON_COVERAGE_FILE}}.*
-        path: ./coverage-python
+        path: coverage-python
         merge-multiple: true
     - name: Combine coverage data for Pyhton code from multiple coverage files
-      run: coverage combine --data-file=${{env.PYTHON_COVERAGE_FILE}} ./coverage-python/
+      run: coverage combine --data-file=${{env.PYTHON_COVERAGE_FILE}} coverage-python/
     - name: Generate code coverage report for python code
       run: |
         coverage html --data-file=${{env.PYTHON_COVERAGE_FILE}} --directory=htmlcov-python
@@ -164,15 +164,15 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: ${{env.NATIVE_COVERAGE_FILE}}.*
-        path: ./coverage-native
+        path: coverage-native
         merge-multiple: true
     - name: Generate HTML code coverage report for native code
       run: |
         mkdir htmlcov-native
-        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --html-details htmlcov-native/coverage.html --html-theme github.green
+        gcovr --add-tracefile "coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --html-details htmlcov-native/coverage.html --html-theme github.green
     - name: Generate LCOV code coverage report for native code
       run: |
-        gcovr --add-tracefile "./coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
+        gcovr --add-tracefile "coverage-native/${{env.NATIVE_COVERAGE_FILE}}.*.json" --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
     - name: Generate Diff Coverage report for native code (compare with main)
       if: ${{ github.event_name == 'pull_request' }}
       run: |
