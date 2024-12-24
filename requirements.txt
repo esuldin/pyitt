@@ -3,5 +3,4 @@ coverage
 flake8
 pylint
 
-diff-cover >= 9.2.0
 gcovr; sys_platform == 'linux'
