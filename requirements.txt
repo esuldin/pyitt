@@ -1,6 +1,10 @@
-build
-coverage
-flake8
-pylint
+build==1.2.2
+coverage==7.6.1; python_version == '3.8'
+coverage==7.6.9; python_version >= '3.9'
+flake8==7.1.1
+pylint==3.2.7; python_version == '3.8'
+pylint==3.3.3; python_version >= '3.9'
+setuptools==75.3.0; python_version == '3.8'
+setuptools==75.6.0; python_version >= '3.9'
 
-gcovr; sys_platform == 'linux'
+gcovr==8.2; sys_platform == 'linux'
