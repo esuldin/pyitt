@@ -16,6 +16,7 @@ component_management:
       name: "python module"
       paths:
         - pyitt/**
+        - tests/**
       statuses:
         - type: project
           target: 100%
