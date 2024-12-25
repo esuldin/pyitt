@@ -4,7 +4,7 @@ codecov:
     after_n_builds: 24
 
 comment:
-  layout: "header, components"
+  layout: "header, components, files"
 
 component_management:
   individual_components:
