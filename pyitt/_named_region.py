@@ -160,7 +160,7 @@ class _NamedRegion(_Region):
             # PEP 3155 (Python 3.3) introduces __qualname__ on class objects
             return f'{func.__class__.__qualname__}.__call__'
 
-        raise ValueError('Cannot get the name for the code region.')
+        raise ValueError('Cannot get the name for the code region.')  # pragma: no cover
 
     @staticmethod
     def __to_string_handle(s):
