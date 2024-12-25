@@ -71,11 +71,35 @@ class EventTests(TestCase):
 
         self.assertIsNone(event.begin())
 
+    def test_event_begin_for_non_event_object(self):
+        with self.assertRaises(TypeError) as context:
+            Event.begin(None)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Event.__name__} type."
+        else:
+            exception_str = (f"descriptor 'begin' for 'pyitt.native.{Event.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
+
     def test_event_end(self):
         event_name = 'my event'
         event = Event(event_name)
 
         self.assertIsNone(event.end())
+
+    def test_event_end_for_non_event_object(self):
+        with self.assertRaises(TypeError) as context:
+            Event.end(None)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{Event.__name__} type."
+        else:
+            exception_str = (f"descriptor 'end' for 'pyitt.native.{Event.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
 
 
 if __name__ == '__main__':

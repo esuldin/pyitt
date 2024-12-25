@@ -69,12 +69,35 @@ class PTRegionTests(TestCase):
 
         self.assertIsNone(region.begin())
 
+    def test_pt_region_begin_for_non_pt_region_object(self):
+        with self.assertRaises(TypeError) as context:
+            PTRegion.begin(None)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{PTRegion.__name__} type."
+        else:
+            exception_str = (f"descriptor 'begin' for 'pyitt.native.{PTRegion.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
+
     def test_pt_region_end(self):
         region_name = 'my region'
         region = PTRegion(region_name)
 
         self.assertIsNone(region.end())
 
+    def test_pt_region_end_for_non_pt_region_object(self):
+        with self.assertRaises(TypeError) as context:
+            PTRegion.end(None)  # pylint: disable=C2801
+
+        if python_implementation() == 'PyPy':
+            exception_str = f"The passed object is not a valid instance of pyitt.native.{PTRegion.__name__} type."
+        else:
+            exception_str = (f"descriptor 'end' for 'pyitt.native.{PTRegion.__name__}' objects doesn't apply to a"
+                             f" 'NoneType' object")
+
+        self.assertEqual(str(context.exception), exception_str)
 
 if __name__ == '__main__':
     unittest_main()
