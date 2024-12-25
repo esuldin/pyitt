@@ -99,5 +99,6 @@ class PTRegionTests(TestCase):
 
         self.assertEqual(str(context.exception), exception_str)
 
+
 if __name__ == '__main__':
     unittest_main()
