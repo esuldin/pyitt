@@ -1,0 +1,5 @@
+[run]
+relative_files = True
+source = ./integration
+[paths]
+source = tests/integration,integration
