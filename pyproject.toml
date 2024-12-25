@@ -24,5 +24,5 @@ classifiers = [
 "Bug Tracker" = "https://github.com/esuldin/pyitt/issues"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=75.3.0"]
 build-backend = "setuptools.build_meta"
