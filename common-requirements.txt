@@ -1,0 +1,6 @@
+# Build dependencies
+build==1.2.2
+
+# Dev dependencies
+gcovr==8.2; sys_platform == 'linux'
+flake8==7.1.1
