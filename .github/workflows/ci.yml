@@ -17,6 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # If the list of python versions is changed, please make sure that
+        # `after_n_builds` flag in codecov.yml is updated accordingly
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
     steps:
     - name: Checkout the code
@@ -88,6 +90,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # If the list of python versions is changed, please make sure that
+        # `after_n_builds` flag in codecov.yml is updated accordingly
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
     steps:
     - name: Checkout the code
