@@ -2,3 +2,23 @@ codecov:
   notify:
     # 8 runs for unit tests * 2 platforms + 8 runs for integration tests
     after_n_builds: 24
+
+comment:
+  layout: "header, components, files"
+
+component_management:
+  individual_components:
+    - component_id: native_module
+      name: "native module"
+      paths:
+        - pyitt.native/**
+    - component_id: python_module
+      name: "python module"
+      paths:
+        - pyitt/**
+        - tests/**
+      statuses:
+        - type: project
+          target: 100%
+        - type: patch
+          target: 100%
