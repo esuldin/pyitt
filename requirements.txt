@@ -1,5 +1,5 @@
 # Include the file with the list of dependencies with fixed versions that should not be automatically updated.
--r requirements-locked.txt
+-r requirements.locked
 
 # Build dependencies
 build==1.2.2
