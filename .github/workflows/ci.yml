@@ -73,7 +73,7 @@ jobs:
         coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s integration -t .
     - name: Generate XML code coverage report for python code
       run: |
-        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
+        coverage xml --data-file=tests/${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Generate LCOV code coverage report for native code
       run: |
         gcovr --filter pyitt.native/ --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
@@ -150,7 +150,7 @@ jobs:
         coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s integration -t .
     - name: Generate XML code coverage report for python code
       run: |
-        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
+        coverage xml --data-file=tests/${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Upload coverage report for python code to Codecov
       uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
       with:
