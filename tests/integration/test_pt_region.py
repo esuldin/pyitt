@@ -77,4 +77,4 @@ class PTRegionTests(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest_main()  # pragma: no cover
