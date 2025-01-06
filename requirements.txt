@@ -1,7 +1,7 @@
 -r common-requirements.txt
 
 # Build dependencies
-setuptools==75.6.0; python_version >= '3.9'
+setuptools==75.7.0; python_version >= '3.9'
 
 # Dev dependencies
 coverage==7.6.10; python_version >= '3.9'
