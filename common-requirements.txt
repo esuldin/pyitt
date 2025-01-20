@@ -2,5 +2,4 @@
 build==1.2.2.post1
 
 # Dev dependencies
-gcovr==8.2; sys_platform == 'linux'
 flake8==7.1.1
