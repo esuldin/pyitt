@@ -57,7 +57,7 @@ jobs:
       run: |
         coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+      uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
       with:
         files: ${{env.PYTHON_COVERAGE_FILE}}.xml
         flags: unittests
@@ -82,7 +82,7 @@ jobs:
       run: |
         gcovr --filter pyitt.native/ --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
     - name: Upload coverage report for native code to Codecov
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+      uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
       with:
         files: ${{env.NATIVE_COVERAGE_FILE}}.lcov,${{env.PYTHON_COVERAGE_FILE}}.xml
         flags: integration
@@ -140,7 +140,7 @@ jobs:
       run: |
         coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+      uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
       with:
         files: ./${{env.PYTHON_COVERAGE_FILE}}.xml
         flags: unittests
@@ -160,7 +160,7 @@ jobs:
       run: |
         coverage xml --data-file=tests/${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
     - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+      uses: codecov/codecov-action@5a605bd92782ce0810fa3b8acc235c921b497052 # v5.2.0
       with:
         files: ${{env.PYTHON_COVERAGE_FILE}}.xml
         flags: integration
