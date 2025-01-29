@@ -24,7 +24,7 @@ jobs:
       with:
         submodules: recursive
     - name: Set up Python ${{matrix.python-version}}
-      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
       with:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
@@ -106,7 +106,7 @@ jobs:
     - name: Install MSVC
       uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
     - name: Set up Python ${{matrix.python-version}}
-      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
       with:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
