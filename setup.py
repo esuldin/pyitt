@@ -73,6 +73,7 @@ pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
                         'pyitt.native/string_handle.cpp',
                         'pyitt.native/task.cpp',
                         'pyitt.native/thread_naming.cpp',
+                        'pyitt.native/pyitt_exec.cpp',
                         'pyitt.native/pyitt.cpp']
 
 pyitt_native_compiler_args = ['/std:c++20' if sys.platform == 'win32' else '-std=c++20']
