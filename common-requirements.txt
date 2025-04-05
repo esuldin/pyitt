@@ -1,5 +1,2 @@
 # Build dependencies
 build==1.2.2.post1
-
-# Dev dependencies
-flake8==7.1.2
