@@ -5,6 +5,8 @@ authors = [
   { name="Egor Suldin", email="rd3tap@yandex.ru" },
 ]
 description = "Python bindings to Intel Instrumentation and Tracing Technology (ITT) API."
+license = "BSD-3-Clause"
+license-files = ["LICENSE", "ittapi/LICENSES/BSD-3-Clause.txt"]
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
