@@ -1,6 +1,6 @@
 [project]
 name = "pyitt"
-version = "1.7.3"
+version = "1.7.4"
 authors = [
   { name="Egor Suldin", email="rd3tap@yandex.ru" },
 ]
