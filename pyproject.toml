@@ -10,7 +10,6 @@ license-files = ["LICENSE", "ittapi/LICENSES/BSD-3-Clause.txt"]
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "License :: OSI Approved :: BSD License",
     "Operating System :: Microsoft :: Windows",
 	"Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3.8",
