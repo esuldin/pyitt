@@ -1,5 +1,8 @@
 name: Build Python Package
 
+on:
+  workflow_call:
+
 jobs:
   build_wheels:
     steps:
