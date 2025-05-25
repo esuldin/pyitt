@@ -1,0 +1,18 @@
+name: Build Python Package
+description: Build Python Package for CPython 3.8+ and PyPy 3.9+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build wheels
+      uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a # v2.23.3
+      env:
+        CIBW_BUILD: "*-win32 *-win_amd64 *-manylinux_i686 *-manylinux_x86_64 *-musllinux_i686 *-musllinux_x86_64"
+        CIBW_ENABLE: pypy
+        CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
+        CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+        CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+        CIBW_MANYLINUX_PYPY_X86_64_IMAGE: manylinux2014
+        CIBW_MANYLINUX_PYPY_I686_IMAGE: manylinux2014
+        CIBW_MUSLLINUX_X86_64_IMAGE: musllinux_1_2
+        CIBW_MUSLLINUX_I686_IMAGE: musllinux_1_2
