@@ -170,3 +170,18 @@ jobs:
         files: ${{env.PYTHON_COVERAGE_FILE}}.xml
         flags: integration
         token: ${{secrets.CODECOV_TOKEN}}
+
+  build_wheels:
+    name: Build wheels on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: recursive
+
+      - name: Build wheels
+        uses: ./.github/workflows/python-package.yml
