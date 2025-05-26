@@ -1,10 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_call:
 
 jobs:
   build-linux:
@@ -171,7 +168,7 @@ jobs:
         flags: integration
         token: ${{secrets.CODECOV_TOKEN}}
 
-  build_wheels:
+  build-wheels:
     name: Build wheels on ${{matrix.os}}
     runs-on: ${{matrix.os}}
     strategy:
