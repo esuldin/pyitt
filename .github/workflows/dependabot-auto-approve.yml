@@ -1,15 +1,13 @@
 name: Dependabot auto-approve
+
 on:
-  workflow_run:
-    workflows: [ "CI" ]
-    types: [ completed ]
-    branches-ignore: [ "main" ]
+  workflow_call:
 
 permissions:
   pull-requests: write
 
 jobs:
-  dependabot:
+  dependabot-auto-approve:
     runs-on: ubuntu-latest
     if: |
       github.event.workflow_run.conclusion == 'success' &&
