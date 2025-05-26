@@ -6,10 +6,8 @@ updates:
     schedule:
       interval: daily
     assignees: ["esuldin"]
-    reviewers: ["esuldin"]
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: daily
     assignees: ["esuldin"]
-    reviewers: ["esuldin"]
