@@ -19,7 +19,7 @@ jobs:
       - name: Approve a PR
         run: |
           gh pr review "$PR_URL" --approve
-          gh pr merge "$PR_URL" --delete-branch --squash
+          gh pr merge "$PR_URL" --auto --delete-branch --squash
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
