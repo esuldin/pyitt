@@ -12,3 +12,4 @@ jobs:
     uses: ./.github/workflows/ci.yml
   dependabot-auto-approve:
     uses: ./.github/workflows/dependabot-auto-approve.yml
+    needs: [ci]
