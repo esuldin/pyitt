@@ -6,6 +6,7 @@ on:
 jobs:
   dependabot-auto-approve:
     permissions:
+      actions: write
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
@@ -24,7 +25,7 @@ jobs:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Run CI workflow
         run: |
-          gh workflow run ci-main-push.yml --ref "${{github.event.pull_request.base.repo.default_branch}}" \
+          gh workflow run ci-main-push.yml --ref "${{github.event.pull_request.base.ref}}" \
             --repo "${{github.event.pull_request.base.repo.html_url}}"
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
