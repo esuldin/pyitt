@@ -23,6 +23,6 @@ jobs:
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Run CI workflow
-        run: gh workflow run ci-main-push.yml --ref main --repo "${{github.event.repo.name}}"
+        run: gh workflow run ci-main-push.yml --ref main --repo "${{github.repository}}"
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
