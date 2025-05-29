@@ -15,12 +15,14 @@ jobs:
         with:
           github-token: "${{secrets.GITHUB_TOKEN}}"
       - name: Approve a PR
-        run: gh pr review "$PR_URL" --approve
+        run: gh pr review ${{github.event.pull_request.number}} --approve
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Merge a PR
-        run: gh pr merge "$PR_URL" --delete-branch --squash
+        run: gh pr merge ${{github.event.pull_request.number}} --delete-branch --squash
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Run CI workflow
+        run: gh workflow run ci-main-push.yml --ref main
+        env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
