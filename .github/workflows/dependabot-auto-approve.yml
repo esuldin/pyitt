@@ -13,16 +13,16 @@ jobs:
       - name: Check Dependabot metadata
         uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
         with:
-          github-token: "${{secrets.GITHUB_TOKEN}}"
+          github-token: ${{secrets.GITHUB_TOKEN}}
       - name: Approve a PR
-        run: gh pr review ${{github.event.pull_request.number}} --approve
+        run: gh pr review "${{github.event.pull_request.html_url}}" --approve
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Merge a PR
-        run: gh pr merge ${{github.event.pull_request.number}} --delete-branch --squash
+        run: gh pr merge "${{github.event.pull_request.html_url}}" --delete-branch --squash
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Run CI workflow
-        run: gh workflow run ci-main-push.yml --ref main
+        run: gh workflow run ci-main-push.yml --ref main --repo "${{github.event.repo.name}}"
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
