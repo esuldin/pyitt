@@ -6,7 +6,7 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    name: Build package and test on Linux
+    name: Build & test on Linux
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
       NATIVE_COVERAGE_FILE: coverage-data.native
@@ -92,7 +92,7 @@ jobs:
         token: ${{secrets.CODECOV_TOKEN}}
 
   build-windows:
-    name: Build package and test on Windows
+    name: Build & test on Windows
     runs-on: windows-latest
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
