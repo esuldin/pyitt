@@ -46,7 +46,7 @@ jobs:
         queries: security-extended,security-and-quality
     - if: matrix.build-mode == 'manual'
       run: |
-        python -m build
+        python setup.py build_ext --inplace
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@ce28f5bb42b7a9f2c824e633a3f6ee835bab6858 # v3.29.0
       with:
