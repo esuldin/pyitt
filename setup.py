@@ -149,10 +149,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
         build_ext.build_extension(self, ext)
 
 
-setup(name='pyitt',
-      version='1.7.4',
-      description='ITT API bindings for Python',
-      packages=find_namespace_packages(include=['pyitt', 'pyitt.*']),
+setup(packages=find_namespace_packages(include=['pyitt', 'pyitt.*']),
       ext_modules=[pyitt_native],
       license_files=pyitt_license_files + itt_license_files,
       cmdclass={'build_ext': NativeBuildExtension} if build_itt_with_ipt_support else {},
