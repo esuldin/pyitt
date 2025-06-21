@@ -47,7 +47,7 @@ build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_su
 
 itt_source = [os.path.join(itt_dir, 'src', 'ittnotify', 'ittnotify_static.c')]
 itt_include_dirs = [os.path.join(itt_dir, 'include')]
-itt_license_files = [os.path.join(itt_dir, 'LICENSES', 'BSD-3-Clause.txt')] if itt_dir == ITT_DEFAULT_DIR else []
+itt_license_files = [f'{itt_dir}/LICENSES/BSD-3-Clause.txt'] if itt_dir == ITT_DEFAULT_DIR else []
 
 if build_itt_with_ipt_support:
     itt_compiler_flags = ['-DITT_API_IPT_SUPPORT']
