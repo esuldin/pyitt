@@ -1,13 +1,13 @@
 version: 2
 
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: "github-actions"
+    directories: [".github/workflows", ".github/actions/**"]
     schedule:
-      interval: daily
+      interval: "daily"
     assignees: ["esuldin"]
-  - package-ecosystem: pip
-    directory: /
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
-      interval: daily
+      interval: "daily"
     assignees: ["esuldin"]
