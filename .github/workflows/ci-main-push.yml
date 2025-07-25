@@ -6,5 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
+  analyze:
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      security-events: write
   ci:
     uses: ./.github/workflows/ci.yml

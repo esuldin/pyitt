@@ -5,6 +5,10 @@ on:
     branches: [ "main" ]
 
 jobs:
+  analyze:
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      security-events: write
   ci:
     uses: ./.github/workflows/ci.yml
   dependabot-auto-approve:
