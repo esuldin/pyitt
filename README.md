@@ -168,6 +168,12 @@ import pyitt.compatibility_layers.ittapi as ittapi
   
   Please see [#1](https://github.com/esuldin/pyitt/issues/1) for more technical information.
 
+- The `pyitt.native` module cannot be built for Python 3.13.4 on Windows. This issue is caused by a regression in this
+  interpreter version. For more details, please refer to
+  [python/cpython#135151](https://github.com/python/cpython/issues/135151). Unfortunately, this issue is not resolvable
+  within pyitt itself. Therefore, please use Python 3.13.3 or older, or 3.13.5 or newer to build pyitt from source on
+  Windows.
+
 ## References
 
  - [Intel® VTune™ Profiler User Guide - Instrumentation and Tracing Technology APIs](https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2023-0/instrumentation-and-tracing-technology-apis.html)
