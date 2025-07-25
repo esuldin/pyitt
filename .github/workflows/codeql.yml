@@ -1,12 +1,7 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: "38 1 * * 0"
+  workflow_call:
 
 jobs:
   analyze:
@@ -44,6 +39,9 @@ jobs:
         languages: ${{matrix.language}}
         build-mode: ${{matrix.build-mode}}
         queries: security-extended,security-and-quality
+        config: |
+          paths-ignore:
+            - ittapi
     - if: matrix.build-mode == 'manual'
       run: |
         python setup.py build_ext --inplace
