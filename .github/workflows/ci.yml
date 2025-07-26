@@ -27,17 +27,17 @@ jobs:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
     - name: Install dependencies for Python 3.8
-      if: ${{matrix.python-version}} == '3.8'
+      if: matrix.python-version == '3.8'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements-3.8.locked
     # Temporary workaround until lxml package for PyPy3.11 is provided.
     - name: Install dependencies for PyPy3.11
-      if: ${{matrix.python-version}} == 'pypy3.11'
+      if: matrix.python-version == 'pypy3.11'
       run: |
         sudo apt-get install libxml2-dev libxslt1-dev
     - name: Install dependencies for Python
-      if: ${{matrix.python-version}} != '3.8'
+      if: matrix.python-version != '3.8'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
@@ -94,6 +94,8 @@ jobs:
   build-windows:
     name: Build & test on Windows
     runs-on: windows-latest
+    permissions:
+      contents: read
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
     strategy:
@@ -116,12 +118,12 @@ jobs:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
     - name: Install dependencies for Python 3.8
-      if: ${{matrix.python-version}} == '3.8'
+      if: matrix.python-version == '3.8'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements-3.8.locked
     - name: Install dependencies for Python
-      if: ${{matrix.python-version}} != '3.8'
+      if: matrix.python-version != '3.8'
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
@@ -174,6 +176,8 @@ jobs:
   build-wheels:
     name: Build wheels on ${{matrix.os}}
     runs-on: ${{matrix.os}}
+    permissions:
+      contents: read
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
