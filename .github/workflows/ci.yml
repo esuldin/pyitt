@@ -7,6 +7,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     name: Build & test on Linux
+    permissions:
+      contents: read
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
       NATIVE_COVERAGE_FILE: coverage-data.native
