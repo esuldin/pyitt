@@ -34,7 +34,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3.29.5
+      uses: github/codeql-action/init@303c0aef88fc2fe5ff6d63d3b1596bfd83dfa1f9 # v3.29.5
       with:
         languages: ${{matrix.language}}
         build-mode: ${{matrix.build-mode}}
@@ -46,6 +46,6 @@ jobs:
       run: |
         python setup.py build_ext --inplace
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3.29.5
+      uses: github/codeql-action/analyze@303c0aef88fc2fe5ff6d63d3b1596bfd83dfa1f9 # v3.29.5
       with:
         category: "/language:${{matrix.language}}"
