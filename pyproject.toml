@@ -1,6 +1,6 @@
 [project]
 name = "pyitt"
-version = "1.7.4"
+version = "1.7.5"
 authors = [
   { name="Egor Suldin", email="rd3tap@yandex.ru" },
 ]
@@ -17,6 +17,7 @@ classifiers = [
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
 ]
 keywords = ["ittapi"]
 
