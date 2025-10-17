@@ -17,7 +17,7 @@ jobs:
       matrix:
         # If the list of python versions is changed, please make sure that
         # `after_n_builds` flag in codecov.yml is updated accordingly
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10", "pypy3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
     - name: Checkout the code
       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -105,7 +105,7 @@ jobs:
       matrix:
         # If the list of python versions is changed, please make sure that
         # `after_n_builds` flag in codecov.yml is updated accordingly
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13.0 - 3.13.3 || 3.13.5 - 3.13",
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13.0 - 3.13.3 || 3.13.5 - 3.13", "3.14",
                          "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
     - name: Checkout the code
