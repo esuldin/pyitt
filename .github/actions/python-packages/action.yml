@@ -9,7 +9,6 @@ runs:
       env:
         CIBW_BUILD: "*-win32 *-win_amd64 *-manylinux_i686 *-manylinux_x86_64 *-musllinux_i686 *-musllinux_x86_64"
         CIBW_ENABLE: pypy
-        CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
         CIBW_MANYLINUX_I686_IMAGE: manylinux2014
         CIBW_MANYLINUX_PYPY_X86_64_IMAGE: manylinux2014
