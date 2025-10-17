@@ -4,6 +4,12 @@ on:
   workflow_call:
 
 jobs:
+  analyze:
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      contents: read
+      security-events: write
+
   build-linux:
     runs-on: ubuntu-latest
     name: Build & test on Linux

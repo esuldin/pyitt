@@ -6,11 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  analyze:
-    uses: ./.github/workflows/codeql.yml
-    permissions:
-      contents: read
-      security-events: write
   ci:
     uses: ./.github/workflows/ci.yml
     permissions:
