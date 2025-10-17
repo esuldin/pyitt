@@ -12,7 +12,7 @@ jobs:
   dependabot-auto-approve:
     uses: ./.github/workflows/dependabot-auto-approve.yml
     if: github.event.pull_request.user.login == 'dependabot[bot]'
-    needs: [analyze, ci]
+    needs: [ci]
     permissions:
       actions: write
       contents: write
