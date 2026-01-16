@@ -34,10 +34,12 @@ jobs:
       with:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
+    - name: Upgrade pip
+      run: |
+        python -m pip install --upgrade pip
     - name: Install dependencies for Python 3.8
       if: matrix.python-version == '3.8'
       run: |
-        python -m pip install --upgrade pip
         python -m pip install -r requirements-3.8.locked
     # A workaround for lxml 6.0.1+ package
     - name: Install dependencies for PyPy3.9
@@ -45,10 +47,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-dev libxslt1-dev
-    - name: Install dependencies for Python
-      if: matrix.python-version != '3.8'
+    - name: Install dependencies for Python 3.9 and PyPy 3.9
+      if: contains(['3.9', 'pypy3.9'], matrix.python-version)
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install -r requirements-3.9.locked
+    - name: Install dependencies for Python
+      if: !contains(['3.8', '3.9', 'pypy3.9'], matrix.python-version)
+      run: |
         python -m pip install -r requirements.txt
     - name: Lint with pylint the code of the package
       run: |
@@ -126,13 +131,19 @@ jobs:
       with:
         allow-prereleases: true
         python-version: ${{matrix.python-version}}
+    - name: Upgrade pip
+      run: |
+        python -m pip install --upgrade pip
     - name: Install dependencies for Python 3.8
       if: matrix.python-version == '3.8'
       run: |
-        python -m pip install --upgrade pip
         python -m pip install -r requirements-3.8.locked
+    - name: Install dependencies for Python 3.9 and PyPy 3.9
+      if: contains(['3.9', 'pypy3.9'], matrix.python-version)
+      run: |
+        python -m pip install -r requirements-3.9.locked
     - name: Install dependencies for Python
-      if: matrix.python-version != '3.8'
+      if: !contains(['3.8', '3.9', 'pypy3.9'], matrix.python-version)
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
