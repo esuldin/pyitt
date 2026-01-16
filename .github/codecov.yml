@@ -1,7 +1,7 @@
 codecov:
   notify:
-    # (9 runs for unit tests + 9 runs for integration tests) * 2 platforms
-    after_n_builds: 36
+    # (10 runs for unit tests + 10 runs for integration tests) * 2 platforms
+    after_n_builds: 40
 
 comment:
   layout: "header, components, files"
