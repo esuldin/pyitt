@@ -2,5 +2,5 @@
 -r common-requirements.txt
 
 # Dev dependencies
-coverage==7.10.7
+coverage==7.13.1
 pylint==4.0.4
