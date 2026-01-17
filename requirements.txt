@@ -3,4 +3,4 @@
 
 # Dev dependencies
 coverage==7.10.7
-pylint==3.3.9
+pylint==4.0.4
