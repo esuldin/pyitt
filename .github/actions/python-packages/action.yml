@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Build wheels
-      uses: pypa/cibuildwheel@63fd63b352a9a8bdcc24791c9dbee952ee9a8abc # v3.3.0
+      uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e # v3.3.1
       env:
         CIBW_BUILD: "*-win32 *-win_amd64 *-manylinux_i686 *-manylinux_x86_64 *-musllinux_i686 *-musllinux_x86_64"
         CIBW_ENABLE: pypy

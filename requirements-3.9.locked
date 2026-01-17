@@ -1,0 +1,7 @@
+# This file contains a list of dependencies with fixed versions that should not be automatically updated.
+# Include common requirements
+-r common-requirements.txt
+
+# Dev dependencies
+coverage==7.10.7; python_version == '3.9'
+pylint==3.3.9; python_version == '3.9'
