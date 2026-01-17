@@ -1,0 +1,3 @@
+[bandit]
+targets = ./setup.py,./pyitt,./tests
+skips = B404
