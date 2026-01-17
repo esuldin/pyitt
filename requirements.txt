@@ -1,9 +1,6 @@
-# Build dependencies
-build==1.4.0; python_version >= '3.9'
-setuptools==80.9.0; python_version >= '3.9'
+# Include common requirements
+-r common-requirements.txt
 
 # Dev dependencies
-coverage==7.10.7; python_version >= '3.9'
-flake8==7.3.0; python_version >= '3.9'
-gcovr==8.3; python_version >= '3.9' and sys_platform == 'linux'
-pylint==3.3.9; python_version >= '3.9'
+coverage==7.10.7
+pylint==3.3.9
