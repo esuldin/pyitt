@@ -29,7 +29,7 @@ runs:
     - name: Run tests with coverage information collection
       env:
         COVERAGE_FILE: ${{runner.temp}}/coverage.data
-        COVERAGE_RCFILE: ${{inputs.start-directory}}
+        COVERAGE_RCFILE: ${{inputs.coverage-rcfile}}
       working-directory: ${{github.workspace}}/${{inputs.tests-working-directory}}
       run: |
         coverage run -m unittest discover -s "${{inputs.start-directory}}" -t .
@@ -37,7 +37,7 @@ runs:
     - name: Generate XML code coverage report
       env:
         COVERAGE_FILE: ${{runner.temp}}/coverage.data
-        COVERAGE_RCFILE: ${{inputs.start-directory}}
+        COVERAGE_RCFILE: ${{inputs.coverage-rcfile}}
       run: |
         coverage xml -o "${{github.workspace}}/${{inputs.coverage-xml-report-file}}"
       shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
