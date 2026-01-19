@@ -68,6 +68,7 @@ runs:
       run: |
         echo "lcov-report-file=coverage.native.lcov" >> "$GITHUB_OUTPUT"
         gcovr --filter pyitt.native/ --lcov coverage.native.lcov
+      shell: sh
     - name: Upload coverage report for native code to Codecov for integration tests
       if: runner.os == 'Linux'
       uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2

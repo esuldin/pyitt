@@ -12,6 +12,8 @@ runs:
     - name: Lint with pylint the code of the package
       run: |
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
     - name: Lint with pylint the code of tests and samples
       run: |
         pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913,R0917 "tests/*/*.py" "samples/*.py"
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}

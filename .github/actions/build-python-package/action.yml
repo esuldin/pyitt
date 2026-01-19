@@ -12,3 +12,4 @@ runs:
     - name: Build Python package
       run: |
         python -m build
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}

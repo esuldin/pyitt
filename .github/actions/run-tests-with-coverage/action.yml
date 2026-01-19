@@ -33,9 +33,11 @@ runs:
       working-directory: ${{github.workspace}}/${{inputs.tests-working-directory}}
       run: |
         coverage run -m unittest discover -s "${{inputs.start-directory}}" -t .
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
     - name: Generate XML code coverage report
       env:
         COVERAGE_FILE: ${{runner.temp}}/coverage.data
         COVERAGE_RCFILE: ${{inputs.start-directory}}
       run: |
         coverage xml -o "${{github.workspace}}/${{inputs.coverage-xml-report-file}}"
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}

@@ -17,3 +17,4 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install gcc g++
+      shell: sh

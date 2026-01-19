@@ -18,3 +18,4 @@ runs:
         PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE: ${{inputs.pyitt-native-build-with-code-coverage}}
       run: |
         python -m pip install .
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
