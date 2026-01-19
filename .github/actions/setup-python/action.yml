@@ -1,0 +1,20 @@
+name: Setup Python
+description: Set up a specific version of Python.
+
+author: Egor Suldin
+branding:
+  icon: code
+  color: yellow
+
+inputs:
+  python-version:
+    description: Version range or exact version of Python or PyPy to use.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python ${{inputs.python-version}}
+      uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      with:
+        allow-prereleases: true
+        python-version: ${{inputs.python-version}}

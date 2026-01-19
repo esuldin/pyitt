@@ -1,0 +1,15 @@
+name: Lint with flake8
+description: Lint the Python code with flake8.
+
+author: Egor Suldin
+branding:
+  icon: check
+  color: yellow
+
+runs:
+  using: composite
+  steps:
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --per-file-ignores="__init__.py:F401" --max-complexity=10 --max-line-length=120 --statistics --exclude ittapi
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}

@@ -1,0 +1,43 @@
+name: Run tests
+description: Run tests using Python unittest framework and collect coverage data.
+
+author: Egor Suldin
+branding:
+  icon: check-circle
+  color: yellow
+
+inputs:
+  coverage-rcfile:
+    description: Configuration file for coverage tool.
+    default: '.coveragerc'
+  tests-working-directory:
+    description: Working directory for tests.
+    default: '.'
+  start-directory:
+    description: Directory to start discovery tests by Python unittest framework.
+    default: '.'
+  coverage-xml-report-file:
+    description: File name of the XML report with coverage result.
+    default: 'coverage.xml'
+outputs:
+  coverage-xml-report-file:
+    description: File name of the XML report with coverage result.
+    value: ${{inputs.coverage-xml-report-file}}
+runs:
+  using: composite
+  steps:
+    - name: Run tests with coverage information collection
+      env:
+        COVERAGE_FILE: ${{format('{0}/coverage.data', runner.temp)}}
+        COVERAGE_RCFILE: ${{format('{0}/{1}', github.workspace, inputs.coverage-rcfile)}}
+      working-directory: ${{inputs.tests-working-directory}}
+      run: |
+        coverage run -m unittest discover -s "${{inputs.start-directory}}" -t .
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
+    - name: Generate XML code coverage report
+      env:
+        COVERAGE_FILE: ${{format('{0}/coverage.data', runner.temp)}}
+        COVERAGE_RCFILE: ${{format('{0}/{1}', github.workspace, inputs.coverage-rcfile)}}
+      run: |
+        coverage xml -o "${{format('{0}/{1}', github.workspace, inputs.coverage-xml-report-file)}}"
+      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}

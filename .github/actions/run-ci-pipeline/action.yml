@@ -1,0 +1,74 @@
+name: Run CI pipeline
+description: Runs the full continuous‑integration pipeline.
+
+author: Egor Suldin
+branding:
+  icon: check-circle
+  color: green
+
+inputs:
+  python-version:
+    description: Exact version of Python or PyPy to use.
+
+runs:
+  using: composite
+  steps:
+    - name: Install standard C/C++ compilers
+      uses: ./.github/actions/install-c-cpp-compilers
+    - name: Setup Python ${{inputs.python-version}}
+      uses: ./.github/actions/setup-python
+      with:
+        python-version: ${{inputs.python-version}}
+    - name: Install requirements for Python module
+      uses: ./.github/actions/install-requirements
+      with:
+        python-version: ${{inputs.python-version}}
+    - name: Lint with pylint
+      uses: ./.github/actions/run-pylint
+    - name: Lint with flake8
+      uses: ./.github/actions/run-flake8
+    - name: Build Python package
+      uses: ./.github/actions/build-python-package
+    - name: Run unit tests for Python code
+      uses: ./.github/actions/run-tests-with-coverage
+      id: unit-tests-run
+      with:
+        start-directory: tests/unit
+    - name: Upload coverage report for python code to Codecov
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      with:
+        files: ./${{steps.unit-tests-run.coverage-xml-report-file}}
+        flags: unittests
+        token: ${{secrets.CODECOV_TOKEN}}
+
+    - name: Build package with code coverage for native part and install it for integration testing
+      uses: ./.github/actions/install-pyitt-module
+      with:
+        pyitt-native-build-with-code-coverage: ${{runner.os == 'Linux' && 'true' || 'false'}}
+    - name: Run integration tests
+      uses: ./.github/actions/run-tests-with-coverage
+      id: integration-tests-run
+      with:
+        coverage-rcfile: .coveragerc.integration
+        start-directory: integration
+        tests-working-directory: tests
+    - name: Upload coverage report for Python code to Codecov for integration tests
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      with:
+        files: ${{steps.integration-tests-run.coverage-xml-report-file}}
+        flags: integration
+        token: ${{secrets.CODECOV_TOKEN}}
+    - name: Generate LCOV code coverage report for native code
+      if: runner.os == 'Linux'
+      id: lcov-report
+      run: |
+        echo "lcov-report-file=coverage.native.lcov" >> "$GITHUB_OUTPUT"
+        gcovr --filter pyitt.native/ --lcov coverage.native.lcov
+      shell: sh
+    - name: Upload coverage report for native code to Codecov for integration tests
+      if: runner.os == 'Linux'
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      with:
+        files: ${{steps.lcov-report.outputs.lcov-report-file}}
+        flags: integration
+        token: ${{secrets.CODECOV_TOKEN}}
