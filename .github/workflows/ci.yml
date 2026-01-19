@@ -25,10 +25,14 @@ jobs:
         # `after_n_builds` flag in codecov.yml is updated accordingly
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
-    - name: Run CI Checks
-      uses: ./.github/actions/run-ci-pipeline
-      with:
-        python-version: ${{matrix.python-version}}
+      - name: Checkout the code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: recursive
+      - name: Run CI Checks
+        uses: ./.github/actions/run-ci-pipeline
+        with:
+          python-version: ${{matrix.python-version}}
 
   build-windows:
     name: Build & test on Windows
@@ -45,10 +49,14 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13.0 - 3.13.3 || 3.13.5 - 3.13", "3.14",
                          "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
-    - name: Run CI Checks
-      uses: ./.github/actions/run-ci-pipeline
-      with:
-        python-version: ${{matrix.python-version}}
+      - name: Checkout the code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: recursive
+      - name: Run CI Checks
+        uses: ./.github/actions/run-ci-pipeline
+        with:
+          python-version: ${{matrix.python-version}}
 
   build-wheels:
     name: Build wheels on ${{matrix.os}}
@@ -59,9 +67,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-    - name: Checkout the code
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      with:
-        submodules: recursive
-    - name: Build wheels
-      uses: ./.github/actions/python-packages
+      - name: Checkout the code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: recursive
+      - name: Build wheels
+        uses: ./.github/actions/python-packages
