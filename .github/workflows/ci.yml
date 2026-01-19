@@ -25,85 +25,10 @@ jobs:
         # `after_n_builds` flag in codecov.yml is updated accordingly
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
-    - name: Checkout the code
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Run CI Checks
+      uses: ./.github/actions/run-ci-pipeline
       with:
-        submodules: recursive
-    - name: Set up Python ${{matrix.python-version}}
-      uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-      with:
-        allow-prereleases: true
         python-version: ${{matrix.python-version}}
-    - name: Upgrade pip
-      run: |
-        python -m pip install --upgrade pip
-    - name: Install dependencies for Python 3.8
-      if: matrix.python-version == '3.8'
-      run: |
-        python -m pip install -r requirements-3.8.locked
-    # A workaround for lxml 6.0.1+ package
-    - name: Install dependencies for PyPy3.9
-      if: matrix.python-version == 'pypy3.9'
-      run: |
-        sudo apt-get update
-        sudo apt-get install libxml2-dev libxslt1-dev
-    - name: Install dependencies for Python 3.9 and PyPy 3.9
-      if: contains(fromJson('["3.9", "pypy3.9"]'), matrix.python-version)
-      run: |
-        python -m pip install -r requirements-3.9.locked
-    - name: Install dependencies for Python
-      if: '!contains(fromJson(''["3.8", "3.9", "pypy3.9"]''), matrix.python-version)'
-      run: |
-        python -m pip install -r requirements.txt
-    - name: Lint with pylint the code of the package
-      run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
-    - name: Lint with pylint the code of tests and samples
-      run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913,R0917 "tests/*/*.py" "samples/*.py"
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --per-file-ignores="__init__.py:F401" --max-complexity=10 --max-line-length=120 --statistics --exclude ittapi
-    - name: Build package
-      run: |
-        python -m build
-    - name: Run unit tests for Python code
-      run: |
-        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s tests/unit -t .
-    - name: Generate XML code coverage report for python code
-      run: |
-        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
-    - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-      with:
-        files: ${{env.PYTHON_COVERAGE_FILE}}.xml
-        flags: unittests
-        token: ${{secrets.CODECOV_TOKEN}}
-    - name: Build package with code coverage for native part and install it for integration testing
-      env:
-        PYITT_NATIVE_BUILD_WITH_CODE_COVERAGE: 1
-      run: |
-        python -m pip install .
-    - name: Run integration tests
-      env:
-        COVERAGE_RCFILE: ../.coveragerc.integration
-      working-directory: tests
-      run: |
-        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s integration -t .
-    - name: Generate XML code coverage report for python code
-      env:
-        COVERAGE_RCFILE: .coveragerc.integration
-      run: |
-        coverage xml --data-file=tests/${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
-    - name: Generate LCOV code coverage report for native code
-      run: |
-        gcovr --filter pyitt.native/ --lcov ${{env.NATIVE_COVERAGE_FILE}}.lcov
-    - name: Upload coverage report for native code to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-      with:
-        files: ${{env.NATIVE_COVERAGE_FILE}}.lcov,${{env.PYTHON_COVERAGE_FILE}}.xml
-        flags: integration
-        token: ${{secrets.CODECOV_TOKEN}}
 
   build-windows:
     name: Build & test on Windows
@@ -120,78 +45,10 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13.0 - 3.13.3 || 3.13.5 - 3.13", "3.14",
                          "pypy3.9", "pypy3.10", "pypy3.11"]
     steps:
-    - name: Checkout the code
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Run CI Checks
+      uses: ./.github/actions/run-ci-pipeline
       with:
-        submodules: recursive
-    - name: Install MSVC
-      uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
-    - name: Set up Python ${{matrix.python-version}}
-      uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-      with:
-        allow-prereleases: true
         python-version: ${{matrix.python-version}}
-    - name: Upgrade pip
-      run: |
-        python -m pip install --upgrade pip
-    - name: Install dependencies for Python 3.8
-      if: matrix.python-version == '3.8'
-      run: |
-        python -m pip install -r requirements-3.8.locked
-    - name: Install dependencies for Python 3.9 and PyPy 3.9
-      if: contains(fromJson('["3.9", "pypy3.9"]'), matrix.python-version)
-      run: |
-        python -m pip install -r requirements-3.9.locked
-    - name: Install dependencies for Python
-      if: '!contains(fromJson(''["3.8", "3.9", "pypy3.9"]''), matrix.python-version)'
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-    - name: Lint with pylint the code of the package
-      run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
-    - name: Lint with pylint the code of tests and samples
-      run: |
-        pylint --max-line-length=120 --disable=E0401,E0611,C0114,C0115,C0116,R0801,R0903,R0904,R0913,R0917 "tests/*/*.py" "samples/*.py"
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --per-file-ignores="__init__.py:F401" --max-complexity=10 --max-line-length=120 --statistics --exclude ittapi
-    - name: Build package
-      run: |
-        python -m build
-    - name: Run unit tests for Python code
-      run: |
-        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s tests/unit -t .
-    - name: Generate XML code coverage report for python code
-      run: |
-        coverage xml --data-file=${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
-    - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-      with:
-        files: ./${{env.PYTHON_COVERAGE_FILE}}.xml
-        flags: unittests
-        token: ${{secrets.CODECOV_TOKEN}}
-    - name: Build package for native part and install it for integration testing
-      run: |
-        python -m pip install .
-    - name: Run integration tests
-      env:
-        COVERAGE_RCFILE: ../.coveragerc.integration
-      working-directory: tests
-      run: |
-        coverage run --data-file=${{env.PYTHON_COVERAGE_FILE}} -m unittest discover -s integration -t .
-    - name: Generate XML code coverage report for python code
-      env:
-        COVERAGE_RCFILE: .coveragerc.integration
-      run: |
-        coverage xml --data-file=tests/${{env.PYTHON_COVERAGE_FILE}} -o ${{env.PYTHON_COVERAGE_FILE}}.xml
-    - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-      with:
-        files: ${{env.PYTHON_COVERAGE_FILE}}.xml
-        flags: integration
-        token: ${{secrets.CODECOV_TOKEN}}
 
   build-wheels:
     name: Build wheels on ${{matrix.os}}
@@ -201,11 +58,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          submodules: recursive
-
-      - name: Build wheels
-        uses: ./.github/actions/python-packages
+    - name: Checkout the source code
+      uses: ./.github/actions/checkout
+    - name: Build wheels
+      uses: ./.github/actions/python-packages

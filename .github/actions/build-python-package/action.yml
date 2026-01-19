@@ -1,0 +1,14 @@
+name: Build Python package
+description: Build Python package for a module.
+
+author: Egor Suldin
+branding:
+  icon: package
+  color: yellow
+
+runs:
+  using: composite
+  steps:
+    - name: Build Python package
+      run: |
+        python -m build
