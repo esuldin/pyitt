@@ -4,4 +4,4 @@ setuptools==80.9.0
 
 # Dev dependencies
 flake8==7.3.0
-gcovr==8.3; sys_platform == 'linux'
+gcovr==8.5; sys_platform == 'linux'
