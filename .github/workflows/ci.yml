@@ -4,13 +4,6 @@ on:
   workflow_call:
 
 jobs:
-  run-bandit-scan:
-    name: Bandit
-    uses: ./.github/workflows/bandit.yml
-    permissions:
-      contents: read
-      security-events: write
-
   run-codeql-scan:
     name: CodeQL
     uses: ./.github/workflows/codeql.yml

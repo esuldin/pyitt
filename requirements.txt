@@ -2,5 +2,6 @@
 -r common-requirements.txt
 
 # Dev dependencies
+bandit[sarif]==1.9.3
 coverage==7.13.1
 pylint==4.0.4
