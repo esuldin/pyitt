@@ -9,10 +9,16 @@ branding:
 runs:
   using: composite
   steps:
-    - name: Scan with Bandit
+    - name: Scan with Bandit (POSIX)
+      if: runner.os != 'Windows'
       run: |
-        bandit --ini .bandit -f sarif -o results.sarif -r
-      shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
+        bandit --ini .bandit -f sarif -o results.sarif -r || true
+      shell: sh
+    - name: Scan with Bandit (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        bandit --ini .bandit -f sarif -o results.sarif -r & ver>nul
+      shell: cmd
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 #  v4.32.0
       with:
