@@ -27,6 +27,8 @@ runs:
       uses: ./.github/actions/run-pylint
     - name: Lint with flake8
       uses: ./.github/actions/run-flake8
+    - name: Run Bandit Scan
+      uses: ./.github/actions/run-bandit
     - name: Build Python package
       uses: ./.github/actions/build-python-package
     - name: Run unit tests for Python code
