@@ -1,8 +1,8 @@
 name: Build Python Package
-description: Build Python Package for CPython 3.8+ and PyPy 3.9+
+description: Build Python Package for CPython 3.8+ and PyPy 3.9+.
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Build wheels
       uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e # v3.3.1
