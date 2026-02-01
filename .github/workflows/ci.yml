@@ -16,6 +16,7 @@ jobs:
     name: Build & test on Linux
     permissions:
       contents: read
+      security-events: write
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
       NATIVE_COVERAGE_FILE: coverage-data.native
@@ -40,6 +41,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: read
+      security-events: write
     env:
       PYTHON_COVERAGE_FILE: coverage-data.python
     strategy:
