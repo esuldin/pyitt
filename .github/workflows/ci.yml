@@ -4,7 +4,8 @@ on:
   workflow_call:
 
 jobs:
-  analyze:
+  run-codeql-scan:
+    name: CodeQL
     uses: ./.github/workflows/codeql.yml
     permissions:
       contents: read

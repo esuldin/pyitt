@@ -3,5 +3,6 @@
 -r common-requirements.txt
 
 # Dev dependencies
+bandit[sarif]==1.8.6
 coverage==7.10.7; python_version == '3.9'
 pylint==3.3.9; python_version == '3.9'
