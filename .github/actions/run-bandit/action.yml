@@ -2,9 +2,6 @@ name: Run Bandit Scan
 description: Analyzes the Python code with Bandit.
 
 author: Egor Suldin
-branding:
-  icon: check
-  color: yellow
 
 runs:
   using: composite

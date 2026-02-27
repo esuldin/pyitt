@@ -2,9 +2,6 @@ name: Install pyitt module
 description: Build and install pyitt module.
 
 author: Egor Suldin
-branding:
-  icon: code
-  color: yellow
 
 inputs:
   pyitt-native-build-with-code-coverage:

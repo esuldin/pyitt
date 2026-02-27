@@ -2,9 +2,6 @@ name: Run tests
 description: Run tests using Python unittest framework and collect coverage data.
 
 author: Egor Suldin
-branding:
-  icon: check-circle
-  color: yellow
 
 inputs:
   coverage-rcfile:

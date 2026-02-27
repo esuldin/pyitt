@@ -2,9 +2,6 @@ name: Lint with flake8
 description: Lint the Python code with flake8.
 
 author: Egor Suldin
-branding:
-  icon: check
-  color: yellow
 
 runs:
   using: composite

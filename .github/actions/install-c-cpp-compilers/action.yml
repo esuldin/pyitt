@@ -2,9 +2,6 @@ name: Install C/C++ compilers
 description: Install standard C/C++ compilers.
 
 author: Egor Suldin
-branding:
-  icon: file-text
-  color: green
 
 runs:
   using: composite
