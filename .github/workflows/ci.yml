@@ -10,7 +10,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ${{matrix.os}}
-    name: Build & test on ${{matrix.os}}
+    name: Build & test on '${{matrix.os}}' with Python '${{matrix.python-version}}'
     permissions:
       contents: read
       security-events: write
