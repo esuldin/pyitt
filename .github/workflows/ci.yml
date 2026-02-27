@@ -29,6 +29,7 @@ jobs:
       - name: Run CI Checks
         uses: ./.github/actions/run-ci-pipeline
         with:
+          codecov-token: ${{secrets.CODECOV_TOKEN}}
           python-version: ${{matrix.os == 'windows-latest' && matrix.python-version == '3.14'
                              && '3.13.0 - 3.13.3 || 3.13.5 - 3.13'
                              || matrix.python-version}}

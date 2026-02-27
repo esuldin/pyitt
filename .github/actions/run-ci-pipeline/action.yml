@@ -4,6 +4,8 @@ description: Runs the full continuous‑integration pipeline.
 author: Egor Suldin
 
 inputs:
+  codecov-token:
+      description: Token to upload coverage to Codecov
   python-version:
     description: Exact version of Python or PyPy to use.
 
@@ -36,9 +38,9 @@ runs:
     - name: Upload coverage report for python code to Codecov
       uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
-        files: ./${{steps.unit-tests-run.coverage-xml-report-file}}
+        files: ${{steps.unit-tests-run.outputs.coverage-xml-report-file}}
         flags: unittests
-        token: ${{secrets.CODECOV_TOKEN}}
+        token: ${{inputs.codecov-token}}
 
     - name: Build package with code coverage for native part and install it for integration testing
       uses: ./.github/actions/install-pyitt-module
@@ -54,9 +56,9 @@ runs:
     - name: Upload coverage report for Python code to Codecov for integration tests
       uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       with:
-        files: ${{steps.integration-tests-run.coverage-xml-report-file}}
+        files: ${{steps.integration-tests-run.outputs.coverage-xml-report-file}}
         flags: integration
-        token: ${{secrets.CODECOV_TOKEN}}
+        token: ${{inputs.codecov-token}}
     - name: Generate LCOV code coverage report for native code
       if: runner.os == 'Linux'
       id: lcov-report
@@ -70,4 +72,4 @@ runs:
       with:
         files: ${{steps.lcov-report.outputs.lcov-report-file}}
         flags: integration
-        token: ${{secrets.CODECOV_TOKEN}}
+        token: ${{inputs.codecov-token}}
