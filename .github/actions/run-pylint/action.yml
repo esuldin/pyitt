@@ -2,9 +2,6 @@ name: Lint with pylint
 description: Lint the Python code with pylint.
 
 author: Egor Suldin
-branding:
-  icon: check
-  color: yellow
 
 runs:
   using: composite

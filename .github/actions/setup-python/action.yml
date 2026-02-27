@@ -2,9 +2,6 @@ name: Setup Python
 description: Set up a specific version of Python.
 
 author: Egor Suldin
-branding:
-  icon: code
-  color: yellow
 
 inputs:
   python-version:

@@ -2,9 +2,6 @@ name: Install requirements
 description: Install requirements for specific Python version.
 
 author: Egor Suldin
-branding:
-  icon: folder-plus
-  color: yellow
 
 inputs:
   python-version:

@@ -2,9 +2,6 @@ name: Run CI pipeline
 description: Runs the full continuous‑integration pipeline.
 
 author: Egor Suldin
-branding:
-  icon: check-circle
-  color: green
 
 inputs:
   python-version:
