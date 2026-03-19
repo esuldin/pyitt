@@ -36,7 +36,7 @@ runs:
       with:
         start-directory: tests/unit
     - name: Upload coverage report for python code to Codecov
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
       with:
         files: ${{steps.unit-tests-run.outputs.coverage-xml-report-file}}
         flags: unittests
@@ -54,7 +54,7 @@ runs:
         start-directory: integration
         tests-working-directory: tests
     - name: Upload coverage report for Python code to Codecov for integration tests
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
       with:
         files: ${{steps.integration-tests-run.outputs.coverage-xml-report-file}}
         flags: integration
@@ -68,7 +68,7 @@ runs:
       shell: sh
     - name: Upload coverage report for native code to Codecov for integration tests
       if: runner.os == 'Linux'
-      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5.5.3
       with:
         files: ${{steps.lcov-report.outputs.lcov-report-file}}
         flags: integration
