@@ -1,5 +1,5 @@
 # Build dependencies
-build==1.4.0
+build==1.4.2
 setuptools==82.0.1
 
 # Dev dependencies
