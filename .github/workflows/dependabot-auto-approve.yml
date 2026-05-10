@@ -20,12 +20,22 @@ jobs:
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Merge a PR
+        id: gh-merge
         run: gh pr merge "${{github.event.pull_request.html_url}}" --delete-branch --squash
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        continue-on-error: true
       - name: Run CI workflow
+        if: steps.gh-merge.outcome == 'success'
         run: |
           gh workflow run ci.yml --ref "${{github.event.pull_request.base.ref}}" \
+            --repo "${{github.event.pull_request.base.repo.html_url}}"
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Rebase PR
+        if: steps.gh-merge.outcome == 'failure'
+        run: |
+          gh pr update-branch "${{github.event.pull_request.number}}" --rebase \
             --repo "${{github.event.pull_request.base.repo.html_url}}"
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
