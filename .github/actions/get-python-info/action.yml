@@ -1,0 +1,25 @@
+name: Get Python info
+description: Get information about Python interpreter.
+
+author: Egor Suldin
+
+outputs:
+  version:
+    description: The version of python interpreter.
+    value: ${{steps.python-info.outputs.version}}
+runs:
+  using: composite
+  steps:
+    - name: Get Python interpreter information
+      id: python-info
+      run: |
+          import os
+          import sys
+
+          # For compatibility with 'actions/setup-python', 'cpython' is omitted
+          interpreter = '' if sys.implementation.name == 'cpython' else sys.implementation.name
+          version = f"{interpreter}{sys.version_info.major}.{sys.version_info.minor}"
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"version={version}\n")
+      shell: python
