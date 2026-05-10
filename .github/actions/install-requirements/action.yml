@@ -20,7 +20,7 @@ runs:
       shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
     # A workaround for lxml 6.0.1+ package
     - name: Install dependencies for PyPy3.9
-      if: runner.os == 'Linux' && matrix.python-version == 'pypy3.9'
+      if: runner.os == 'Linux' && startsWith(matrix.python-version, 'pypy')
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-dev libxslt1-dev
