@@ -20,8 +20,6 @@ runs:
         python-version: ${{inputs.python-version}}
     - name: Install requirements for Python module
       uses: ./.github/actions/install-requirements
-      with:
-        python-version: ${{inputs.python-version}}
     - name: Lint with pylint
       uses: ./.github/actions/run-pylint
     - name: Lint with flake8
