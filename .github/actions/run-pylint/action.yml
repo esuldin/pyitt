@@ -11,7 +11,7 @@ runs:
       uses: ./.github/actions/get-python-info
     - name: Lint with pylint the code of the package
       # A workaround for pylint crash on Windows with PyPy 3.11
-      if: !(runner.os == 'Windows' && steps.python-info.outputs.version == '3.11')
+      if: '!(runner.os == ''Windows'' && steps.python-info.outputs.version == ''3.11'')'
       run: |
         pylint --max-line-length=120 --disable=E0401,E0611,W0621,W0622 "*.py" "pyitt/*.py"
       shell: ${{runner.os == 'Windows' && 'cmd' || 'sh'}}
