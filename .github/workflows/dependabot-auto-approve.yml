@@ -35,7 +35,7 @@ jobs:
       - name: Rebase PR
         if: steps.gh-merge.outcome == 'failure'
         run: |
-          gh pr update-branch "${{github.event.pull_request.number}}" --rebase \
+          gh pr comment "${{github.event.pull_request.number}}" --body "@dependabot rebase" \
             --repo "${{github.event.pull_request.base.repo.html_url}}"
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
