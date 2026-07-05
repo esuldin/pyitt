@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: recursive
+        timeout-minutes: 2
       - name: Run CI Checks
         uses: ./.github/actions/run-ci-pipeline
         with:
@@ -33,6 +34,7 @@ jobs:
           python-version: ${{matrix.os == 'windows-latest' && matrix.python-version == '3.14'
                              && '3.13.0 - 3.13.3 || 3.13.5 - 3.13'
                              || matrix.python-version}}
+        timeout-minutes: 10
 
   build-wheels:
     name: Build wheels on ${{matrix.os}}
@@ -47,8 +49,10 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: recursive
+        timeout-minutes: 2
       - name: Build wheels
         uses: ./.github/actions/python-packages
+        timeout-minutes: 20
 
   run-codeql:
     name: CodeQL
@@ -56,6 +60,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    timeout-minutes: 10
 
   dependabot-auto-approve:
     uses: ./.github/workflows/dependabot-auto-approve.yml
@@ -65,3 +70,4 @@ jobs:
       actions: write
       contents: write
       pull-requests: write
+    timeout-minutes: 10
