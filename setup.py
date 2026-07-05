@@ -34,6 +34,7 @@ if len(os.listdir(ITT_DIR)) == 0:
                        f'Make sure that submodules are checked out as well using following command:\n'
                        f'git submodule update --init --recursive')
 
+
 # Check if IPT support is requested
 def is_x86_arch():
     """Returns true if the machine has x86 compatible architecture."""
