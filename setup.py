@@ -25,15 +25,14 @@ def get_environment_flag(name):
 IS_64_ARCHITECTURE = sys.maxsize > 2 ** 32
 
 # Check if custom location for ITT API source code is specified
-ITT_DEFAULT_DIR = 'ittapi'
-itt_dir = os.environ.get('PYITT_ITT_API_SOURCE_DIR', None)
-itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
+ITT_DIR = 'ittapi'
+if not os.path.exists(ITT_DIR):
+    raise FileNotFoundError('The directory with ITT API source code does not exist.')
 
-assert os.path.exists(itt_dir), 'The specified directory with ITT API source code does not exist.'
-assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
-    (f'The specified directory with ITT API source code ({itt_dir}) is empty.\n'
-     f'Make sure that submodules are checked out as well using following command:\n'
-     f'git submodule update --init --recursive')
+if len(os.listdir(ITT_DIR)) == 0:
+    raise RuntimeError(f'The directory with ITT API source code ({ITT_DIR}) is empty.\n'
+                       f'Make sure that submodules are checked out as well using following command:\n'
+                       f'git submodule update --init --recursive')
 
 
 # Check if IPT support is requested
@@ -45,9 +44,9 @@ def is_x86_arch():
 build_itt_with_ipt_support = get_environment_flag('PYITT_BUILD_WITH_ITT_API_IPT_SUPPORT')
 build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_support is not None else is_x86_arch()
 
-itt_source = [os.path.join(itt_dir, 'src', 'ittnotify', 'ittnotify_static.c')]
-itt_include_dirs = [os.path.join(itt_dir, 'include')]
-itt_license_files = [f'{itt_dir}/LICENSES/BSD-3-Clause.txt'] if itt_dir == ITT_DEFAULT_DIR else []
+itt_source = [os.path.join(ITT_DIR, 'src', 'ittnotify', 'ittnotify_static.c')]
+itt_include_dirs = [os.path.join(ITT_DIR, 'include')]
+itt_license_files = [os.path.join(ITT_DIR, 'LICENSES', 'BSD-3-Clause.txt')]
 
 if build_itt_with_ipt_support:
     itt_compiler_flags = ['-DITT_API_IPT_SUPPORT']
@@ -55,7 +54,7 @@ if build_itt_with_ipt_support:
         ITT_PTMARK_SOURCE = 'ittptmark64.asm' if IS_64_ARCHITECTURE else 'ittptmark32.asm'
     else:
         ITT_PTMARK_SOURCE = 'ittptmark64.S' if IS_64_ARCHITECTURE else 'ittptmark32.S'
-    itt_extra_objects = [os.path.join(itt_dir, 'src', 'ittnotify', ITT_PTMARK_SOURCE)]
+    itt_extra_objects = [os.path.join(ITT_DIR, 'src', 'ittnotify', ITT_PTMARK_SOURCE)]
 else:
     itt_compiler_flags = []
     itt_extra_objects = []
@@ -84,7 +83,9 @@ build_with_code_coverage = get_environment_flag('PYITT_NATIVE_BUILD_WITH_CODE_CO
 build_with_code_coverage = build_with_code_coverage if build_with_code_coverage is not None else False
 
 if build_with_code_coverage:
-    assert build_with_code_coverage and sys.platform != 'win32', 'Build with code coverage is not supported on Windows.'
+    if build_with_code_coverage and sys.platform == 'win32':
+        raise ValueError('Build with code coverage is not supported on Windows.')
+
     pyitt_native_compiler_args.append('--coverage')
     pyitt_native_link_args.append('--coverage')
 
@@ -128,23 +129,23 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
             as_path = os.path.dirname(self.compiler.cc) if hasattr(self.compiler, 'cc') else ''
 
             # Extract asm files from extra objects
-            # pylint: disable=W0106
             asm_files = [filename for filename in ext.extra_objects if filename.lower().endswith(as_ext)]
-            [ext.extra_objects.remove(filename) for filename in asm_files]
+            for filename in asm_files:
+                ext.extra_objects.remove(filename)
 
             # Create temp directories
-            [os.makedirs(os.path.join(self.build_temp, os.path.dirname(filename)), exist_ok=True)
-             for filename in asm_files]
+            for filename in asm_files:
+                os.makedirs(os.path.join(self.build_temp, os.path.dirname(filename)), exist_ok=True)
 
             # Generate target names
             src_dir = os.path.dirname(__file__)
             obj_asm_pairs = [(os.path.join(self.build_temp, os.path.splitext(filename)[0]) + '.obj',
                               os.path.join(src_dir, filename)) for filename in asm_files]
-            # Compile
-            [run([os.path.join(as_path, as_tool), '/Fo', obj_file, '/c', asm_file], check=True)
-             for obj_file, asm_file in obj_asm_pairs]
 
-            [ext.extra_objects.append(obj_file) for obj_file, _ in obj_asm_pairs]
+            # Compile
+            for obj_file, asm_file in obj_asm_pairs:
+                run([os.path.join(as_path, as_tool), '/Fo', obj_file, '/c', asm_file], check=True)  # nosec B603
+                ext.extra_objects.append(obj_file)
 
         build_ext.build_extension(self, ext)
 
