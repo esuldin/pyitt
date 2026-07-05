@@ -45,8 +45,8 @@ static int exec_pyitt_module(PyObject* module)
     PyModule_AddFunctions(module, pyitt_functions);
 
     PyModule_AddStringConstant(module, "__author__", "Egor Suldin");
-    PyModule_AddStringConstant(module, "__version__", "1.7.5");
-    PyModule_AddIntConstant(module, "year", 2024);
+    PyModule_AddStringConstant(module, "__version__", "1.7.6");
+    PyModule_AddIntConstant(module, "year", 2026);
 
     return 0;
 }
