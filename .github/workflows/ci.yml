@@ -60,7 +60,6 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    timeout-minutes: 10
 
   dependabot-auto-approve:
     uses: ./.github/workflows/dependabot-auto-approve.yml
@@ -70,4 +69,3 @@ jobs:
       actions: write
       contents: write
       pull-requests: write
-    timeout-minutes: 10
