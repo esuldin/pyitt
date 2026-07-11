@@ -6,6 +6,11 @@ updates:
     schedule:
       interval: "daily"
     assignees: ["esuldin"]
+    groups:
+      codeql-action:
+        patterns:
+          - github/codeql-action/init
+          - github/codeql-action/analyze
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
