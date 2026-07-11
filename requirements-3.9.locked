@@ -4,6 +4,7 @@
 
 # Build dependencies
 build==1.4.4; python_version == '3.9'
+setuptools==82.0.1; python_version == '3.9'
 
 # Dev dependencies
 bandit[sarif]==1.8.6

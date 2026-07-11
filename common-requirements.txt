@@ -1,5 +1,2 @@
-# Build dependencies
-setuptools==83.0.0
-
 # Dev dependencies
 flake8==7.3.0
