@@ -7,6 +7,6 @@ setuptools==83.0.0
 
 # Dev dependencies
 bandit[sarif]==1.9.4
-coverage==7.15.0
+coverage==7.15.1
 gcovr==8.6; sys_platform == 'linux'
 pylint==4.0.6
