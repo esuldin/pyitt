@@ -9,4 +9,4 @@ setuptools==84.0.0
 bandit[sarif]==1.9.4
 coverage==7.16.0
 gcovr==8.6; sys_platform == 'linux'
-pylint==4.0.7
+pylint==4.0.8
