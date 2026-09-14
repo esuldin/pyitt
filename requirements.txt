@@ -2,7 +2,7 @@
 -r common-requirements.txt
 
 # Build dependencies
-build==1.6.0
+build==1.6.1
 setuptools==84.0.0
 
 # Dev dependencies
