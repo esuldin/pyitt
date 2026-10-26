@@ -3,7 +3,7 @@
 
 # Build dependencies
 build==1.6.1
-setuptools==84.2.0
+setuptools==84.2.1
 
 # Dev dependencies
 bandit[sarif]==1.9.4
